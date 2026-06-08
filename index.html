@@ -32,6 +32,39 @@
       --max-width: 1200px;
     }
 
+    /* ============ Language Switcher ============ */
+    .lang-switcher {
+      display: flex; align-items: center; gap: 6px; margin-left: 16px; position: relative;
+    }
+    .lang-current {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 10px; border-radius: 6px;
+      font-size: 13px; cursor: pointer;
+      transition: background 0.3s; letter-spacing: 0.03em;
+    }
+    .nav-white .lang-current { color: #fff; }
+    .nav.scrolled .lang-current { color: var(--color-dark); }
+    .lang-current:hover { background: rgba(255,255,255,0.15); }
+    .lang-current .arrow { font-size: 10px; transition: transform 0.3s; }
+    .lang-switcher.open .lang-current .arrow { transform: rotate(180deg); }
+    .lang-dropdown {
+      display: none; position: absolute; top: 100%; right: 0; margin-top: 4px;
+      background: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      overflow: hidden; min-width: 140px; z-index: 100;
+    }
+    .lang-switcher.open .lang-dropdown { display: block; }
+    .lang-option {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; font-size: 13px; color: var(--color-dark);
+      cursor: pointer; transition: background 0.2s;
+    }
+    .lang-option:hover { background: var(--color-accent-bg); }
+    .lang-option.active { color: var(--color-primary); font-weight: 600; }
+    .lang-option .flag { font-size: 18px; }
+    @media (max-width: 768px) {
+      .lang-switcher { margin-left: 0; }
+    }
+
     /* ============ Reset ============ */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; scroll-padding-top: 80px; }
@@ -366,7 +399,16 @@
   <nav class="nav nav-white" id="navbar">
     <div class="nav-inner">
       <a href="#home" class="nav-logo" id="navLogo"></a>
-      <ul class="nav-links" id="navLinks"></ul>
+      <div style="display:flex;align-items:center;">
+        <ul class="nav-links" id="navLinks"></ul>
+        <!-- Language Switcher -->
+        <div class="lang-switcher" id="langSwitcher">
+          <div class="lang-current" id="langCurrent">
+            <span id="langFlag">🌐</span><span id="langLabel">EN</span><span class="arrow">▾</span>
+          </div>
+          <div class="lang-dropdown" id="langDropdown"></div>
+        </div>
+      </div>
       <div class="nav-toggle" id="navToggle">
         <span></span><span></span><span></span>
       </div>
@@ -455,6 +497,85 @@
   <!-- ============ Config ============ -->
   <script src="config.js"></script>
 
+  <!-- ============ I18N Translations ============ -->
+  <script>
+  // Multi-language support — extend by adding entries to this object
+  var I18N = {
+    en: {
+      productsTitle: 'Our Products',
+      productsEmpty: 'No products yet. Stay tuned!',
+      aboutTitle: 'About Us',
+      aboutPlaceholder: 'About Image',
+      contactTitle: 'Contact Us',
+      contactWechatHint: 'Scan to add on WeChat',
+      contactWhatsappHint: 'Chat with us on WhatsApp',
+      contactWebsiteLabel: 'Visit Our Website',
+      contactEmailLabel: 'Send Email',
+      contactEmailSubject: 'Inquiry',
+      modalWechatTitle: 'Add on WeChat',
+      modalWechatHint: 'Scan the QR code with WeChat',
+      modalWechatNoQR: 'Please configure WeChat QR code',
+      modalWhatsappTitle: 'WhatsApp',
+      modalWhatsappHint: 'Scan QR or click below to chat',
+      modalWhatsappNoQR: 'WhatsApp QR',
+      modalWhatsappBtn: 'Start WhatsApp Chat',
+      heroCtaDefault: 'Explore Collection',
+      footerRights: 'All rights reserved.',
+      allCategory: 'All',
+      imageError: 'Image',
+      navHome: 'Home',
+      navProducts: 'Products',
+      navAbout: 'About',
+      navContact: 'Contact',
+      siteQRLabel: 'Scan to Visit',
+      siteQRHint: 'Scan QR code to open this site'
+    },
+    zh: {
+      productsTitle: '\u6211\u4eec\u7684\u4ea7\u54c1',
+      productsEmpty: '\u6682\u65e0\u4ea7\u54c1\uff0c\u656c\u8bf7\u671f\u5f85',
+      aboutTitle: '\u5173\u4e8e\u6211\u4eec',
+      aboutPlaceholder: '\u5173\u4e8e\u56fe\u7247',
+      contactTitle: '\u8054\u7cfb\u6211\u4eec',
+      contactWechatHint: '\u626b\u7801\u6dfb\u52a0\u5fae\u4fe1\u597d\u53cb',
+      contactWhatsappHint: '\u70b9\u51fb\u901a\u8fc7 WhatsApp \u8054\u7cfb\u6211\u4eec',
+      contactWebsiteLabel: '\u8bbf\u95ee\u5b98\u65b9\u7f51\u7ad9',
+      contactEmailLabel: '\u53d1\u9001\u90ae\u4ef6',
+      contactEmailSubject: '\u54a8\u8be2',
+      modalWechatTitle: '\u6dfb\u52a0\u5fae\u4fe1',
+      modalWechatHint: '\u8bf7\u4f7f\u7528\u5fae\u4fe1\u626b\u63cf\u4e0b\u65b9\u4e8c\u7ef4\u7801',
+      modalWechatNoQR: '\u8bf7\u914d\u7f6e\u5fae\u4fe1\u4e8c\u7ef4\u7801',
+      modalWhatsappTitle: 'WhatsApp \u8054\u7cfb',
+      modalWhatsappHint: '\u626b\u63cf\u4e8c\u7ef4\u7801\u6216\u70b9\u51fb\u4e0b\u65b9\u6309\u94ae\u76f4\u63a5\u804a\u5929',
+      modalWhatsappNoQR: 'WhatsApp \u4e8c\u7ef4\u7801',
+      modalWhatsappBtn: '\u5f00\u59cb WhatsApp \u5bf9\u8bdd',
+      heroCtaDefault: '\u63a2\u7d22\u4ea7\u54c1',
+      footerRights: '\u4fdd\u7559\u6240\u6709\u6743\u5229\u3002',
+      allCategory: '\u5168\u90e8',
+      imageError: '\u56fe\u7247',
+      navHome: '\u9996\u9875',
+      navProducts: '\u4ea7\u54c1',
+      navAbout: '\u5173\u4e8e',
+      navContact: '\u8054\u7cfb',
+      siteQRLabel: '\u626b\u7801\u8bbf\u95ee',
+      siteQRHint: '\u626b\u63cf\u4e8c\u7ef4\u7801\u6253\u5f00\u672c\u7f51\u7ad9'
+    }
+    // ===== EXTEND HERE =====
+    // To add a new language (e.g. Spanish), add a block like:
+    // es: {
+    //   productsTitle: 'Nuestros Productos',
+    //   productsEmpty: 'Próximamente...',
+    //   ...
+    // }
+  };
+
+  // Language metadata — extend for new languages
+  var LANG_META = {
+    en: { flag: '\uD83C\uDDEC\uD83C\uDDE7', label: 'English' },
+    zh: { flag: '\uD83C\uDDE8\uD83C\uDDF3', label: '\u4e2d\u6587' }
+    // es: { flag: '\uD83C\uDDEA\uD83C\uDDF8', label: 'Español' }
+  };
+  </script>
+
   <!-- ============ App Logic ============ -->
   <script>
   (function() {
@@ -464,16 +585,55 @@
     var B = C.brand || {};
     var doc = document;
 
+    // ---- i18n init ----
+    var i18nCfg = C.i18n || {};
+    var enabledLangs = i18nCfg.languages || ['en', 'zh'];
+    var defaultLang = i18nCfg.defaultLanguage || 'en';
+
+    // Determine current language
+    function getStoredLang() {
+      try { return localStorage.getItem('site_lang'); } catch(e) { return null; }
+    }
+    function setStoredLang(lang) {
+      try { localStorage.setItem('site_lang', lang); } catch(e) {}
+    }
+
+    var currentLang = getStoredLang() || defaultLang;
+    if (enabledLangs.indexOf(currentLang) === -1) {
+      currentLang = enabledLangs[0] || 'en';
+    }
+
+    // Translation helper: key from I18N, fallback to default text
+    function t(key, fallback) {
+      var dict = I18N[currentLang] || I18N.en || {};
+      return dict[key] !== undefined ? dict[key] : (fallback || key);
+    }
+
+    // Helper: resolve a config value that may be a plain string or a {lang: string} object
+    function l(val, fallbackKey) {
+      if (val && typeof val === 'object') {
+        if (val[currentLang] !== undefined) return val[currentLang];
+        if (val[defaultLang] !== undefined) return val[defaultLang];
+        var first = Object.keys(val)[0];
+        return first !== undefined ? val[first] : t(fallbackKey, fallbackKey);
+      }
+      if (val !== undefined && val !== null && val !== '') return val;
+      return t(fallbackKey, fallbackKey);
+    }
+
+    // Update html lang attr
+    doc.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+
     // ---- Apply brand & SEO ----
-    doc.title = (C.seo||{}).title || B.name || '';
+    doc.title = l((C.seo||{}).title, 'navHome') || l(B.name, 'navHome') || '';
     var metaD = doc.querySelector('meta[name="description"]');
-    if (metaD) metaD.content = (C.seo||{}).description || '';
+    if (metaD) metaD.content = l((C.seo||{}).description, '') || '';
     var metaK = doc.querySelector('meta[name="keywords"]');
     if (metaK) metaK.content = (C.seo||{}).keywords || '';
     var ogT = doc.querySelector('meta[property="og:title"]');
-    if (ogT) ogT.content = (C.seo||{}).title || '';
+    if (ogT) ogT.content = l((C.seo||{}).title, '') || '';
     var ogD = doc.querySelector('meta[property="og:description"]');
-    if (ogD) ogD.content = (C.seo||{}).description || '';
+    if (ogD) ogD.content = l((C.seo||{}).description, '') || '';
     var ogI = doc.querySelector('meta[property="og:image"]');
     if (ogI) ogI.content = (C.seo||{}).ogImage || '';
     var fav = doc.querySelector('link[rel="icon"]');
@@ -487,16 +647,28 @@
     if (B.accentBg) doc.documentElement.style.setProperty('--color-accent-bg', B.accentBg);
 
     // ---- Navigation ----
+    var navDefaultLabels = {
+      home: t('navHome', 'Home'),
+      products: t('navProducts', 'Products'),
+      about: t('navAbout', 'About'),
+      contact: t('navContact', 'Contact')
+    };
     var navItems = C.navigation || [
-      { id:'home', label:'Home', href:'#home' },
-      { id:'products', label:'Products', href:'#products' },
-      { id:'about', label:'About', href:'#about' },
-      { id:'contact', label:'Contact', href:'#contact' }
+      { id:'home', href:'#home' },
+      { id:'products', href:'#products' },
+      { id:'about', href:'#about' },
+      { id:'contact', href:'#contact' }
     ];
+    // Apply labels from config or i18n defaults
+    navItems.forEach(function(item) {
+      item.label = l(item.label, item.id) || navDefaultLabels[item.id] || item.id;
+    });
+
     var navLogo = doc.getElementById('navLogo');
-    navLogo.textContent = B.name || 'Brand';
+    var brandNameResolved = l(B.name, 'navHome') || 'Brand';
+    navLogo.textContent = brandNameResolved;
     if (B.logo) {
-      navLogo.innerHTML = '<img src="'+B.logo+'" alt="'+B.name+'" style="height:32px;width:auto;">';
+      navLogo.innerHTML = '<img src="'+B.logo+'" alt="'+brandNameResolved+'" style="height:32px;width:auto;">';
     }
     var navLinksEl = doc.getElementById('navLinks');
     navItems.forEach(function(item) {
@@ -512,6 +684,45 @@
       navMobileEl.appendChild(a);
     });
 
+    // ---- Language Switcher ----
+    function buildLangSwitcher() {
+      var langCurrent = doc.getElementById('langCurrent');
+      var langFlag = doc.getElementById('langFlag');
+      var langLabel = doc.getElementById('langLabel');
+      var langDropdown = doc.getElementById('langDropdown');
+      var langSwitcher = doc.getElementById('langSwitcher');
+
+      var meta = LANG_META[currentLang] || { flag: '\uD83C\uDF10', label: currentLang };
+      langFlag.textContent = meta.flag;
+      langLabel.textContent = meta.label;
+
+      langDropdown.innerHTML = '';
+      enabledLangs.forEach(function(lang) {
+        var lm = LANG_META[lang] || { flag: '\uD83C\uDF10', label: lang };
+        var opt = doc.createElement('div');
+        opt.className = 'lang-option' + (lang === currentLang ? ' active' : '');
+        opt.innerHTML = '<span class="flag">' + lm.flag + '</span><span>' + lm.label + '</span>';
+        opt.addEventListener('click', function() {
+          if (lang !== currentLang) {
+            setStoredLang(lang);
+            // Reload to apply new language
+            location.reload();
+          }
+          langSwitcher.classList.remove('open');
+        });
+        langDropdown.appendChild(opt);
+      });
+
+      langCurrent.addEventListener('click', function(e) {
+        e.stopPropagation();
+        langSwitcher.classList.toggle('open');
+      });
+      doc.addEventListener('click', function() {
+        langSwitcher.classList.remove('open');
+      });
+    }
+    buildLangSwitcher();
+
     // Mobile menu toggle
     var navToggle = doc.getElementById('navToggle');
     navToggle.addEventListener('click', function() {
@@ -525,7 +736,6 @@
 
     // Scroll behavior
     var navbar = doc.getElementById('navbar');
-    var isHeroWhite = true; // hero section has dark bg, nav links white
     window.addEventListener('scroll', function() {
       var scrolled = window.scrollY > 80;
       navbar.classList.toggle('scrolled', scrolled);
@@ -538,26 +748,31 @@
       heroEl.style.backgroundImage = 'url('+hero.image+')';
       doc.getElementById('heroFallback').style.display = 'none';
     }
-    doc.getElementById('heroTitle').textContent = hero.title || B.name || '';
-    doc.getElementById('heroSubtitle').textContent = hero.subtitle || B.slogan || '';
+    doc.getElementById('heroTitle').textContent = l(hero.title, 'navHome') || B.name || '';
+    doc.getElementById('heroSubtitle').textContent = l(hero.subtitle, 'footerRights') || B.slogan || '';
     var heroCta = doc.getElementById('heroCta');
-    heroCta.textContent = hero.ctaText || 'Explore Collection';
+    heroCta.textContent = l(hero.ctaText, 'heroCtaDefault');
     heroCta.href = hero.ctaLink || '#products';
 
     // ---- Products ----
     var products = C.products || [];
     var categories = C.productCategories || [];
-    var activeCategory = categories[0] || '全部';
+    var allCatLabel = t('allCategory', 'All');
+    var activeCategory = categories[0] || allCatLabel;
     var productGrid = doc.getElementById('productGrid');
     var filterBar = doc.getElementById('filterBar');
     var productsEmpty = doc.getElementById('productsEmpty');
+    var productsSectionTitle = doc.querySelector('#products .section-title');
+    if (productsSectionTitle) productsSectionTitle.textContent = l((C.productsMeta||{}).title, 'productsTitle');
+
+    productsEmpty.textContent = t('productsEmpty', 'No products yet. Stay tuned!');
 
     if (!products.length) {
       productsEmpty.style.display = 'block';
       filterBar.style.display = 'none';
     } else {
-      // Build category filter
-      var allCats = categories.length ? categories : ['全部'];
+      var allCats = categories.length ? categories.map(function(c){ return l(c, 'allCategory'); }) : [allCatLabel];
+      activeCategory = allCats[0];
       allCats.forEach(function(cat) {
         var btn = doc.createElement('button');
         btn.className = 'filter-btn' + (cat === activeCategory ? ' active' : '');
@@ -575,9 +790,12 @@
 
     function renderProducts() {
       productGrid.innerHTML = '';
-      var filtered = activeCategory === '全部'
+      var filtered = activeCategory === allCatLabel
         ? products
-        : products.filter(function(p) { return p.category === activeCategory; });
+        : products.filter(function(p) {
+            var pCat = l(p.category, 'allCategory');
+            return pCat === activeCategory;
+          });
 
       if (!filtered.length) {
         productsEmpty.style.display = 'block';
@@ -588,17 +806,20 @@
       productGrid.style.display = '';
 
       filtered.forEach(function(p, i) {
+        var pName = l(p.name, 'imageError');
+        var pDesc = p.description ? l(p.description, '') : '';
+        var pCat = l(p.category, 'allCategory');
         var card = doc.createElement('div');
         card.className = 'product-card';
         card.innerHTML =
           '<div class="product-image-wrap">' +
-            '<img src="'+p.image+'" alt="'+p.name+'" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=img-error>Image</div>\'">' +
-            (p.category !== activeCategory && activeCategory !== '全部' ? '' : '<span class="product-tag">'+p.category+'</span>') +
+            '<img src="'+p.image+'" alt="'+pName+'" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=img-error>'+t('imageError','Image')+'</div>\'">' +
+            (pCat !== activeCategory && activeCategory !== allCatLabel ? '' : '<span class="product-tag">'+pCat+'</span>') +
           '</div>' +
           '<div class="product-info">' +
-            '<div class="product-name">'+p.name+'</div>' +
+            '<div class="product-name">'+pName+'</div>' +
             (p.price ? '<div class="product-price">'+p.price+'</div>' : '') +
-            (p.description ? '<div class="product-desc">'+p.description+'</div>' : '') +
+            (pDesc ? '<div class="product-desc">'+pDesc+'</div>' : '') +
           '</div>';
         productGrid.appendChild(card);
       });
@@ -606,29 +827,33 @@
 
     // ---- About ----
     var about = C.about || {};
-    doc.getElementById('aboutTitle').textContent = about.title || 'About Us';
+    doc.getElementById('aboutTitle').textContent = l(about.title, 'aboutTitle');
     var aboutContent = doc.getElementById('aboutContent');
     var paragraphs = about.paragraphs || [];
     if (!paragraphs.length) {
-      aboutContent.innerHTML = '<p>暂无介绍内容</p>';
+      aboutContent.innerHTML = '<p>' + (currentLang === 'zh' ? '\u6682\u65e0\u4ecb\u7ecd\u5185\u5bb9' : 'No introduction yet.') + '</p>';
     } else {
       paragraphs.forEach(function(p) {
         var el = doc.createElement('p');
-        el.textContent = p;
+        el.textContent = l(p, '');
         aboutContent.appendChild(el);
       });
     }
     var aboutImgEl = doc.getElementById('aboutImage');
     if (about.image) {
-      aboutImgEl.innerHTML = '<img src="'+about.image+'" alt="关于我们" loading="lazy" onerror="this.innerHTML=\'<div class=about-placeholder>About</div>\'">';
+      aboutImgEl.innerHTML = '<img src="'+about.image+'" alt="'+t('aboutTitle','About')+'" loading="lazy" onerror="this.innerHTML=\'<div class=about-placeholder>'+t('aboutTitle','About')+'</div>\'">';
     } else {
-      aboutImgEl.innerHTML = '<div class="about-placeholder">About Image</div>';
+      aboutImgEl.innerHTML = '<div class="about-placeholder">'+t('aboutPlaceholder','About Image')+'</div>';
     }
 
     // ---- Contact ----
     var contact = C.contact || {};
     var contactCards = doc.getElementById('contactCards');
     var hasAnyContact = false;
+
+    // Contact section title
+    var contactSectionTitle = doc.querySelector('#contact .section-title');
+    if (contactSectionTitle) contactSectionTitle.textContent = l((C.contact||{}).title, 'contactTitle');
 
     // WhatsApp (first)
     if (contact.whatsapp && contact.whatsapp.enabled) {
@@ -639,11 +864,11 @@
         '<div class="contact-card-icon whatsapp">' +
           '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>' +
         '</div>' +
-        '<div class="contact-card-label">'+ (contact.whatsapp.label || 'WhatsApp') +'</div>' +
-        '<div class="contact-card-hint">'+ (contact.whatsapp.hint || 'Chat with us on WhatsApp') +'</div>';
+        '<div class="contact-card-label">'+ l(contact.whatsapp.label, 'modalWhatsappTitle') +'</div>' +
+        '<div class="contact-card-hint">'+ l(contact.whatsapp.hint, 'contactWhatsappHint') +'</div>';
       wa.addEventListener('click', function() {
         var phone = (contact.whatsapp.phone || '').replace(/[^0-9]/g, '');
-        var msg = encodeURIComponent(contact.whatsapp.message || '');
+        var msg = encodeURIComponent(l(contact.whatsapp.message, ''));
         window.open('https://wa.me/'+phone+(msg?'?text='+msg:''), '_blank');
       });
       contactCards.appendChild(wa);
@@ -651,7 +876,7 @@
       // Floating WA button
       var floatWA = doc.getElementById('floatWA');
       floatWA.style.display = '';
-      floatWA.href = 'https://wa.me/'+((contact.whatsapp.phone||'').replace(/[^0-9]/g,''))+(encodeURIComponent(contact.whatsapp.message||'')?'?text='+encodeURIComponent(contact.whatsapp.message||''):'');
+      floatWA.href = 'https://wa.me/'+((contact.whatsapp.phone||'').replace(/[^0-9]/g,''))+(encodeURIComponent(l(contact.whatsapp.message,''))?'?text='+encodeURIComponent(l(contact.whatsapp.message,'')):'');
     }
 
     // WeChat (second)
@@ -663,8 +888,8 @@
         '<div class="contact-card-icon wechat">' +
           '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5c0-.828.895-1.5 2-1.5s2 .672 2 1.5S11.105 12 10 12s-2-.672-2-1.5zm4 0c0-.828.895-1.5 2-1.5s2 .672 2 1.5-.895 1.5-2 1.5-2-.672-2-1.5zM9 14c-1.5 0-4 .8-4 2v1h10v-1c0-1.2-2.5-2-4-2h-2z" fill="currentColor"/></svg>' +
         '</div>' +
-        '<div class="contact-card-label">'+ (contact.wechat.label || 'WeChat') +'</div>' +
-        '<div class="contact-card-hint">'+ (contact.wechat.hint || 'Scan to add on WeChat') +'</div>';
+        '<div class="contact-card-label">'+ l(contact.wechat.label, 'modalWechatTitle') +'</div>' +
+        '<div class="contact-card-hint">'+ l(contact.wechat.hint, 'contactWechatHint') +'</div>';
       wc.addEventListener('click', function() { openModal('wechat'); });
       contactCards.appendChild(wc);
     }
@@ -674,12 +899,28 @@
       hasAnyContact = true;
       var wsBtn = doc.getElementById('contactWebsiteBtn');
       wsBtn.style.display = '';
-      wsBtn.textContent = contact.website.label || '🌐 访问官方网站';
+      wsBtn.textContent = l(contact.website.label, 'contactWebsiteLabel');
       wsBtn.href = contact.website.url;
       if (contact.website.openNewTab !== false) {
         wsBtn.target = '_blank';
         wsBtn.rel = 'noopener noreferrer';
       }
+    }
+
+    // Site entry QR code — scan to visit this site
+    var siteQR = contact.siteQR || {};
+    if (siteQR.enabled && siteQR.qrImage && siteQR.showOnPage !== false) {
+      hasAnyContact = true;
+      var sq = doc.createElement('div');
+      sq.className = 'contact-card';
+      sq.innerHTML =
+        '<div class="contact-card-icon" style="background:#FFF8E1;color:#FF6F00;">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v3h-3v2h3v3h2v-3h3v-2h-3z"/></svg>' +
+        '</div>' +
+        '<div class="contact-card-label">'+ l(siteQR.label, '') +'</div>' +
+        '<div class="contact-card-hint">'+ l(siteQR.hint, '') +'</div>';
+      sq.addEventListener('click', function() { openModal('siteqr'); });
+      contactCards.appendChild(sq);
     }
 
     // Email
@@ -691,24 +932,24 @@
         '<div class="contact-card-icon email">' +
           '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>' +
         '</div>' +
-        '<div class="contact-card-label">'+ (contact.email.label || '发送邮件') +'</div>' +
+        '<div class="contact-card-label">'+ l(contact.email.label, 'contactEmailLabel') +'</div>' +
         '<div class="contact-card-hint">'+contact.email.address+'</div>';
       em.addEventListener('click', function() {
-        window.location.href = 'mailto:'+contact.email.address+'?subject=咨询';
+        window.location.href = 'mailto:'+contact.email.address+'?subject='+encodeURIComponent(t('contactEmailSubject','Inquiry'));
       });
       contactCards.appendChild(em);
     }
 
     if (!hasAnyContact) {
-      doc.getElementById('contact').querySelector('.section-title').style.display = 'none';
+      if (contactSectionTitle) contactSectionTitle.style.display = 'none';
       doc.getElementById('contact').querySelector('.section-divider').style.display = 'none';
     }
 
     // ---- Footer ----
-    doc.getElementById('footerBrandName').textContent = B.name || '';
-    doc.getElementById('footerSlogan').textContent = B.slogan || '';
+    doc.getElementById('footerBrandName').textContent = l(B.name, 'navHome') || '';
+    doc.getElementById('footerSlogan').textContent = l(B.slogan, 'footerRights') || '';
     var year = new Date().getFullYear();
-    doc.getElementById('footerCopyright').textContent = '© '+year+' '+(B.name||'')+'. All rights reserved.';
+    doc.getElementById('footerCopyright').textContent = '\u00A9 '+year+' '+(l(B.name,'')||'')+'. '+t('footerRights','All rights reserved.');
 
     var footerLinks = doc.getElementById('footerLinks');
     navItems.forEach(function(item) {
@@ -731,27 +972,37 @@
 
     function openModal(type) {
       if (type === 'wechat') {
-        modalTitle.textContent = (contact.wechat||{}).modalTitle || '添加微信';
-        modalHint.textContent = (contact.wechat||{}).modalHint || '请使用微信扫描下方二维码';
+        modalTitle.textContent = l((contact.wechat||{}).modalTitle, 'modalWechatTitle');
+        modalHint.textContent = l((contact.wechat||{}).modalHint, 'modalWechatHint');
         var qrImg = (contact.wechat||{}).qrImage;
         if (qrImg) {
-          modalQrContainer.innerHTML = '<img class="modal-qr" src="'+qrImg+'" alt="微信二维码" onerror="this.outerHTML=\'<div class=modal-qr-placeholder>二维码图片</div>\'">';
+          modalQrContainer.innerHTML = '<img class="modal-qr" src="'+qrImg+'" alt="'+t('modalWechatTitle','WeChat QR')+'" onerror="this.outerHTML=\'<div class=modal-qr-placeholder>'+t('modalWechatNoQR','QR Code')+'</div>\'">';
         } else {
-          modalQrContainer.innerHTML = '<div class="modal-qr-placeholder">请配置微信二维码</div>';
+          modalQrContainer.innerHTML = '<div class="modal-qr-placeholder">'+t('modalWechatNoQR','Please configure WeChat QR code')+'</div>';
         }
         modalAction.innerHTML = '';
       } else if (type === 'whatsapp') {
-        modalTitle.textContent = (contact.whatsapp||{}).modalTitle || 'WhatsApp';
-        modalHint.textContent = (contact.whatsapp||{}).modalHint || '扫描二维码或点击下方按钮直接聊天';
+        modalTitle.textContent = l((contact.whatsapp||{}).modalTitle, 'modalWhatsappTitle');
+        modalHint.textContent = l((contact.whatsapp||{}).modalHint, 'modalWhatsappHint');
         var qrImg = (contact.whatsapp||{}).qrImage;
         if (qrImg) {
-          modalQrContainer.innerHTML = '<img class="modal-qr" src="'+qrImg+'" alt="WhatsApp QR" onerror="this.outerHTML=\'<div class=modal-qr-placeholder>二维码图片</div>\'">';
+          modalQrContainer.innerHTML = '<img class="modal-qr" src="'+qrImg+'" alt="'+t('modalWhatsappTitle','WhatsApp QR')+'" onerror="this.outerHTML=\'<div class=modal-qr-placeholder>'+t('modalWhatsappNoQR','QR Code')+'</div>\'">';
         } else {
-          modalQrContainer.innerHTML = '<div class="modal-qr-placeholder">WhatsApp QR</div>';
+          modalQrContainer.innerHTML = '<div class="modal-qr-placeholder">'+t('modalWhatsappNoQR','WhatsApp QR')+'</div>';
         }
         var phone = ((contact.whatsapp||{}).phone||'').replace(/[^0-9]/g,'');
         var msg = encodeURIComponent((contact.whatsapp||{}).message||'');
-        modalAction.innerHTML = '<a class="modal-btn whatsapp" href="https://wa.me/'+phone+(msg?'?text='+msg:'')+'" target="_blank" rel="noopener noreferrer">Start WhatsApp Chat</a>';
+        modalAction.innerHTML = '<a class="modal-btn whatsapp" href="https://wa.me/'+phone+(msg?'?text='+msg:'')+'" target="_blank" rel="noopener noreferrer">'+t('modalWhatsappBtn','Start WhatsApp Chat')+'</a>';
+      } else if (type === 'siteqr') {
+        modalTitle.textContent = l((contact.siteQR||{}).label, '');
+        modalHint.textContent = l((contact.siteQR||{}).hint, '');
+        var qrImg = (contact.siteQR||{}).qrImage;
+        if (qrImg) {
+          modalQrContainer.innerHTML = '<img class="modal-qr" src="'+qrImg+'" alt="Site QR" onerror="this.outerHTML=\'<div class=modal-qr-placeholder>QR Code</div>\'">';
+        } else {
+          modalQrContainer.innerHTML = '<div class="modal-qr-placeholder">QR Code</div>';
+        }
+        modalAction.innerHTML = '';
       }
       qrModal.classList.add('active');
     }
