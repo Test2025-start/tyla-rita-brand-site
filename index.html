@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta property="og:title" content="">
+  <meta property="og:description" content="">
+  <meta property="og:image" content="">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#C9A96E">
+  <title>Your Brand</title>
+  <link rel="icon" type="image/png" href="">
+  <style>
+    /* ============ CSS Variables ============ */
+    :root {
+      --color-bg: #FFFFFF;
+      --color-accent-bg: #FAF8F5;
+      --color-primary: #C9A96E;
+      --color-primary-dark: #B8934E;
+      --color-dark: #2D2D2D;
+      --color-text: #333333;
+      --color-muted: #999999;
+      --color-border: #E8E4DF;
+      --font-serif: Georgia, "Times New Roman", "Noto Serif SC", serif;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --shadow-card: 0 2px 20px rgba(0,0,0,0.06);
+      --shadow-nav: 0 1px 10px rgba(0,0,0,0.08);
+      --radius: 8px;
+      --radius-lg: 12px;
+      --max-width: 1200px;
+    }
+
+    /* ============ Reset ============ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+    body {
+      font-family: var(--font-sans);
+      color: var(--color-text);
+      background: var(--color-bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { text-decoration: none; color: inherit; }
+    button { font-family: inherit; cursor: pointer; border: none; outline: none; background: none; }
+
+    /* ============ Utility ============ */
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+    .section-padding { padding: 80px 0; }
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 32px; color: var(--color-dark);
+      text-align: center; margin-bottom: 8px; letter-spacing: 0.02em;
+    }
+    .section-subtitle {
+      text-align: center; color: var(--color-muted); font-size: 15px;
+      margin-bottom: 48px;
+    }
+    .section-divider {
+      width: 40px; height: 2px; background: var(--color-primary);
+      margin: 16px auto 24px;
+    }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+    /* ============ Navigation ============ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 16px 0;
+      transition: background 0.3s, box-shadow 0.3s, padding 0.3s;
+    }
+    .nav.scrolled { background: rgba(255,255,255,0.97); box-shadow: var(--shadow-nav); padding: 10px 0; }
+    .nav-inner {
+      max-width: var(--max-width); margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-serif); font-size: 22px; letter-spacing: 0.05em;
+      transition: color 0.3s;
+    }
+    .nav.scrolled .nav-logo { color: var(--color-dark); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase;
+      transition: color 0.3s; position: relative; padding: 4px 0;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px;
+      background: var(--color-primary); transition: width 0.3s;
+    }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+    .nav-white .nav-logo, .nav-white .nav-links a { color: #fff; }
+    .nav-white.scrolled .nav-logo, .nav-white.scrolled .nav-links a { color: var(--color-dark); }
+
+    /* Hamburger */
+    .nav-toggle { display: none; flex-direction: column; gap: 5px; width: 28px; cursor: pointer; z-index: 1001; }
+    .nav-toggle span {
+      display: block; height: 2px; background: var(--color-dark);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-white .nav-toggle span { background: #fff; }
+    .nav-white.scrolled .nav-toggle span { background: var(--color-dark); }
+    .nav-toggle.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .nav-toggle.active span:nth-child(2) { opacity: 0; }
+    .nav-toggle.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* Mobile Menu */
+    .nav-mobile {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.98); z-index: 999;
+      flex-direction: column; align-items: center; justify-content: center; gap: 32px;
+    }
+    .nav-mobile.active { display: flex; }
+    .nav-mobile a { font-size: 20px; font-family: var(--font-serif); letter-spacing: 0.05em; color: var(--color-dark); }
+
+    /* Floating WhatsApp */
+    .float-wa {
+      position: fixed; bottom: 24px; right: 24px; z-index: 998;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #25D366; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(37,211,102,0.4);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .float-wa:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(37,211,102,0.5); }
+    .float-wa svg { width: 28px; height: 28px; }
+
+    /* ============ Hero ============ */
+    .hero {
+      position: relative; height: 100vh; min-height: 500px;
+      display: flex; align-items: center; justify-content: center;
+      background-size: cover; background-position: center; background-color: var(--color-dark);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(0,0,0,0.35);
+    }
+    .hero-fallback {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--color-dark) 0%, #4A4A4A 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 2; text-align: center; color: #fff;
+      max-width: 640px; padding: 0 24px;
+    }
+    .hero-title {
+      font-family: var(--font-serif); font-size: 48px; font-weight: 400;
+      letter-spacing: 0.06em; margin-bottom: 16px; line-height: 1.2;
+    }
+    .hero-subtitle { font-size: 17px; opacity: 0.85; margin-bottom: 36px; font-weight: 300; }
+    .hero-cta {
+      display: inline-block; padding: 14px 40px;
+      background: var(--color-primary); color: #fff;
+      font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: 4px; transition: background 0.3s, transform 0.3s;
+    }
+    .hero-cta:hover { background: var(--color-primary-dark); transform: translateY(-2px); }
+    .hero-scroll {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 2;
+      color: rgba(255,255,255,0.7); animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
+    }
+
+    /* ============ Products ============ */
+    .products-section { background: var(--color-bg); }
+    .filter-bar {
+      display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 8px 24px; border-radius: 20px; border: 1px solid var(--color-border);
+      font-size: 13px; letter-spacing: 0.05em; color: var(--color-muted);
+      transition: all 0.3s; cursor: pointer;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--color-dark); color: #fff; border-color: var(--color-dark);
+    }
+    .product-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .product-card {
+      background: #fff; border-radius: var(--radius); overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .product-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-card); }
+    .product-image-wrap { position: relative; overflow: hidden; aspect-ratio: 1; background: var(--color-accent-bg); }
+    .product-image-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    .product-card:hover .product-image-wrap img { transform: scale(1.05); }
+    .product-tag {
+      position: absolute; top: 12px; left: 12px;
+      padding: 4px 12px; border-radius: 12px;
+      background: var(--color-primary); color: #fff;
+      font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .product-info { padding: 16px; }
+    .product-name { font-family: var(--font-serif); font-size: 16px; margin-bottom: 4px; color: var(--color-dark); }
+    .product-price { font-size: 14px; color: var(--color-primary); font-weight: 500; }
+    .product-desc { font-size: 13px; color: var(--color-muted); margin-top: 6px; line-height: 1.4; display: none; }
+    .product-card:hover .product-desc { display: block; }
+    .products-empty { text-align: center; padding: 60px 0; color: var(--color-muted); }
+
+    /* ============ About ============ */
+    .about-section { background: var(--color-accent-bg); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center;
+    }
+    .about-image { border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4/3; }
+    .about-image img { width: 100%; height: 100%; object-fit: cover; }
+    .about-placeholder {
+      width: 100%; height: 100%; background: var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-muted); font-family: var(--font-serif); font-size: 18px;
+    }
+    .about-text .section-title { text-align: left; }
+    .about-text .section-divider { margin-left: 0; margin-right: 0; }
+    .about-text p { font-size: 15px; line-height: 1.9; color: #555; margin-bottom: 16px; }
+    .about-text p:last-child { margin-bottom: 0; }
+
+    /* ============ Contact ============ */
+    .contact-section { background: var(--color-bg); }
+    .contact-cards {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px; max-width: 800px; margin: 0 auto 32px;
+    }
+    .contact-card {
+      background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius);
+      padding: 32px 24px; text-align: center; cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+    .contact-card:hover {
+      transform: translateY(-4px); box-shadow: var(--shadow-card);
+      border-color: var(--color-primary);
+    }
+    .contact-card-icon {
+      width: 52px; height: 52px; margin: 0 auto 16px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .contact-card-icon.wechat { background: #E8FCE8; color: #07C160; }
+    .contact-card-icon.whatsapp { background: #E0F5E8; color: #25D366; }
+    .contact-card-icon.website { background: #EEF0FF; color: #4A6CF7; }
+    .contact-card-icon.email { background: #FFF3E0; color: #F57C00; }
+    .contact-card-label { font-weight: 600; font-size: 16px; margin-bottom: 4px; color: var(--color-dark); }
+    .contact-card-hint { font-size: 13px; color: var(--color-muted); }
+    .contact-website-btn {
+      display: block; max-width: 500px; margin: 0 auto;
+      padding: 16px; background: var(--color-primary); color: #fff;
+      text-align: center; border-radius: var(--radius);
+      font-size: 16px; letter-spacing: 0.04em;
+      transition: background 0.3s, transform 0.3s;
+    }
+    .contact-website-btn:hover { background: var(--color-primary-dark); transform: translateY(-2px); }
+
+    /* ============ Modal ============ */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: #fff; border-radius: var(--radius-lg); padding: 36px 28px 28px;
+      width: 90%; max-width: 380px; text-align: center; position: relative;
+      animation: modalIn 0.3s ease-out;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-close {
+      position: absolute; top: 14px; right: 18px;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #f0f0f0; font-size: 18px; color: var(--color-muted);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.3s;
+    }
+    .modal-close:hover { background: #e0e0e0; }
+    .modal h3 { font-family: var(--font-serif); font-size: 20px; margin-bottom: 6px; }
+    .modal p { font-size: 14px; color: var(--color-muted); margin-bottom: 20px; }
+    .modal-qr {
+      width: 200px; height: 200px; margin: 0 auto 20px;
+      border-radius: var(--radius); border: 1px solid var(--color-border);
+      object-fit: contain; background: #fff;
+    }
+    .modal-qr-placeholder {
+      width: 200px; height: 200px; margin: 0 auto 20px;
+      border-radius: var(--radius); border: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-muted); font-size: 14px; background: var(--color-accent-bg);
+    }
+    .modal-btn {
+      display: inline-block; padding: 12px 32px;
+      border-radius: 24px; font-size: 14px; font-weight: 600;
+      color: #fff; transition: transform 0.2s, opacity 0.2s;
+    }
+    .modal-btn.whatsapp { background: #25D366; }
+    .modal-btn:active { transform: scale(0.96); }
+
+    /* ============ Footer ============ */
+    .footer {
+      background: var(--color-dark); color: #fff; padding: 48px 0 24px;
+    }
+    .footer-grid {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 32px; margin-bottom: 32px;
+    }
+    .footer-brand .nav-logo { font-size: 22px; margin-bottom: 8px; display: block; }
+    .footer-brand p { font-size: 14px; color: #aaa; }
+    .footer-links { display: flex; gap: 32px; flex-wrap: wrap; }
+    .footer-links a { font-size: 14px; color: #aaa; transition: color 0.3s; }
+    .footer-links a:hover { color: var(--color-primary); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 24px; text-align: center;
+      font-size: 13px; color: #888;
+    }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 1024px) {
+      .hero-title { font-size: 38px; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .section-padding { padding: 56px 0; }
+      .section-title { font-size: 26px; }
+      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .hero { height: 70vh; min-height: 400px; }
+      .hero-title { font-size: 32px; }
+      .hero-subtitle { font-size: 15px; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+      .about-text .section-title { text-align: center; }
+      .about-text .section-divider { margin-left: auto; margin-right: auto; }
+      .contact-cards { grid-template-columns: 1fr 1fr; gap: 16px; }
+      .footer-grid { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 26px; }
+      .product-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .product-info { padding: 10px; }
+      .product-name { font-size: 14px; }
+      .contact-cards { grid-template-columns: 1fr; }
+      .filter-bar { gap: 8px; }
+      .filter-btn { padding: 6px 16px; font-size: 12px; }
+    }
+
+    /* ============ Fallback / Error State Styles ============ */
+    .img-error { background: var(--color-accent-bg); display: flex; align-items: center; justify-content: center; color: var(--color-muted); min-height: 100%; }
+  </style>
+</head>
+<body>
+
+  <!-- ============ Navigation ============ -->
+  <nav class="nav nav-white" id="navbar">
+    <div class="nav-inner">
+      <a href="#home" class="nav-logo" id="navLogo"></a>
+      <ul class="nav-links" id="navLinks"></ul>
+      <div class="nav-toggle" id="navToggle">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="nav-mobile" id="navMobile"></div>
+  </nav>
+
+  <!-- ============ Floating WhatsApp ============ -->
+  <a class="float-wa" id="floatWA" href="#" target="_blank" rel="noopener noreferrer" title="WhatsApp" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+  </a>
+
+  <!-- ============ Hero ============ -->
+  <section class="hero" id="home">
+    <div class="hero-fallback" id="heroFallback"></div>
+    <div class="hero-content">
+      <h1 class="hero-title" id="heroTitle">Your Brand</h1>
+      <p class="hero-subtitle" id="heroSubtitle">Everyday Elegance</p>
+      <a class="hero-cta" id="heroCta" href="#products">探索产品</a>
+    </div>
+    <div class="hero-scroll" aria-hidden="true">⌄</div>
+  </section>
+
+  <!-- ============ Products ============ -->
+  <section class="products-section section-padding" id="products">
+    <div class="container">
+      <h2 class="section-title" id="productsTitle">Our Products</h2>
+      <div class="section-divider"></div>
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="product-grid" id="productGrid"></div>
+      <div class="products-empty" id="productsEmpty" style="display:none;">No products yet. Stay tuned!</div>
+    </div>
+  </section>
+
+  <!-- ============ About ============ -->
+  <section class="about-section section-padding" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image" id="aboutImage"></div>
+        <div class="about-text">
+          <h2 class="section-title" id="aboutTitle">About Us</h2>
+          <div class="section-divider"></div>
+          <div id="aboutContent"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Contact ============ -->
+  <section class="contact-section section-padding" id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact Us</h2>
+      <div class="section-divider"></div>
+      <div class="contact-cards" id="contactCards"></div>
+      <a class="contact-website-btn" id="contactWebsiteBtn" href="#" target="_blank" rel="noopener noreferrer" style="display:none;"></a>
+    </div>
+  </section>
+
+  <!-- ============ Footer ============ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <span class="nav-logo" id="footerBrandName"></span>
+          <p id="footerSlogan"></p>
+        </div>
+        <div class="footer-links" id="footerLinks"></div>
+      </div>
+      <div class="footer-bottom">
+        <p id="footerCopyright">© 2025. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============ QR Code Modal ============ -->
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal">
+      <button class="modal-close" id="modalClose">&times;</button>
+      <h3 id="modalTitle">扫描二维码</h3>
+      <p id="modalHint"></p>
+      <div id="modalQrContainer"></div>
+      <div id="modalAction"></div>
+    </div>
+  </div>
+
+  <!-- ============ Config ============ -->
+  <script src="config.js"></script>
+
+  <!-- ============ App Logic ============ -->
+  <script>
+  (function() {
+    var C = window.SITE_CONFIG;
+    if (!C) { console.error('SITE_CONFIG not found'); return; }
+
+    var B = C.brand || {};
+    var doc = document;
+
+    // ---- Apply brand & SEO ----
+    doc.title = (C.seo||{}).title || B.name || '';
+    var metaD = doc.querySelector('meta[name="description"]');
+    if (metaD) metaD.content = (C.seo||{}).description || '';
+    var metaK = doc.querySelector('meta[name="keywords"]');
+    if (metaK) metaK.content = (C.seo||{}).keywords || '';
+    var ogT = doc.querySelector('meta[property="og:title"]');
+    if (ogT) ogT.content = (C.seo||{}).title || '';
+    var ogD = doc.querySelector('meta[property="og:description"]');
+    if (ogD) ogD.content = (C.seo||{}).description || '';
+    var ogI = doc.querySelector('meta[property="og:image"]');
+    if (ogI) ogI.content = (C.seo||{}).ogImage || '';
+    var fav = doc.querySelector('link[rel="icon"]');
+    if (fav && (C.seo||{}).favicon) fav.href = (C.seo||{}).favicon;
+    doc.querySelector('meta[name="theme-color"]').content = B.primaryColor || '#C9A96E';
+
+    // CSS variables override
+    if (B.primaryColor) doc.documentElement.style.setProperty('--color-primary', B.primaryColor);
+    if (B.secondaryColor) doc.documentElement.style.setProperty('--color-dark', B.secondaryColor);
+    if (B.bgColor) doc.documentElement.style.setProperty('--color-bg', B.bgColor);
+    if (B.accentBg) doc.documentElement.style.setProperty('--color-accent-bg', B.accentBg);
+
+    // ---- Navigation ----
+    var navItems = C.navigation || [
+      { id:'home', label:'Home', href:'#home' },
+      { id:'products', label:'Products', href:'#products' },
+      { id:'about', label:'About', href:'#about' },
+      { id:'contact', label:'Contact', href:'#contact' }
+    ];
+    var navLogo = doc.getElementById('navLogo');
+    navLogo.textContent = B.name || 'Brand';
+    if (B.logo) {
+      navLogo.innerHTML = '<img src="'+B.logo+'" alt="'+B.name+'" style="height:32px;width:auto;">';
+    }
+    var navLinksEl = doc.getElementById('navLinks');
+    navItems.forEach(function(item) {
+      var li = doc.createElement('li');
+      li.innerHTML = '<a href="'+item.href+'">'+item.label+'</a>';
+      navLinksEl.appendChild(li);
+    });
+    var navMobileEl = doc.getElementById('navMobile');
+    navItems.forEach(function(item) {
+      var a = doc.createElement('a');
+      a.href = item.href; a.textContent = item.label;
+      a.addEventListener('click', function() { closeMobileMenu(); });
+      navMobileEl.appendChild(a);
+    });
+
+    // Mobile menu toggle
+    var navToggle = doc.getElementById('navToggle');
+    navToggle.addEventListener('click', function() {
+      navToggle.classList.toggle('active');
+      navMobileEl.classList.toggle('active');
+    });
+    function closeMobileMenu() {
+      navToggle.classList.remove('active');
+      navMobileEl.classList.remove('active');
+    }
+
+    // Scroll behavior
+    var navbar = doc.getElementById('navbar');
+    var isHeroWhite = true; // hero section has dark bg, nav links white
+    window.addEventListener('scroll', function() {
+      var scrolled = window.scrollY > 80;
+      navbar.classList.toggle('scrolled', scrolled);
+    });
+
+    // ---- Hero ----
+    var hero = C.hero || {};
+    var heroEl = doc.querySelector('.hero');
+    if (hero.image) {
+      heroEl.style.backgroundImage = 'url('+hero.image+')';
+      doc.getElementById('heroFallback').style.display = 'none';
+    }
+    doc.getElementById('heroTitle').textContent = hero.title || B.name || '';
+    doc.getElementById('heroSubtitle').textContent = hero.subtitle || B.slogan || '';
+    var heroCta = doc.getElementById('heroCta');
+    heroCta.textContent = hero.ctaText || 'Explore Collection';
+    heroCta.href = hero.ctaLink || '#products';
+
+    // ---- Products ----
+    var products = C.products || [];
+    var categories = C.productCategories || [];
+    var activeCategory = categories[0] || '全部';
+    var productGrid = doc.getElementById('productGrid');
+    var filterBar = doc.getElementById('filterBar');
+    var productsEmpty = doc.getElementById('productsEmpty');
+
+    if (!products.length) {
+      productsEmpty.style.display = 'block';
+      filterBar.style.display = 'none';
+    } else {
+      // Build category filter
+      var allCats = categories.length ? categories : ['全部'];
+      allCats.forEach(function(cat) {
+        var btn = doc.createElement('button');
+        btn.className = 'filter-btn' + (cat === activeCategory ? ' active' : '');
+        btn.textContent = cat;
+        btn.addEventListener('click', function() {
+          activeCategory = cat;
+          filterBar.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          renderProducts();
+        });
+        filterBar.appendChild(btn);
+      });
+      renderProducts();
+    }
+
+    function renderProducts() {
+      productGrid.innerHTML = '';
+      var filtered = activeCategory === '全部'
+        ? products
+        : products.filter(function(p) { return p.category === activeCategory; });
+
+      if (!filtered.length) {
+        productsEmpty.style.display = 'block';
+        productGrid.style.display = 'none';
+        return;
+      }
+      productsEmpty.style.display = 'none';
+      productGrid.style.display = '';
+
+      filtered.forEach(function(p, i) {
+        var card = doc.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML =
+          '<div class="product-image-wrap">' +
+            '<img src="'+p.image+'" alt="'+p.name+'" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=img-error>Image</div>\'">' +
+            (p.category !== activeCategory && activeCategory !== '全部' ? '' : '<span class="product-tag">'+p.category+'</span>') +
+          '</div>' +
+          '<div class="product-info">' +
+            '<div class="product-name">'+p.name+'</div>' +
+            (p.price ? '<div class="product-price">'+p.price+'</div>' : '') +
+            (p.description ? '<div class="product-desc">'+p.description+'</div>' : '') +
+          '</div>';
+        productGrid.appendChild(card);
+      });
+    }
+
+    // ---- About ----
+    var about = C.about || {};
+    doc.getElementById('aboutTitle').textContent = about.title || 'About Us';
+    var aboutContent = doc.getElementById('aboutContent');
+    var paragraphs = about.paragraphs || [];
+    if (!paragraphs.length) {
+      aboutContent.innerHTML = '<p>暂无介绍内容</p>';
+    } else {
+      paragraphs.forEach(function(p) {
+        var el = doc.createElement('p');
+        el.textContent = p;
+        aboutContent.appendChild(el);
+      });
+    }
+    var aboutImgEl = doc.getElementById('aboutImage');
+    if (about.image) {
+      aboutImgEl.innerHTML = '<img src="'+about.image+'" alt="关于我们" loading="lazy" onerror="this.innerHTML=\'<div class=about-placeholder>About</div>\'">';
+    } else {
+      aboutImgEl.innerHTML = '<div class="about-placeholder">About Image</div>';
+    }
+
+    // ---- Contact ----
+    var contact = C.contact || {};
+    var contactCards = doc.getElementById('contactCards');
+    var hasAnyContact = false;
+
+    // WhatsApp (first)
+    if (contact.whatsapp && contact.whatsapp.enabled) {
+      hasAnyContact = true;
+      var wa = doc.createElement('div');
+      wa.className = 'contact-card';
+      wa.innerHTML =
+        '<div class="contact-card-icon whatsapp">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>' +
+        '</div>' +
+        '<div class="contact-card-label">'+ (contact.whatsapp.label || 'WhatsApp') +'</div>' +
+        '<div class="contact-card-hint">'+ (contact.whatsapp.hint || 'Chat with us on WhatsApp') +'</div>';
+      wa.addEventListener('click', function() {
+        var phone = (contact.whatsapp.phone || '').replace(/[^0-9]/g, '');
+        var msg = encodeURIComponent(contact.whatsapp.message || '');
+        window.open('https://wa.me/'+phone+(msg?'?text='+msg:''), '_blank');
+      });
+      contactCards.appendChild(wa);
+
+      // Floating WA button
+      var floatWA = doc.getElementById('floatWA');
+      floatWA.style.display = '';
+      floatWA.href = 'https://wa.me/'+((contact.whatsapp.phone||'').replace(/[^0-9]/g,''))+(encodeURIComponent(contact.whatsapp.message||'')?'?text='+encodeURIComponent(contact.whatsapp.message||''):'');
+    }
+
+    // WeChat (second)
+    if (contact.wechat && contact.wechat.enabled) {
+      hasAnyContact = true;
+      var wc = doc.createElement('div');
+      wc.className = 'contact-card';
+      wc.innerHTML =
+        '<div class="contact-card-icon wechat">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5c0-.828.895-1.5 2-1.5s2 .672 2 1.5S11.105 12 10 12s-2-.672-2-1.5zm4 0c0-.828.895-1.5 2-1.5s2 .672 2 1.5-.895 1.5-2 1.5-2-.672-2-1.5zM9 14c-1.5 0-4 .8-4 2v1h10v-1c0-1.2-2.5-2-4-2h-2z" fill="currentColor"/></svg>' +
+        '</div>' +
+        '<div class="contact-card-label">'+ (contact.wechat.label || 'WeChat') +'</div>' +
+        '<div class="contact-card-hint">'+ (contact.wechat.hint || 'Scan to add on WeChat') +'</div>';
+      wc.addEventListener('click', function() { openModal('wechat'); });
+      contactCards.appendChild(wc);
+    }
+
+    // Website
+    if (contact.website && contact.website.enabled && contact.website.url) {
+      hasAnyContact = true;
+      var wsBtn = doc.getElementById('contactWebsiteBtn');
+      wsBtn.style.display = '';
+      wsBtn.textContent = contact.website.label || '🌐 访问官方网站';
+      wsBtn.href = contact.website.url;
+      if (contact.website.openNewTab !== false) {
+        wsBtn.target = '_blank';
+        wsBtn.rel = 'noopener noreferrer';
+      }
+    }
+
+    // Email
+    if (contact.email && contact.email.enabled && contact.email.address) {
+      hasAnyContact = true;
+      var em = doc.createElement('div');
+      em.className = 'contact-card';
+      em.innerHTML =
+        '<div class="contact-card-icon email">' +
+          '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>' +
+        '</div>' +
+        '<div class="contact-card-label">'+ (contact.email.label || '发送邮件') +'</div>' +
+        '<div class="contact-card-hint">'+contact.email.address+'</div>';
+      em.addEventListener('click', function() {
+        window.location.href = 'mailto:'+contact.email.address+'?subject=咨询';
+      });
+      contactCards.appendChild(em);
+    }
+
+    if (!hasAnyContact) {
+      doc.getElementById('contact').querySelector('.section-title').style.display = 'none';
+      doc.getElementById('contact').querySelector('.section-divider').style.display = 'none';
+    }
+
+    // ---- Footer ----
+    doc.getElementById('footerBrandName').textContent = B.name || '';
+    doc.getElementById('footerSlogan').textContent = B.slogan || '';
+    var year = new Date().getFullYear();
+    doc.getElementById('footerCopyright').textContent = '© '+year+' '+(B.name||'')+'. All rights reserved.';
+
+    var footerLinks = doc.getElementById('footerLinks');
+    navItems.forEach(function(item) {
+      var a = doc.createElement('a');
+      a.href = item.href; a.textContent = item.label;
+      footerLinks.appendChild(a);
+    });
+
+    // ---- Modal ----
+    var qrModal = doc.getElementById('qrModal');
+    var modalTitle = doc.getElementById('modalTitle');
+    var modalHint = doc.getElementById('modalHint');
+    var modalQrContainer = doc.getElementById('modalQrContainer');
+    var modalAction = doc.getElementById('modalAction');
+
+    doc.getElementById('modalClose').addEventListener('click', closeModal);
+    qrModal.addEventListener('click', function(e) {
+      if (e.target === qrModal) closeModal();
+    });
+
+    function openModal(type) {
+      if (type === 'wechat') {
+        modalTitle.textContent = (contact.wechat||{}).modalTitle || '添加微信';
+        modalHint.textContent = (contact.wechat||{}).modalHint || '请使用微信扫描下方二维码';
+        var qrImg = (contact.wechat||{}).qrImage;
+        if (qrImg) {
+          modalQrContainer.innerHTML = '<img class="modal-qr" src="'+qrImg+'" alt="微信二维码" onerror="this.outerHTML=\'<div class=modal-qr-placeholder>二维码图片</div>\'">';
+        } else {
+          modalQrContainer.innerHTML = '<div class="modal-qr-placeholder">请配置微信二维码</div>';
+        }
+        modalAction.innerHTML = '';
+      } else if (type === 'whatsapp') {
+        modalTitle.textContent = (contact.whatsapp||{}).modalTitle || 'WhatsApp';
+        modalHint.textContent = (contact.whatsapp||{}).modalHint || '扫描二维码或点击下方按钮直接聊天';
+        var qrImg = (contact.whatsapp||{}).qrImage;
+        if (qrImg) {
+          modalQrContainer.innerHTML = '<img class="modal-qr" src="'+qrImg+'" alt="WhatsApp QR" onerror="this.outerHTML=\'<div class=modal-qr-placeholder>二维码图片</div>\'">';
+        } else {
+          modalQrContainer.innerHTML = '<div class="modal-qr-placeholder">WhatsApp QR</div>';
+        }
+        var phone = ((contact.whatsapp||{}).phone||'').replace(/[^0-9]/g,'');
+        var msg = encodeURIComponent((contact.whatsapp||{}).message||'');
+        modalAction.innerHTML = '<a class="modal-btn whatsapp" href="https://wa.me/'+phone+(msg?'?text='+msg:'')+'" target="_blank" rel="noopener noreferrer">Start WhatsApp Chat</a>';
+      }
+      qrModal.classList.add('active');
+    }
+
+    function closeModal() { qrModal.classList.remove('active'); }
+
+    // ---- IntersectionObserver for nav highlighting ----
+    var sections = navItems.map(function(item) { return doc.querySelector(item.href); }).filter(Boolean);
+    if (sections.length && 'IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var id = entry.target.id;
+            navLinksEl.querySelectorAll('a').forEach(function(a) {
+              a.classList.toggle('active', a.getAttribute('href') === '#'+id);
+            });
+          }
+        });
+      }, { threshold: 0.3, rootMargin: '-80px 0px 0px 0px' });
+
+      sections.forEach(function(s) { observer.observe(s); });
+    }
+
+    // ---- Keyboard: ESC to close modal ----
+    doc.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+  })();
+  </script>
+</body>
+</html>
