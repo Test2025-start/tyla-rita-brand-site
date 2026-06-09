@@ -335,7 +335,22 @@ function initNav(){
 }
 
 async function loadConfig(){
-  try{const r=await fetch('../config.js');if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m){siteConfig=JSON.parse(m[1])}}else{siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}}catch(e){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}
+  // 优先从GitHub raw获取（绕过CDN缓存），fallback到相对路径
+  var cfgUrl='../config.js?t='+Date.now();
+  var loaded=false;
+  try{var r=await fetch(cfgUrl);if(r.ok){var t=await r.text();var m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m){siteConfig=JSON.parse(m[1]);loaded=true}}}catch(e){}
+  // 如果解析失败，尝试直接获取GitHub raw（用于admin页面自身）
+  if(!loaded){
+    try{
+      var repoM=location.hostname.match(/^([^\.]+)\.github\.io/);
+      if(repoM){
+        var rawUrl='https://raw.githubusercontent.com/'+repoM[1]+'/'+location.pathname.match(/\/([^\/]+)\//)[1]+'/gh-pages/config.js?t='+Date.now();
+        var r2=await fetch(rawUrl);
+        if(r2.ok){var t2=await r2.text();var m2=t2.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m2){siteConfig=JSON.parse(m2[1]);loaded=true}}
+      }
+    }catch(e2){}
+  }
+  if(!loaded)siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
   const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||''}
   currentUsers=loadLocal('users')||DEFAULT_USERS;
@@ -704,34 +719,42 @@ async function generateSite(deploy){
   const s=$('genStatus');
   if(!s)s.innerHTML='<span style="color:#888">⏳ 正在处理...</span>';
   else{s.innerHTML='<span style="color:#888">⏳ 正在生成 config.js...</span>';}
-  saveConfig();
-  var prevHash=getConfigHash(currentConfig); // 部署前的配置摘要
-  var now=new Date();
-  var ver='v'+now.getFullYear()+(now.getMonth()+1).toString().padStart(2,'0')+now.getDate().toString().padStart(2,'0')+now.getHours().toString().padStart(2,'0')+now.getMinutes().toString().padStart(2,'0')+now.getSeconds().toString().padStart(2,'0');
-  const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
-  if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();if(s)s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br><span style="color:#888">手动替换网站目录中的 config.js 文件即可。</span>';toast('✅ config.js 已下载','success');return}
-  if(!deployRepo||!deployToken){if(s)s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';toast('❌ 请先配置部署信息','error');return}
-  try{
-    const repoMatch=deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/);
-    if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
-    const owner=repoMatch[1],repo=repoMatch[2];
-    const siteUrl='https://'+owner+'.github.io/'+repo+'/';
-    if(s)s.innerHTML='<span style="color:#888">⏳ [1/2] 正在上传 config.js...</span>';
-    // 在config.js顶部追加版本信息用于缓存清除
-    const jsWithVer=`/* ${ver} */\n`+js;
-    await uploadFile(owner,repo,deployBranch,'config.js',jsWithVer,'Update site config ['+ver+']',30);
-    if(s)s.innerHTML='<span style="color:#888">⏳ [2/2] 正在上传管理页面...</span>';
-    const resp=await fetch(location.href);
-    let adminHtmlText=await resp.text();
-    // 给HTML追加版本meta便于追踪
-    adminHtmlText=adminHtmlText.replace('<meta name="robots" content="noindex">','<meta name="robots" content="noindex">\n<meta name="deploy-ver" content="'+ver+'">');
-    await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtmlText,'Update admin page ['+ver+']',60);
-    var newHash=getConfigHash(currentConfig);
-    var logEntry={user:currentUser?currentUser.username:deployRepo.match(/github\.com\/([^\/]+?)\//)[1],prevConfigHash:prevHash,configHash:newHash,siteUrl:siteUrl,status:'success',version:ver};
-    addLog(logEntry);
-    var forceUrl=siteUrl+'?t='+Date.now();
-    if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="${forceUrl}" target="_blank">🔄 立即访问网站（含强制刷新）</a><br>🔧 <a href="${forceUrl}admin/" target="_blank">管理后台</a><br><span style="color:#888">⚡ 链接已自动清除缓存，刷新即可看到最新内容</span>`;
-    toast('🎉 网站发布成功！','success');
+    saveConfig();
+    var prevHash=getConfigHash(currentConfig); // 部署前的配置摘要
+    var now=new Date();
+    var ver='v'+now.getFullYear()+(now.getMonth()+1).toString().padStart(2,'0')+now.getDate().toString().padStart(2,'0')+now.getHours().toString().padStart(2,'0')+now.getMinutes().toString().padStart(2,'0')+now.getSeconds().toString().padStart(2,'0');
+    var cfgFile='config.live.js?v='+Date.now();
+    const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
+    if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();if(s)s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br><span style="color:#888">手动替换网站目录中的 config.js 文件即可。</span>';toast('✅ config.js 已下载','success');return}
+    if(!deployRepo||!deployToken){if(s)s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';toast('❌ 请先配置部署信息','error');return}
+    try{
+      const repoMatch=deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/);
+      if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
+      const owner=repoMatch[1],repo=repoMatch[2];
+      const siteUrl='https://'+owner+'.github.io/'+repo+'/';
+      if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传新配置文件...</span>';
+      const jsWithVer=`/* ${ver} */\n`+js;
+      await uploadFile(owner,repo,deployBranch,cfgFile,jsWithVer,'Update site config ['+ver+']',30);
+      if(s)s.innerHTML='<span style="color:#888">⏳ [2/4] 正在上传网站主页...</span>';
+      const idxResp=await fetch(location.href.replace(/\/admin\/.*/,'/index.html'));
+      if(!idxResp.ok)throw new Error('获取网站主页模板失败，请确认网站目录中存在 index.html');
+      let idxText=await idxResp.text();
+      // 引用新文件名 config.live.js，带时间戳彻底绕过CDN缓存
+      idxText=idxText.replace(/config(\.live)?\.js(\?v=[^"]*)?/,'config.live.js?v='+Date.now());
+      await uploadFile(owner,repo,deployBranch,'index.html',idxText,'Update site index ['+ver+']',60);
+      if(s)s.innerHTML='<span style="color:#888">⏳ [3/4] 正在删除旧配置文件...</span>';
+      try{await uploadFile(owner,repo,deployBranch,'config.js','','Remove old config.js',10)}catch(e){}
+      if(s)s.innerHTML='<span style="color:#888">⏳ [4/4] 正在上传管理页面...</span>';
+      const resp=await fetch(location.href);
+      let adminHtmlText=await resp.text();
+      adminHtmlText=adminHtmlText.replace('<meta name="robots" content="noindex">','<meta name="robots" content="noindex">\n<meta name="deploy-ver" content="'+ver+'">');
+      await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtmlText,'Update admin page ['+ver+']',60);
+      var newHash=getConfigHash(currentConfig);
+      var logEntry={user:currentUser?currentUser.username:deployRepo.match(/github\.com\/([^\/]+?)\//)[1],prevConfigHash:prevHash,configHash:newHash,siteUrl:siteUrl,status:'success',version:ver};
+      addLog(logEntry);
+      var forceUrl=siteUrl+'?t='+Date.now();
+      if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="${forceUrl}" target="_blank">🔄 立即访问网站</a><br>🔧 <a href="${forceUrl}admin/" target="_blank">管理后台</a><br><span style="color:#888">⚡ 使用新配置文件 <code>${cfgFile}</code>，完全绕过CDN缓存</span>`;
+      toast('🎉 网站发布成功！','success');
   }catch(e){
     var errMsg=e.message||'未知错误';
     if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='请求超时，请检查网络或稍后重试';}
@@ -905,7 +928,7 @@ function downloadQR(){
   localStorage.removeItem('qrc_user'); // 清理旧session，强制要求重新登录
   currentUsers=loadLocal('users')||DEFAULT_USERS;
   const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||''}
-  try{const r=await fetch('../config.js');if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m)siteConfig=JSON.parse(m[1])}}catch(e){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}
+  try{const r=await fetch('../config.js?t='+Date.now());if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m)siteConfig=JSON.parse(m[1])}}catch(e){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
   $('loginUser').focus();
   $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
