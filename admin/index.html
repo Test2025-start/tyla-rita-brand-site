@@ -129,6 +129,17 @@ tr:hover td{background:#FAFAFA}
 .quick-item .qi-text{font-size:13px;font-weight:500}
 .quick-item .qi-sub{font-size:11px;color:var(--text-light)}
 
+/* ========== 产品排序 & 缩略图 ========== */
+.order-cell{display:flex;gap:4px;align-items:center;justify-content:center;white-space:nowrap}
+.order-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-size:14px;color:#888;transition:.15s;touch-action:manipulation;padding:0}
+.order-btn:hover{background:var(--primary);color:#FFF;border-color:var(--primary)}
+.order-btn:disabled{opacity:.25;cursor:default;pointer-events:none}
+.order-btn:disabled:hover{background:white;color:#888;border-color:var(--border)}
+.prod-thumb{width:40px;height:40px;border-radius:4px;object-fit:cover;border:1px solid var(--border);background:#F5F5F5}
+.prod-img-cell{text-align:center}
+.config-status{font-size:12px;color:var(--text-light);margin-bottom:12px;padding:8px 12px;background:#FDFBF7;border-radius:6px;border:1px solid #EDE5DA}
+.config-status .ok{color:var(--success)}.config-status .warn{color:#E67E22}
+
 /* ========== 移动端适配 (<768px) ========== */
 @media(max-width:768px){
   .login-box{padding:28px 20px}
@@ -158,6 +169,8 @@ tr:hover td{background:#FAFAFA}
   .quick-grid{grid-template-columns:1fr}
   .img-upload-wrap{flex-direction:column;align-items:stretch}
   .img-up-btn{justify-content:center}
+  .order-btn{width:36px;height:36px;font-size:16px}
+  .prod-thumb{width:32px;height:32px}
 }
 </style>
 </head>
@@ -264,7 +277,7 @@ const SALT="qrcode-landing-2026";
 // =================== 状态 ===================
 let currentUser=null,currentConfig=null,currentUsers=null;
 let deployRepo="",deployBranch="gh-pages",deployToken="",imgbbKey="";
-let siteConfig=null;
+let siteConfig=null,_cfgSource='';
 
 // =================== 工具 ===================
 function i18nGet(val,lang){return val&&typeof val==='object'?(val[lang]||val['en']||''):(val||'')}
@@ -274,7 +287,7 @@ function deepMerge(base,override){if(!override||typeof override!=='object')retur
 
 // =================== 图片上传工具 ===================
 function imgField(id,label,val){
-  const isUrl=val&&(val.startsWith('http')||val.startsWith('data:'));
+  const isUrl=val&&(val.startsWith('http')||val.startsWith('data:')||val.startsWith('/')||val.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)/i));
   return `<div class="img-upload-wrap"><input class="fi" id="${id}" value="${esc(val||'')}" placeholder="${label}" onchange="onImgChange('${id}')"><label class="img-up-btn">📷 上传<input type="file" accept="image/*" onchange="handleUpload(this,'${id}')"></label></div><div class="img-preview${isUrl?' show':''}" id="${id}_preview">${isUrl?('<img src="'+esc(val)+'" alt="preview"><a class="img-rm" onclick="clearImg(\''+id+'\')">移除</a>'):''}</div>`;
 }
 function handleUpload(inp,targetId){
@@ -370,7 +383,7 @@ async function doLogin(){
       $('sUser').textContent=u;$('sRole').textContent=users[u].role;
       $('tbUser').textContent=u;
       if(users[u].role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
-      loadConfig();initNav();showPage('dashboard');renderDeployLog();
+      await loadConfig();initNav();showPage('dashboard');renderDeployLog();
     }else{
       showAlert('loginAlert','用户名或密码错误','e');
       $('loginPass').value='';$('loginPass').focus();
@@ -418,6 +431,7 @@ async function loadConfig(){
     }catch(e2){}
   }
   if(!loaded)siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+  _cfgSource=loaded?'live':'default';
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
   const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
   currentUsers=loadLocal('users')||DEFAULT_USERS;
@@ -488,6 +502,7 @@ function renderDashboard(){
       <div class="stat-card"><div class="num">${prog.pct}%</div><div class="lbl">配置完成度</div></div>
       <div class="stat-card"><div class="num" style="font-size:18px">${c.whatsapp?.enabled&&c.wechat?.enabled?'已就绪':'待完善'}</div><div class="lbl">联系方式状态</div></div>
     </div>
+    <div class="config-status">${_cfgSource==='live'?'<span class="ok">✅ 已同步线上配置</span> — 所有字段已从网站回显':'<span class="warn">⚠️ 使用默认配置</span> — 未能加载线上配置，请检查网络后刷新页面'}</div>
 
     <!-- 配置进度 -->
     <div class="card">
@@ -604,7 +619,19 @@ function renderProducts(){
   const cfg=currentConfig,p=cfg.products||[],cats=cfg.productCategories||[];
   let rows='';
   p.forEach((pr,i)=>{
-    rows+=`<tr><td>${i+1}</td><td>${esc(i18nGet(pr.name,'zh'))}</td><td>${esc(i18nGet(pr.category,'zh'))}</td><td>${esc(pr.price||'-')}</td><td style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${esc(pr.image?'已上传':'-')}</td><td><button class="btn btn-d btn-sm" onclick="deleteProduct(${i})">删除</button></td></tr>`;
+    var imgCell=pr.image?`<img class="prod-thumb" src="${esc(pr.image)}" alt="" onerror="this.alt='⚠';this.style.display='block';this.style.width='40px';this.style.height='40px';this.style.background='#FDECEA'">`:'<span style="color:#CCC;font-size:20px">—</span>';
+    rows+=`<tr>
+      <td class="order-cell">
+        <button class="order-btn" onclick="moveProduct(${i},'up')" ${i===0?'disabled':''} title="上移">↑</button>
+        <span style="font-size:12px;color:#999;min-width:18px;text-align:center">${i+1}</span>
+        <button class="order-btn" onclick="moveProduct(${i},'down')" ${i===p.length-1?'disabled':''} title="下移">↓</button>
+      </td>
+      <td><strong>${esc(i18nGet(pr.name,'zh'))}</strong><br><span style="font-size:11px;color:#888">${esc(i18nGet(pr.name,'en'))}</span></td>
+      <td>${esc(i18nGet(pr.category,'zh'))}</td>
+      <td>${esc(pr.price||'-')}</td>
+      <td class="prod-img-cell">${imgCell}</td>
+      <td><button class="btn btn-d btn-sm" onclick="deleteProduct(${i})">删除</button></td>
+    </tr>`;
   });
   $('pageContainer').innerHTML=`
     <h1 class="page-title">🛍️ 产品管理</h1>
@@ -616,8 +643,8 @@ function renderProducts(){
       <button type="submit" class="btn btn-p btn-sm">💾 保存设置</button>
     </div>
     </form>
-    <div class="card"><div class="card-title">产品列表 (${p.length})</div>
-      ${p.length?`<table><thead><tr><th>#</th><th>名称</th><th>分类</th><th>价格</th><th>图片</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty">📦 暂无产品，请在下方添加</div>'}
+    <div class="card"><div class="card-title">产品列表 (${p.length}) <span style="font-size:11px;color:#888;font-weight:400">— 点击 ↑↓ 调整顺序</span></div>
+      ${p.length?`<table><thead><tr><th style="width:100px">排序</th><th>名称</th><th>分类</th><th>价格</th><th>图片</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty">📦 暂无产品，请在下方添加</div>'}
     </div>
     <form onsubmit="addProduct(event)" style="margin:0">
     <div class="card"><div class="card-title">＋ 添加产品</div>
@@ -649,6 +676,7 @@ function addProduct(e){e.preventDefault();
 }
 
 function deleteProduct(i){if(confirm('确认删除该产品？')){currentConfig.products.splice(i,1);saveConfig();renderProducts();toast('产品已删除','info')}}
+function moveProduct(i,dir){var p=currentConfig.products||[];if(dir==='up'&&i>0){var tmp=p[i];p[i]=p[i-1];p[i-1]=tmp;saveConfig();renderProducts();toast('✅ 产品顺序已调整','success')}else if(dir==='down'&&i<p.length-1){var tmp=p[i];p[i]=p[i+1];p[i+1]=tmp;saveConfig();renderProducts();toast('✅ 产品顺序已调整','success')}}
 
 // ===== 页面内容 =====
 function renderPages(){
