@@ -172,7 +172,7 @@ tr:hover td{background:#FAFAFA}
     <div class="alert" id="loginAlert"></div>
     <div class="fg"><label>用户名</label><input type="text" id="loginUser" class="fi" placeholder="输入用户名" autofocus autocomplete="username"></div>
     <div class="fg"><label>密码</label><input type="password" id="loginPass" class="fi" placeholder="输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="btn-login" onclick="doLogin()">登 录</button>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">登 录</button>
     <p style="text-align:center;font-size:12px;color:#BBB;margin-top:16px">默认: admin / admin123</p>
   </div>
 </div>
@@ -278,7 +278,7 @@ function handleUpload(inp,targetId){
   const f=inp.files[0];if(!f)return;
   if(f.size>2*1024*1024){toast('图片不能超过 2MB','error');return}
   const r=new FileReader();
-  r.onload=function(){const d=r.result;$(targetId).value=d;const p=$(targetId+'_preview');p.innerHTML='<img src="'+d+'" alt="preview"><a class="img-rm" onclick("clearImg(\\''+targetId+'\\')")>移除</a>';p.classList.add('show');toast('图片已上传','info')};
+  r.onload=function(){const d=r.result;$(targetId).value=d;const p=$(targetId+'_preview');p.innerHTML='<img src="'+d+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';p.classList.add('show');toast('图片已上传','info')};
   r.readAsDataURL(f);
 }
 function onImgChange(id){
@@ -292,19 +292,32 @@ function loadLocal(k){try{const v=localStorage.getItem('qrc_'+k);return v?JSON.p
 
 // =================== 登录系统 ===================
 async function doLogin(){
-  const u=$('loginUser').value.trim(),p=$('loginPass').value;
-  if(!u||!p){showAlert('loginAlert','请输入用户名和密码','e');return}
-  const users=currentUsers||DEFAULT_USERS;
-  const hash=await sha256(p+SALT);
-  if(users[u]&&users[u].password===hash){
-    currentUser={username:u,role:users[u].role};
-    saveLocal('user',currentUser);
-    $('loginPage').style.display='none';$('app').style.display='flex';
-    $('sUser').textContent=u;$('sRole').textContent=users[u].role;
-    $('tbUser').textContent=u;
-    if(users[u].role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
-    loadConfig();initNav();showPage('dashboard');
-  }else{showAlert('loginAlert','用户名或密码错误','e')}
+  const btn=$('loginBtn');const origText=btn.textContent;
+  btn.disabled=true;btn.textContent='登 录 中...';btn.style.opacity='0.6';
+  try{
+    const u=$('loginUser').value.trim(),p=$('loginPass').value;
+    if(!u||!p){showAlert('loginAlert','请输入用户名和密码','e');return}
+    const users=currentUsers||DEFAULT_USERS;
+    if(!window.crypto||!window.crypto.subtle){showAlert('loginAlert','浏览器不支持安全加密 (需要 HTTPS)','e');return}
+    const hash=await sha256(p+SALT);
+    if(users[u]&&users[u].password===hash){
+      currentUser={username:u,role:users[u].role};
+      saveLocal('user',currentUser);
+      $('loginPage').style.display='none';$('app').style.display='flex';
+      $('sUser').textContent=u;$('sRole').textContent=users[u].role;
+      $('tbUser').textContent=u;
+      if(users[u].role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
+      loadConfig();initNav();showPage('dashboard');
+    }else{
+      showAlert('loginAlert','用户名或密码错误','e');
+      $('loginPass').value='';$('loginPass').focus();
+    }
+  }catch(e){
+    console.error('Login error:',e);
+    showAlert('loginAlert','登录失败：请刷新页面后重试 [E:'+(e.message||'unknown')+']','e');
+  }finally{
+    btn.disabled=false;btn.textContent=origText;btn.style.opacity='1';
+  }
 }
 
 function doLogout(){
