@@ -458,6 +458,18 @@ function renderDashboard(){
         <button class="btn btn-s" onclick="generateSite(true)">🚀 一键发布到线上</button>
       </div>
       <div class="status" id="genStatus"></div>
+    </div>
+
+    <!-- 网站二维码 -->
+    <div class="card">
+      <div class="card-title">📱 网站二维码</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">生成当前网站的二维码，微信/WhatsApp 扫码直达。</p>
+      <div id="qrcodeArea" style="text-align:center;padding:16px 0"></div>
+      <div id="qrcodeUrl" style="font-size:12px;color:#999;text-align:center;word-break:break-all;margin-top:8px"></div>
+      <div class="depoly-actions" style="margin-top:12px">
+        <button class="btn btn-p" onclick="genSiteQR()">🔲 生成网站二维码</button>
+        <button class="btn btn-o btn-sm" onclick="downloadQR()" style="display:none" id="downloadQRBn">⬇️ 下载二维码</button>
+      </div>
     </div>`;
 }
 
@@ -744,6 +756,43 @@ async function updateUserPass(e){e.preventDefault();
 function deleteUser(name){if(!confirm('确认删除用户 '+name+'？'))return;delete currentUsers[name];saveLocal('users',currentUsers);renderUsers();toast(name+' 已删除','info')}
 
 function saveConfig(){localStorage.setItem('qrc_config',JSON.stringify(currentConfig));}
+
+// ===== 网站二维码生成（API方式）=====
+var _siteQRUrl='';
+function genSiteURL(){
+  var m=deployRepo?deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/):null;
+  if(m){_siteQRUrl='https://'+m[1]+'.github.io/'+m[2]+'/';}
+  else{_siteQRUrl='https://'+location.hostname+location.pathname.replace(/\/admin\/?$/,'/');}
+  return _siteQRUrl;
+}
+function genSiteQR(){
+  var url=genSiteURL();
+  var area=$('qrcodeArea');
+  area.innerHTML='<div style=\"color:#888;font-size:13px;padding:20px 0\">\u2699\ufe0f \u6b63\u5728\u751f\u6210...</div>';
+  $('qrcodeUrl').innerHTML='';
+  $('downloadQRBn').style.display='none';
+  var img=document.createElement('img');
+  img.style.maxWidth='220px';img.style.borderRadius='8px';img.style.border='1px solid var(--border)';
+  img.onload=function(){
+    area.innerHTML='';area.appendChild(img);
+    $('qrcodeUrl').innerHTML='\ud83d\udcc5 '+url;
+    $('downloadQRBn').style.display='inline-block';
+    toast('\ud83d\udce6 \u7f51\u7ad9\u4e8c\u7ef4\u7801\u5df2\u751f\u6210','success');
+  };
+  img.onerror=function(){
+    area.innerHTML='\u274c \u751f\u6210\u5931\u8d25\uff0c\u8bf7\u68c0\u67e5\u7f51\u7edc';
+    toast('\u4e8c\u7ef4\u7801\u751f\u6210\u5931\u8d25','error');
+  };
+  img.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(url);
+}
+function downloadQR(){
+  var img=$('qrcodeArea').querySelector('img');
+  if(!img){toast('\u8bf7\u5148\u751f\u6210\u4e8c\u7ef4\u7801','error');return;}
+  var canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;canvas.getContext('2d').drawImage(img,0,0);
+  var a=document.createElement('a');a.download='site-qrcode.png';a.href=canvas.toDataURL('image/png');a.click();
+  toast('\ud83d\udce6 \u4e8c\u7ef4\u7801\u5df2\u4e0b\u8f7d','info');
+}
+
 
 // ===== 启动 =====
 (async function(){
