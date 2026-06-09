@@ -1,4 +1,4 @@
-/* v20260609201059 */
+/* v20260609211148 */
 window.SITE_CONFIG = {
   "i18n": {
     "defaultLanguage": "en",
@@ -13,10 +13,10 @@ window.SITE_CONFIG = {
       "zh": "您的品牌"
     },
     "slogan": {
-      "en": "Crafted with Love",
-      "zh": "用心打造"
+      "en": "Everyday Elegance",
+      "zh": "优雅每一天"
     },
-    "logo": "https://images.pexels.com/photos/1458867/pexels-photo-1458867.jpeg?w=200&h=200&fit=crop",
+    "logo": "https://i.ibb.co/6c09MKqR/IMG-1138.jpg",
     "primaryColor": "#C9A96E",
     "secondaryColor": "#2D2D2D",
     "bgColor": "#FFFFFF",
@@ -57,10 +57,10 @@ window.SITE_CONFIG = {
     }
   ],
   "hero": {
-    "image": "https://images.pexels.com/photos/7679824/pexels-photo-7679824.jpeg?w=1200&h=800&fit=crop",
+    "image": "",
     "title": {
-      "en": "TylaRita Jewelry",
-      "zh": "TylaRita 珠宝"
+      "en": "Your Brand",
+      "zh": "您的品牌"
     },
     "subtitle": {
       "en": "Everyday Elegance",
@@ -107,95 +107,15 @@ window.SITE_CONFIG = {
         "zh": "热销推荐"
       },
       "price": "$29.00",
-      "image": "https://images.pexels.com/photos/8774780/pexels-photo-8774780.jpeg?w=600&h=600&fit=crop",
+      "image": "",
       "description": {
-        "en": "Elegant freshwater pearls with 18K gold clasp.",
-        "zh": "优雅淡水珍珠，配18K金扣。"
-      }
-    },
-    {
-      "name": {
-        "en": "Crystal Drop Earrings",
-        "zh": "水晶吊坠耳环"
-      },
-      "category": {
-        "en": "New Arrivals",
-        "zh": "新品上市"
-      },
-      "price": "$35.00",
-      "image": "https://images.pexels.com/photos/1458867/pexels-photo-1458867.jpeg?w=600&h=600&fit=crop",
-      "description": {
-        "en": "Sparkling crystal drops with sterling silver hooks.",
-        "zh": "闪耀水晶吊坠，纯银耳钩。"
-      }
-    },
-    {
-      "name": {
-        "en": "Gold Bangle Set",
-        "zh": "黄金手镯套装"
-      },
-      "category": {
-        "en": "Best Sellers",
-        "zh": "热销推荐"
-      },
-      "price": "$89.00",
-      "image": "https://images.pexels.com/photos/13924051/pexels-photo-13924051.jpeg?w=600&h=600&fit=crop",
-      "description": {
-        "en": "Set of 3 stackable gold bangles.",
-        "zh": "3件套可叠戴黄金手镯。"
-      }
-    },
-    {
-      "name": {
-        "en": "Silver Charm Bracelet",
-        "zh": "银饰幸运手链"
-      },
-      "category": {
-        "en": "Classic",
-        "zh": "经典系列"
-      },
-      "price": "$45.00",
-      "image": "https://images.pexels.com/photos/14579309/pexels-photo-14579309.jpeg?w=600&h=600&fit=crop",
-      "description": {
-        "en": "Sterling silver bracelet with charm pendants.",
-        "zh": "纯银手链，配有幸运挂饰。"
-      }
-    },
-    {
-      "name": {
-        "en": "Diamond Stud Earrings",
-        "zh": "钻石耳钉"
-      },
-      "category": {
-        "en": "New Arrivals",
-        "zh": "新品上市"
-      },
-      "price": "$199.00",
-      "image": "https://images.pexels.com/photos/12427695/pexels-photo-12427695.jpeg?w=600&h=600&fit=crop",
-      "description": {
-        "en": "Lab-grown diamond studs in 14K white gold.",
-        "zh": "实验室培育钻石，14K白金耳钉。"
-      }
-    },
-    {
-      "name": {
-        "en": "Rose Gold Watch",
-        "zh": "玫瑰金手表"
-      },
-      "category": {
-        "en": "Best Sellers",
-        "zh": "热销推荐"
-      },
-      "price": "$159.00",
-      "image": "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?w=600&h=600&fit=crop",
-      "description": {
-        "en": "Elegant rose gold watch with leather strap.",
-        "zh": "优雅玫瑰金手表，真皮表带。"
+        "en": "Elegant freshwater pearls.",
+        "zh": "优雅淡水珍珠"
       }
     }
   ],
   "about": {
-    "image": "https://images.pexels.com/photos/33737462/pexels-photo-33737462.jpeg?w=800&h=600&fit=crop",
+    "image": "",
     "title": {
       "en": "About Us",
       "zh": "关于我们"
@@ -218,48 +138,32 @@ window.SITE_CONFIG = {
     },
     "wechat": {
       "enabled": true,
-      "qrImage": "assets/qrcodes/wechat-qr.png",
+      "qrImage": "https://i.ibb.co/MxrMytRy/IMG-1182.jpg",
       "label": {
         "en": "WeChat",
         "zh": "微信咨询"
       },
       "hint": {
-        "en": "Scan to add on WeChat",
-        "zh": "扫描二维码添加微信好友"
+        "zh": "扫描二维码添加微信好友",
+        "en": "Scan to add on WeChat"
       },
-      "modalTitle": {
-        "en": "Add on WeChat",
-        "zh": "添加微信"
-      },
-      "modalHint": {
-        "en": "Scan the QR code with WeChat",
-        "zh": "请使用微信扫描下方二维码"
-      }
+      "modalTitle": {},
+      "modalHint": {}
     },
     "whatsapp": {
       "enabled": true,
       "phone": "8613800138000",
+      "qrImage": "https://i.ibb.co/279wQRLj/IMG-1183.jpg",
       "message": {
         "en": "Hello!",
         "zh": "你好！"
       },
-      "qrImage": "assets/qrcodes/whatsapp-qr.png",
       "label": {
         "en": "WhatsApp",
         "zh": "WhatsApp 联系"
       },
-      "hint": {
-        "en": "Chat on WhatsApp",
-        "zh": "点击通过 WhatsApp 联系我们"
-      },
-      "modalTitle": {
-        "en": "WhatsApp",
-        "zh": "WhatsApp 联系"
-      },
-      "modalHint": {
-        "en": "Scan or click",
-        "zh": "扫描或点击聊天"
-      }
+      "modalTitle": {},
+      "modalHint": {}
     },
     "website": {
       "enabled": false,
@@ -272,15 +176,16 @@ window.SITE_CONFIG = {
     },
     "email": {
       "enabled": true,
-      "address": "hello@example.com",
+      "address": "caiqitai@qq.com",
       "label": {
         "en": "Send Email",
         "zh": "发送邮件"
       }
     },
     "siteQR": {
-      "enabled": true,
-      "url": "https://test2025-start.github.io/tyla-rita-brand-site/",
+      "enabled": false,
+      "url": "",
+      "qrImage": "",
       "label": {
         "en": "Scan to Visit",
         "zh": "扫码访问"
@@ -289,22 +194,21 @@ window.SITE_CONFIG = {
         "en": "QR to site",
         "zh": "扫码打开网站"
       },
-      "showOnPage": true,
-      "qrImage": "assets/qrcodes/site-qr.png"
+      "showOnPage": true
     }
   },
   "seo": {
     "title": {
-      "en": "TylaRita Jewelry | Handcrafted",
-      "zh": "TylaRita 珠宝 | 手工制作"
+      "en": "Your Brand | Jewelry",
+      "zh": "您的品牌 | 珠宝"
     },
     "description": {
-      "en": "Discover handcrafted jewelry. Elegant designs for every occasion.",
-      "zh": "发现手工珠宝。优雅设计，适合每个场合。"
+      "en": "Discover handcrafted jewelry.",
+      "zh": "发现手工珠宝。"
     },
     "keywords": "jewelry, accessories",
-    "ogImage": "https://images.pexels.com/photos/7679824/pexels-photo-7679824.jpeg?w=1200&h=630&fit=crop",
-    "favicon": "https://images.pexels.com/photos/1458867/pexels-photo-1458867.jpeg?w=32&h=32&fit=crop"
+    "ogImage": "",
+    "favicon": ""
   },
   "advanced": {
     "gaTrackingId": "",
