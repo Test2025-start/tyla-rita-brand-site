@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="robots" content="noindex">
-<meta name="deploy-ver" content="v20260609174204">
 <title>管理后台 — Site Admin</title>
 <style>
 /* ========== 基础变量 ========== */
@@ -262,7 +261,7 @@ const SALT="qrcode-landing-2026";
 
 // =================== 状态 ===================
 let currentUser=null,currentConfig=null,currentUsers=null;
-let deployRepo="",deployBranch="gh-pages",deployToken="";
+let deployRepo="",deployBranch="gh-pages",deployToken="",imgbbKey="";
 let siteConfig=null;
 
 // =================== 工具 ===================
@@ -272,18 +271,78 @@ function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 
 // =================== 图片上传工具 ===================
 function imgField(id,label,val){
-  const hasImg=val&&(val.startsWith('data:')||(val.startsWith('/')&&!val.startsWith('/assets')));
-  return `<div class="img-upload-wrap"><input class="fi" id="${id}" value="${esc(val||'')}" placeholder="${label}" onchange="onImgChange('${id}')"><label class="img-up-btn">📷 上传<input type="file" accept="image/*" onchange="handleUpload(this,'${id}')"></label></div><div class="img-preview${hasImg?' show':''}" id="${id}_preview">${hasImg?('<img src="'+esc(val)+'" alt="preview"><a class="img-rm" onclick="clearImg(\''+id+'\')">移除</a>'):''}</div>`;
+  const isUrl=val&&(val.startsWith('http')||val.startsWith('data:'));
+  return `<div class="img-upload-wrap"><input class="fi" id="${id}" value="${esc(val||'')}" placeholder="${label}" onchange="onImgChange('${id}')"><label class="img-up-btn">📷 上传<input type="file" accept="image/*" onchange="handleUpload(this,'${id}')"></label></div><div class="img-preview${isUrl?' show':''}" id="${id}_preview">${isUrl?('<img src="'+esc(val)+'" alt="preview"><a class="img-rm" onclick="clearImg(\''+id+'\')">移除</a>'):''}</div>`;
 }
 function handleUpload(inp,targetId){
   const f=inp.files[0];if(!f)return;
-  if(f.size>20*1024*1024){toast('图片不能超过 20MB','error');return}
-  const r=new FileReader();
-  r.onload=function(){const d=r.result;$(targetId).value=d;const p=$(targetId+'_preview');p.innerHTML='<img src="'+d+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';p.classList.add('show');toast('图片已上传','info')};
-  r.readAsDataURL(f);
+  var preview=$(targetId+'_preview');
+  // 显示上传中状态
+  preview.innerHTML='<div style="text-align:center;padding:12px;color:var(--primary)"><span>⏳ 正在上传...</span><br><span id="'+targetId+'_prog" style="font-size:11px;color:#888"></span></div>';
+  preview.classList.add('show');
+  if(imgbbKey){
+    // 方式1：上传到 ImgBB CDN（推荐，支持高清大图）
+    var form=new FormData();
+    form.append('image',f);
+    var xhr=new XMLHttpRequest();
+    xhr.open('POST','https://api.imgbb.com/1/image?key='+imgbbKey);
+    xhr.upload.addEventListener('progress',function(e){
+      if(e.lengthComputable){
+        var pct=Math.round(e.loaded/e.total*100);
+        var pg=$(targetId+'_prog');
+        if(pg)pg.textContent='上传中... '+pct+'%';
+      }
+    });
+    xhr.addEventListener('load',function(){
+      if(xhr.status===200){
+        try{
+          var d=JSON.parse(xhr.responseText);
+          if(d&&d.data&&d.data.url){
+            $(targetId).value=d.data.url;
+            preview.innerHTML='<img src="'+esc(d.data.url)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';
+            toast('✅ 图片已上传至图床','success');
+          }else{toast('❌ ImgBB返回数据格式错误','error');preview.innerHTML='';preview.classList.remove('show');}
+        }catch(e){toast('❌ 解析ImgBB响应失败','error');preview.innerHTML='';preview.classList.remove('show');}
+      }else{
+        var errMsg='上传失败';
+        try{var rd=JSON.parse(xhr.responseText);if(rd&&rd.error)errMsg=rd.error.message||rd.error;if(typeof rd==='string'&&rd.includes('error'))errMsg=rd;}catch(e2){}
+        toast('❌ ImgBB上传失败: '+errMsg,'error');
+        preview.innerHTML='';preview.classList.remove('show');
+      }
+    });
+    xhr.addEventListener('error',function(){toast('❌ 网络错误，请检查网络连接','error');preview.innerHTML='';preview.classList.remove('show');});
+    xhr.send(form);
+  }else{
+    // 方式2：无ImgBB Key时，使用本地base64（限制200KB）
+    if(f.size>200*1024){
+      toast('⚠️ 未配置ImgBB Key，大图建议先压缩到200KB以下，或在部署设置中添加ImgBB Key','error',5000);
+    }
+    if(f.size>5*1024*1024){
+      toast('❌ 图片超过5MB且无ImgBB Key，无法上传','error');preview.innerHTML='';preview.classList.remove('show');return;
+    }
+    var r=new FileReader();
+    r.onload=function(){
+      var d=r.result;
+      if(d.length>5*1024*1024){
+        toast('❌ 图片太大！请使用ImgBB Key上传高清图片（单张最大32MB）','error');preview.innerHTML='';preview.classList.remove('show');return;
+      }
+      $(targetId).value=d;
+      preview.innerHTML='<img src="'+esc(d)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';
+      toast('✅ 图片已保存（本地模式，建议配置ImgBB Key）','info');
+    };
+    r.readAsDataURL(f);
+  }
 }
 function onImgChange(id){
-  // manual paste of path - no preview update needed for non-data URLs
+  // 手动粘贴URL时，实时更新预览
+  var val=$(id).value.trim();
+  var preview=$(id+'_preview');
+  if(val&&(val.startsWith('http')||val.startsWith('data:'))){
+    preview.innerHTML='<img src="'+esc(val)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+id+'\')">移除</a>';
+    preview.classList.add('show');
+  }else{
+    preview.innerHTML='';preview.classList.remove('show');
+  }
 }
 function clearImg(id){$(id).value='';const p=$(id+'_preview');p.innerHTML='';p.classList.remove('show')}
 
@@ -353,7 +412,7 @@ async function loadConfig(){
   }
   if(!loaded)siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
-  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||''}
+  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
   currentUsers=loadLocal('users')||DEFAULT_USERS;
 }
 
@@ -701,6 +760,8 @@ function renderDeploy(){
       <div class="fg"><label>仓库 URL</label><input class="fi" id="depo_repo" value="${esc(deployRepo)}" placeholder="https://github.com/用户名/仓库名.git"></div>
       <div class="fr"><div class="fg"><label>分支</label><input class="fi" id="depo_branch" value="${esc(deployBranch)}"></div><div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="${esc(deployToken)}" placeholder="github_pat_xxxxxxxx"></div></div>
       <p style="font-size:12px;color:#888;margin-bottom:12px">获取 Token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens (需 Contents 读写权限)</p>
+      <div class="fg"><label>🖼️ ImgBB API Key（可选，上传高清图片用）</label><input type="password" class="fi" id="depo_imgbb" value="${esc(imgbbKey||'')}" placeholder="点击查看如何获取免费Key">
+      <p style="font-size:12px;color:#888;margin-top:4px"><a href="javascript:void(0)" onclick="alert('ImgBB免费图床申请方法：\n1. 打开 https://api.imgbb.com/\n2. 点击 \"Sign in\" 或 \"Registration\"\n3. 注册/登录后访问 https://api.imgbb.com/1/image?key=\n4. 或直接访问 https://imgbb.com/upload\n5. 登录后在 https://api.imgbb.com/ 获取您的API Key\n\n免费额度：10GB存储空间，单张最大32MB，支持JPG/PNG/GIF/WebP等格式。\n\n如果没有ImgBB Key，系统会改用本地base64存储（适合小图片）')">📖 如何获取免费 ImgBB Key？</a></p></div>
       <button type="submit" class="btn btn-p btn-sm">💾 保存部署设置</button>
     </div></form>
     <div class="card"><div class="card-title">⚡ 一键生成</div>
@@ -713,7 +774,7 @@ function renderDeploy(){
     </div>`;
 }
 
-function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deployBranch=$('depo_branch').value||'gh-pages';deployToken=$('depo_token').value;saveLocal('deploy',{repo:deployRepo,branch:deployBranch,token:deployToken});toast('✅ 部署设置已保存','success');}
+function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deployBranch=$('depo_branch').value||'gh-pages';deployToken=$('depo_token').value;imgbbKey=$('depo_imgbb').value.trim();saveLocal('deploy',{repo:deployRepo,branch:deployBranch,token:deployToken,imgbbKey:imgbbKey});toast('✅ 部署设置已保存','success');}
 
 // ===== 生成 & 部署 =====
 async function generateSite(deploy){
@@ -733,9 +794,11 @@ async function generateSite(deploy){
       if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
       const owner=repoMatch[1],repo=repoMatch[2];
       const siteUrl='https://'+owner+'.github.io/'+repo+'/';
-      if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传新配置文件...</span>';
+      var cfgSize=(js.length/1024).toFixed(0);
+      if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件 ('+cfgSize+'KB)...</span>';
       const jsWithVer=`/* ${ver} */\n`+js;
-      await uploadFile(owner,repo,deployBranch,cfgFile,jsWithVer,'Update site config ['+ver+']',30);
+      if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件...（文件较大请耐心等待，最多2分钟）</span>';
+      await uploadFile(owner,repo,deployBranch,cfgFile,jsWithVer,'Update site config ['+ver+']',120);
       if(s)s.innerHTML='<span style="color:#888">⏳ [2/4] 正在上传网站主页...</span>';
       const idxResp=await fetch(location.href.replace(/\/admin\/.*/,'/index.html'));
       if(!idxResp.ok)throw new Error('获取网站主页模板失败，请确认网站目录中存在 index.html');
@@ -758,7 +821,7 @@ async function generateSite(deploy){
       toast('🎉 网站发布成功！','success');
   }catch(e){
     var errMsg=e.message||'未知错误';
-    if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='请求超时，请检查网络或稍后重试';}
+    if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='上传超时！文件太大，建议减少图片数量或尺寸后重试。单个base64图片建议不超过200KB。';}
     if(errMsg.includes('401')||errMsg.includes('403')){errMsg='Token 无效或权限不足，请检查 Token 是否有 Contents 写入权限';}
     if(errMsg.includes('413')||errMsg.includes('payload')){errMsg='文件过大，请减少上传的图片大小';}
     if(s)s.innerHTML=`<span class="s-e">❌ 部署失败: ${errMsg}</span>`;
@@ -768,30 +831,50 @@ async function generateSite(deploy){
   }
 }
 
-async function uploadFile(owner,repo,branch,path,content,msg,timeoutSec){
-  timeoutSec=timeoutSec||30;
-  const controller=new AbortController();
-  var timer=setTimeout(function(){controller.abort();},timeoutSec*1000);
-  let sha=null;
-  try{
-    const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,{headers:{Authorization:`Bearer ${deployToken}`,Accept:'application/vnd.github.v3+json'},signal:controller.signal});
-    if(resp.ok){const d=await resp.json();sha=d.sha}
-  }catch(e){
-    if(e.name==='AbortError')throw new Error('获取文件信息超时('+timeoutSec+'s)');
-    // 新文件不存在时忽略错误
-  }
-  const encoded=btoa(unescape(encodeURIComponent(content)));
-  const body={message:msg,content:encoded,branch:branch};if(sha)body.sha=sha;
-  clearTimeout(timer);timer=setTimeout(function(){controller.abort();},timeoutSec*1000);
-  try{
-    const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{method:'PUT',headers:{Authorization:`Bearer ${deployToken}`,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},body:JSON.stringify(body),signal:controller.signal});
-    if(!resp.ok){const d=await resp.json();throw new Error(d.message||'上传失败(HTTP '+resp.status+')')}
-    clearTimeout(timer);
-  }catch(e){
-    clearTimeout(timer);
-    if(e.name==='AbortError')throw new Error('上传文件超时('+timeoutSec+'s)，内容可能过大');
-    throw e;
-  }
+// uploadFile: 使用 XMLHttpRequest 支持上传进度
+function uploadFile(owner,repo,branch,path,content,msg,timeoutSec){
+  return new Promise(function(resolve,reject){
+    timeoutSec=timeoutSec||30;
+    var sha=null;
+    // 先获取文件SHA
+    fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,{
+      headers:{Authorization:`Bearer ${deployToken}`,Accept:'application/vnd.github.v3+json'}
+    }).then(function(resp){
+      if(resp.ok)return resp.json().then(function(d){sha=d.sha});
+    }).catch(function(){}).then(function(){
+      // 上传文件（带进度）
+      var xhr=new XMLHttpRequest();
+      var timer=setTimeout(function(){xhr.abort();},timeoutSec*1000);
+      var encoded=btoa(unescape(encodeURIComponent(content)));
+      var body=JSON.stringify({message:msg,content:encoded,branch:branch});
+      if(sha)body=JSON.stringify({message:msg,content:encoded,branch:branch,sha:sha});
+      xhr.open('PUT',`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
+      xhr.setRequestHeader('Authorization',`Bearer ${deployToken}`);
+      xhr.setRequestHeader('Content-Type','application/json');
+      xhr.setRequestHeader('Accept','application/vnd.github.v3+json');
+      xhr.upload.addEventListener('progress',function(e){
+        if(e.lengthComputable){
+          var pct=Math.round(e.loaded/e.total*100);
+          var st=$('genStatus');
+          if(st&&pct<100)st.innerHTML='<span style="color:#888">⏳ 上传中... '+pct+'%</span>';
+        }
+      });
+      xhr.addEventListener('load',function(){
+        clearTimeout(timer);
+        if(xhr.status>=200&&xhr.status<300){
+          resolve(JSON.parse(xhr.responseText));
+        }else{
+          var err='上传失败(HTTP '+xhr.status+')';
+          try{var d=JSON.parse(xhr.responseText);if(d.message)err=d.message;}catch(e){}
+          reject(new Error(err));
+        }
+      });
+      xhr.addEventListener('error',function(){clearTimeout(timer);reject(new Error('网络错误，请检查网络连接'));});
+      xhr.addEventListener('timeout',function(){clearTimeout(timer);reject(new Error('上传超时('+timeoutSec+'s)，文件可能过大，请减少图片大小后重试');});
+      xhr.addEventListener('abort',function(){clearTimeout(timer);reject(new Error('上传被中断'));});
+      xhr.send(body);
+    });
+  });
 }
 
 // ===== 用户管理 =====
@@ -928,7 +1011,7 @@ function downloadQR(){
 (async function(){
   localStorage.removeItem('qrc_user'); // 清理旧session，强制要求重新登录
   currentUsers=loadLocal('users')||DEFAULT_USERS;
-  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||''}
+  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
   try{const r=await fetch('../config.js?t='+Date.now());if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m)siteConfig=JSON.parse(m[1])}}catch(e){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
   $('loginUser').focus();
