@@ -307,7 +307,7 @@ async function doLogin(){
       $('sUser').textContent=u;$('sRole').textContent=users[u].role;
       $('tbUser').textContent=u;
       if(users[u].role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
-      loadConfig();initNav();showPage('dashboard');
+      loadConfig();initNav();showPage('dashboard');renderDeployLog();
     }else{
       showAlert('loginAlert','用户名或密码错误','e');
       $('loginPass').value='';$('loginPass').focus();
@@ -371,7 +371,7 @@ function calcProgress(){
 function showPage(name){
   $('pageContainer').innerHTML='';$('mainAlert').className='alert';
   switch(name){
-    case 'dashboard':renderDashboard();break;
+    case 'dashboard':renderDashboard();renderDeployLog();break;
     case 'brand':renderBrand();break;
     case 'products':renderProducts();break;
     case 'pages':renderPages();break;
@@ -470,6 +470,12 @@ function renderDashboard(){
         <button class="btn btn-p" onclick="genSiteQR()">🔲 生成网站二维码</button>
         <button class="btn btn-o btn-sm" onclick="downloadQR()" style="display:none" id="downloadQRBn">⬇️ 下载二维码</button>
       </div>
+    </div>
+
+    <!-- 发布日志 -->
+    <div class="card">
+      <div class="card-title">📋 发布日志</div>
+      <div id="deployLogArea"><div class="empty">加载中...</div></div>
     </div>`;
 }
 
@@ -699,6 +705,9 @@ async function generateSite(deploy){
   if(!s)s.innerHTML='<span style="color:#888">⏳ 正在处理...</span>';
   else{s.innerHTML='<span style="color:#888">⏳ 正在生成 config.js...</span>';}
   saveConfig();
+  var prevHash=getConfigHash(currentConfig); // 部署前的配置摘要
+  var now=new Date();
+  var ver='v'+now.getFullYear()+(now.getMonth()+1).toString().padStart(2,'0')+now.getDate().toString().padStart(2,'0')+now.getHours().toString().padStart(2,'0')+now.getMinutes().toString().padStart(2,'0')+now.getSeconds().toString().padStart(2,'0');
   const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
   if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();if(s)s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br><span style="color:#888">手动替换网站目录中的 config.js 文件即可。</span>';toast('✅ config.js 已下载','success');return}
   if(!deployRepo||!deployToken){if(s)s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';toast('❌ 请先配置部署信息','error');return}
@@ -706,15 +715,23 @@ async function generateSite(deploy){
     const repoMatch=deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/);
     if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
     const owner=repoMatch[1],repo=repoMatch[2];
+    const siteUrl='https://'+owner+'.github.io/'+repo+'/';
     if(s)s.innerHTML='<span style="color:#888">⏳ [1/2] 正在上传 config.js...</span>';
-    await uploadFile(owner,repo,deployBranch,'config.js',js,'Update site config',30);
+    // 在config.js顶部追加版本信息用于缓存清除
+    const jsWithVer=`/* ${ver} */\n`+js;
+    await uploadFile(owner,repo,deployBranch,'config.js',jsWithVer,'Update site config ['+ver+']',30);
     if(s)s.innerHTML='<span style="color:#888">⏳ [2/2] 正在上传管理页面...</span>';
-    // 只上传精简版admin页(不含用户数据)，不上传完整outerHTML避免base64图片过大
     const resp=await fetch(location.href);
-    const adminHtmlText=await resp.text();
-    await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtmlText,'Update admin page',60);
-    if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="https://${owner}.github.io/${repo}/" target="_blank">访问网站</a><br>🔧 <a href="https://${owner}.github.io/${repo}/admin/" target="_blank">管理后台</a><br><span style="color:#888">⏱ 1-2 分钟后生效</span>`;
-    toast('🎉 网站发布成功！1-2分钟后生效','success');
+    let adminHtmlText=await resp.text();
+    // 给HTML追加版本meta便于追踪
+    adminHtmlText=adminHtmlText.replace('<meta name="robots" content="noindex">','<meta name="robots" content="noindex">\n<meta name="deploy-ver" content="'+ver+'">');
+    await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtmlText,'Update admin page ['+ver+']',60);
+    var newHash=getConfigHash(currentConfig);
+    var logEntry={user:currentUser?currentUser.username:deployRepo.match(/github\.com\/([^\/]+?)\//)[1],prevConfigHash:prevHash,configHash:newHash,siteUrl:siteUrl,status:'success',version:ver};
+    addLog(logEntry);
+    var forceUrl=siteUrl+'?t='+Date.now();
+    if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="${forceUrl}" target="_blank">🔄 立即访问网站（含强制刷新）</a><br>🔧 <a href="${forceUrl}admin/" target="_blank">管理后台</a><br><span style="color:#888">⚡ 链接已自动清除缓存，刷新即可看到最新内容</span>`;
+    toast('🎉 网站发布成功！','success');
   }catch(e){
     var errMsg=e.message||'未知错误';
     if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='请求超时，请检查网络或稍后重试';}
@@ -722,6 +739,8 @@ async function generateSite(deploy){
     if(errMsg.includes('413')||errMsg.includes('payload')){errMsg='文件过大，请减少上传的图片大小';}
     if(s)s.innerHTML=`<span class="s-e">❌ 部署失败: ${errMsg}</span>`;
     toast('❌ 部署失败: '+errMsg,'error');
+    var logEntry={user:currentUser?currentUser.username:'-',status:'fail',changeDesc:errMsg,time:new Date().toLocaleString('zh-CN')};
+    addLog(logEntry);
   }
 }
 
@@ -784,6 +803,65 @@ async function updateUserPass(e){e.preventDefault();
 function deleteUser(name){if(!confirm('确认删除用户 '+name+'？'))return;delete currentUsers[name];saveLocal('users',currentUsers);renderUsers();toast(name+' 已删除','info')}
 
 function saveConfig(){localStorage.setItem('qrc_config',JSON.stringify(currentConfig));}
+
+// ===== 部署日志 =====
+const MAX_LOG=50; // 最多保留50条
+function loadLogs(){
+  try{return JSON.parse(localStorage.getItem('qrc_logs')||'[]')}catch(e){return []}
+}
+function saveLogs(logs){
+  logs=logs.slice(0,MAX_LOG);
+  localStorage.setItem('qrc_logs',JSON.stringify(logs));
+}
+function addLog(entry){
+  const logs=loadLogs();
+  // 计算本次变更摘要
+  var changes=[];
+  if(entry.configHash){
+    var prev=logs.find(function(l){return l.configHash===entry.prevConfigHash});
+    if(prev&&prev.changes&&entry.changes){
+      Object.keys(entry.changes).forEach(function(k){
+        var labels={brand:'品牌设置',products:'产品管理',contact:'联系方式',hero:'首屏Hero',about:'关于我们',seo:'SEO设置',i18n:'语言设置',navigation:'导航菜单',advanced:'高级设置',productCategories:'产品分类',productsMeta:'产品区块'};
+        changes.push(labels[k]||k);
+      });
+    }else{changes=['首次完整发布'];}
+  }else{changes=['管理页面更新'];}
+  entry.changes=changes;
+  entry.time=new Date().toLocaleString('zh-CN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  logs.unshift(entry);
+  saveLogs(logs);
+  renderDeployLog();
+}
+function renderDeployLog(){
+  var area=$('deployLogArea');if(!area)return;
+  var logs=loadLogs();
+  if(!logs.length){area.innerHTML='<div class="empty">暂无发布记录</div>';return;}
+  var html='<table style="font-size:12px"><thead><tr><th>时间</th><th>操作人</th><th>变更内容</th><th>状态</th><th>站点</th></tr></thead><tbody>';
+  logs.forEach(function(l){
+    var statusHtml=l.status==='success'?'<span style="color:var(--success)">✅ 成功</span>':'<span style="color:var(--danger)">❌ 失败</span>';
+    var siteUrl='-';if(l.siteUrl)siteUrl='<a href="'+l.siteUrl+'" target="_blank" style="color:var(--primary)">访问</a>';
+    var chStr=l.changes&&l.changes.length?l.changes.join(', '):(l.changeDesc||'-');
+    html+='<tr><td style="white-space:nowrap">'+esc(l.time||'')+'</td><td>'+esc(l.user||'-')+'</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(chStr)+'">'+esc(chStr)+'</td><td>'+statusHtml+'</td><td>'+siteUrl+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  if(logs.length>1)html+='<div style="margin-top:8px;text-align:right"><button class="btn btn-o btn-sm" onclick="clearDeployLog()">🗑 清空日志</button></div>';
+  area.innerHTML=html;
+}
+function clearDeployLog(){
+  if(!confirm('确认清空所有发布日志？'))return;
+  localStorage.removeItem('qrc_logs');
+  renderDeployLog();
+  toast('日志已清空','info');
+}
+function getConfigHash(cfg){
+  var keys=['brand','products','contact','hero','about','seo','i18n','navigation','productCategories','productsMeta','advanced'];
+  var partial={};
+  keys.forEach(function(k){if(cfg[k])partial[k]=k==='products'?(cfg[k]||[]).length:k==='productCategories'?(cfg[k]||[]).length:JSON.stringify(cfg[k])});
+  var s=JSON.stringify(partial);
+  var h=0;
+  for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h=h&h;}
+  return Math.abs(h).toString(16);
+}
 
 // ===== 网站二维码生成（API方式）=====
 var _siteQRUrl='';
