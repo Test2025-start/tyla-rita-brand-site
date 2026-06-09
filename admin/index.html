@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
-<head>
+<html lang="zh" style="-webkit-touch-callout: none;"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="robots" content="noindex">
@@ -165,25 +164,25 @@ tr:hover td{background:#FAFAFA}
 <div id="toastContainer"></div>
 
 <!-- ===== 登录页 ===== -->
-<div id="loginPage">
+<div id="loginPage" style="display: none;">
   <div class="login-box">
     <h1>⚡ 管理后台</h1>
-    <p class="sub">营销网站配置 & 一键部署</p>
+    <p class="sub">营销网站配置 &amp; 一键部署</p>
     <div class="alert" id="loginAlert"></div>
-    <div class="fg"><label>用户名</label><input type="text" id="loginUser" class="fi" placeholder="输入用户名" autofocus autocomplete="username"></div>
+    <div class="fg"><label>用户名</label><input type="text" id="loginUser" class="fi" placeholder="输入用户名" autofocus="" autocomplete="username"></div>
     <div class="fg"><label>密码</label><input type="password" id="loginPass" class="fi" placeholder="输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="btn-login" id="loginBtn" onclick="doLogin()">登 录</button>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()" style="opacity: 1;">登 录</button>
     <p style="text-align:center;font-size:12px;color:#BBB;margin-top:16px">默认: admin / admin123</p>
   </div>
 </div>
 
 <!-- ===== 主应用 ===== -->
-<div id="app">
+<div id="app" style="display: flex;">
   <!-- 移动端顶栏 -->
   <div class="topbar" id="topbar">
     <button class="tb-menu" onclick="toggleSidebar()" aria-label="菜单">☰</button>
     <span class="tb-logo">⚡ Site Admin</span>
-    <span style="font-size:12px;color:#888" id="tbUser"></span>
+    <span style="font-size:12px;color:#888" id="tbUser">admin</span>
   </div>
 
   <!-- 遮罩 -->
@@ -192,25 +191,41 @@ tr:hover td{background:#FAFAFA}
   <!-- 侧边栏 -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">⚡ Site Admin</div>
-    <div class="sidebar-info"><span id="sUser"></span><div class="role" id="sRole"></div></div>
+    <div class="sidebar-info"><span id="sUser">admin</span><div class="role" id="sRole">admin</div></div>
     <div class="sidebar-nav">
-      <a class="active" data-page="dashboard">📊 仪表盘</a>
+      <a class="" data-page="dashboard">📊 仪表盘</a>
       <div class="sec">内容配置</div>
-      <a data-page="brand">🏷️ 品牌设置</a>
-      <a data-page="products">🛍️ 产品管理</a>
-      <a data-page="pages">📄 页面内容</a>
-      <a data-page="contact">📞 联系方式</a>
+      <a data-page="brand" class="">🏷️ 品牌设置</a>
+      <a data-page="products" class="">🛍️ 产品管理</a>
+      <a data-page="pages" class="">📄 页面内容</a>
+      <a data-page="contact" class="">📞 联系方式</a>
       <div class="sec">发布</div>
-      <a data-page="deploy">🚀 生成 & 部署</a>
-      <div class="sec" id="adminSec" style="display:none">管理</div>
-      <a data-page="users" id="navUsers" style="display:none">👥 用户管理</a>
+      <a data-page="deploy" class="active">🚀 生成 &amp; 部署</a>
+      <div class="sec" id="adminSec" style="display: block;">管理</div>
+      <a data-page="users" id="navUsers" style="display: block;">👥 用户管理</a>
     </div>
     <div class="sidebar-footer"><a onclick="doLogout()">退出登录 →</a></div>
   </nav>
 
   <main class="main">
     <div class="alert" id="mainAlert"></div>
-    <div id="pageContainer"></div>
+    <div id="pageContainer">
+    <h1 class="page-title">🚀 生成 &amp; 部署</h1>
+    <form onsubmit="saveDeploy(event)" style="margin:0">
+    <div class="card"><div class="card-title">📦 GitHub Pages 部署设置</div>
+      <div class="fg"><label>仓库 URL</label><input class="fi" id="depo_repo" value="" placeholder="https://github.com/用户名/仓库名.git"></div>
+      <div class="fr"><div class="fg"><label>分支</label><input class="fi" id="depo_branch" value="gh-pages"></div><div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="" placeholder="github_pat_xxxxxxxx"></div></div>
+      <p style="font-size:12px;color:#888;margin-bottom:12px">获取 Token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens (需 Contents 读写权限)</p>
+      <button type="submit" class="btn btn-p btn-sm">💾 保存部署设置</button>
+    </div></form>
+    <div class="card"><div class="card-title">⚡ 一键生成</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">所有配置保存后，点击下方按钮。首次部署需要填写上方 GitHub 信息。</p>
+      <div class="depoly-actions">
+        <button class="btn btn-p" onclick="generateSite(false)">📁 仅下载 config.js</button>
+        <button class="btn btn-s" onclick="generateSite(true)">🚀 一键发布到线上</button>
+      </div>
+      <div class="status" id="genStatus"><span style="color:#888">⏳ 正在部署到 GitHub Pages...</span></div>
+    </div></div>
   </main>
 </div>
 
@@ -805,5 +820,6 @@ function downloadQR(){
   $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
 })();
 </script>
-</body>
-</html>
+
+
+</body></html>
