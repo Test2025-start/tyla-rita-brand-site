@@ -302,7 +302,7 @@ async function doLogin(){
     const hash=await sha256(p+SALT);
     if(users[u]&&users[u].password===hash){
       currentUser={username:u,role:users[u].role};
-      saveLocal('user',currentUser);
+      sessionStorage.setItem('qrc_user',JSON.stringify(currentUser));
       $('loginPage').style.display='none';$('app').style.display='flex';
       $('sUser').textContent=u;$('sRole').textContent=users[u].role;
       $('tbUser').textContent=u;
@@ -321,7 +321,7 @@ async function doLogin(){
 }
 
 function doLogout(){
-  currentUser=null;localStorage.removeItem('qrc_user');
+  currentUser=null;localStorage.removeItem('qrc_user');sessionStorage.removeItem('qrc_user');
   $('loginPage').style.display='flex';$('app').style.display='none';
   $('loginUser').value='';$('loginPass').value='';$('loginAlert').className='alert';$('mainAlert').className='alert';
 }
@@ -747,18 +747,12 @@ function saveConfig(){localStorage.setItem('qrc_config',JSON.stringify(currentCo
 
 // ===== 启动 =====
 (async function(){
+  localStorage.removeItem('qrc_user'); // 清理旧session，强制要求重新登录
   currentUsers=loadLocal('users')||DEFAULT_USERS;
   const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||''}
-  const savedUser=loadLocal('user');
   try{const r=await fetch('../config.js');if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m)siteConfig=JSON.parse(m[1])}}catch(e){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
-  if(savedUser&&currentUsers[savedUser.username]){
-    const u=currentUsers[savedUser.username];currentUser=savedUser;
-    $('loginPage').style.display='none';$('app').style.display='flex';
-    $('sUser').textContent=savedUser.username;$('sRole').textContent=u.role;$('tbUser').textContent=savedUser.username;
-    if(u.role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
-    initNav();showPage('dashboard');
-  }else{$('loginUser').focus()}
+  $('loginUser').focus();
   $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
 })();
 </script>
