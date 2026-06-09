@@ -42,6 +42,26 @@ textarea.fi{resize:vertical;min-height:70px}
 .alert-s{background:#E8F8F5;color:var(--success);border:1px solid #D5F5E3}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 
+/* ========== Toast 浮动提示 ========== */
+#toastContainer{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{pointer-events:auto;padding:12px 20px;border-radius:8px;font-size:14px;font-weight:500;color:#FFF;box-shadow:0 6px 24px rgba(0,0,0,.15);animation:toastIn .35s ease;max-width:340px;line-height:1.4}
+.toast-success{background:linear-gradient(135deg,#27AE60,#2ECC71)}
+.toast-error{background:linear-gradient(135deg,#E74C3C,#EC7063)}
+.toast-info{background:linear-gradient(135deg,#3498DB,#5DADE2)}
+@keyframes toastIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)}}
+
+/* ========== 图片上传组件 ========== */
+.img-upload-wrap{display:flex;align-items:center;gap:8px}
+.img-upload-wrap .fi{flex:1}
+.img-up-btn{display:inline-flex;align-items:center;gap:4px;padding:9px 14px;background:#F5F0EB;border:1px dashed #C9A96E;border-radius:6px;color:var(--primary-dark);font-size:13px;font-weight:500;cursor:pointer;transition:.15s;white-space:nowrap;flex-shrink:0}
+.img-up-btn:hover{background:#EDE5DA}
+.img-up-btn input{display:none}
+.img-preview{margin-top:6px;display:none}
+.img-preview.show{display:block}
+.img-preview img{max-width:120px;max-height:80px;border-radius:6px;border:1px solid var(--border);object-fit:cover}
+.img-preview .img-rm{display:inline-block;margin-left:8px;font-size:12px;color:var(--danger);cursor:pointer;text-decoration:none}
+
 /* ========== 桌面布局 ========== */
 #app{display:none;min-height:100vh}
 .topbar{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:#1E1E1E;color:#FFF;padding:12px 16px;align-items:center;justify-content:space-between}
@@ -60,7 +80,6 @@ textarea.fi{resize:vertical;min-height:70px}
 .sidebar-footer a:hover{color:#FFF}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
 .main{margin-left:220px;flex:1;padding:28px 36px;max-width:960px}
-.page{display:none}.page.active{display:block}
 .page-title{font-size:22px;font-weight:600;margin-bottom:20px}
 .card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:18px}
 .card-title{font-size:15px;font-weight:600;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
@@ -78,6 +97,35 @@ tr:hover td{background:#FAFAFA}
 .status{margin-top:14px;font-size:13px;line-height:1.6}
 .s-e{color:var(--danger)}.s-s{color:var(--success)}.s-w{color:#E67E22}
 .depoly-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+/* ========== 仪表盘专用样式 ========== */
+.dash-welcome{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#FFF;border-radius:12px;padding:28px 30px;margin-bottom:20px;position:relative;overflow:hidden}
+.dash-welcome::after{content:'';position:absolute;top:-30px;right:-20px;width:120px;height:120px;background:rgba(255,255,255,.08);border-radius:50%}
+.dash-welcome h2{font-size:22px;margin-bottom:6px}
+.dash-welcome p{font-size:13px;opacity:.85}
+.dash-welcome .site-link{display:inline-block;margin-top:10px;padding:6px 16px;background:rgba(255,255,255,.2);border-radius:20px;color:#FFF;font-size:12px;text-decoration:none;transition:.15s}
+.dash-welcome .site-link:hover{background:rgba(255,255,255,.3)}
+
+.guide-steps{counter-reset:step}
+.guide-step{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--border);counter-increment:step}
+.guide-step:last-child{border-bottom:none}
+.guide-num{flex-shrink:0;width:32px;height:32px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#FFF;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.guide-num::before{content:counter(step)}
+.guide-body{flex:1}
+.guide-body .gt{font-size:14px;font-weight:600;margin-bottom:2px}
+.guide-body .gd{font-size:12px;color:var(--text-light);line-height:1.5}
+.guide-body .gb{display:inline-block;margin-top:6px;padding:4px 12px;background:var(--primary);color:#FFF;border-radius:4px;font-size:12px;text-decoration:none;cursor:pointer;transition:.15s}
+.guide-body .gb:hover{background:var(--primary-dark)}
+
+.progress-bar{height:8px;background:#EEE;border-radius:4px;overflow:hidden;margin:8px 0 4px}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--primary),var(--primary-dark));transition:width .5s ease}
+
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.quick-item{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#FAFAFA;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:.15s;text-decoration:none;color:var(--text)}
+.quick-item:hover{border-color:var(--primary);background:#FDFBF7}
+.quick-item .qi-icon{font-size:24px;flex-shrink:0}
+.quick-item .qi-text{font-size:13px;font-weight:500}
+.quick-item .qi-sub{font-size:11px;color:var(--text-light)}
 
 /* ========== 移动端适配 (<768px) ========== */
 @media(max-width:768px){
@@ -101,10 +149,20 @@ tr:hover td{background:#FAFAFA}
   th,td{font-size:12px;padding:6px 8px}
   table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
   select.fi{font-size:16px}
+  #toastContainer{top:auto;bottom:16px;right:16px;left:16px}
+  .toast{max-width:100%}
+  .dash-welcome{padding:20px}
+  .dash-welcome h2{font-size:18px}
+  .quick-grid{grid-template-columns:1fr}
+  .img-upload-wrap{flex-direction:column;align-items:stretch}
+  .img-up-btn{justify-content:center}
 }
 </style>
 </head>
 <body>
+
+<!-- ===== Toast 容器 ===== -->
+<div id="toastContainer"></div>
 
 <!-- ===== 登录页 ===== -->
 <div id="loginPage">
@@ -163,6 +221,17 @@ function $(id){return document.getElementById(id)}
 function qsa(sel){return document.querySelectorAll(sel)}
 function showAlert(elId, msg, type){const e=$(elId);e.textContent=msg;e.className='alert alert-'+type+' show';setTimeout(()=>e.classList.remove('show'),4000)}
 
+// =================== Toast 浮动提示 ===================
+function toast(msg,type){type=type||'success';
+  const c=$('toastContainer');
+  const el=document.createElement('div');
+  el.className='toast toast-'+type;
+  const icon={success:'✅',error:'❌',info:'ℹ️'}[type]||'✅';
+  el.innerHTML=`<span>${icon}</span> ${msg}`;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.animation='toastOut .3s ease forwards';setTimeout(()=>el.remove(),300)},2500);
+}
+
 // =================== 移动端侧边栏 ===================
 function toggleSidebar(){
   const sb=$('sidebar'),ov=$('overlay');
@@ -199,6 +268,23 @@ let siteConfig=null;
 function i18nGet(val,lang){return val&&typeof val==='object'?(val[lang]||val['en']||''):(val||'')}
 function i18nSet(existing,lang,value){if(typeof existing==='object'&&existing!==null){existing[lang]=value;return existing}const o={};o[lang]=value;return o}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// =================== 图片上传工具 ===================
+function imgField(id,label,val){
+  const hasImg=val&&(val.startsWith('data:')||(val.startsWith('/')&&!val.startsWith('/assets')));
+  return `<div class="img-upload-wrap"><input class="fi" id="${id}" value="${esc(val||'')}" placeholder="${label}" onchange="onImgChange('${id}')"><label class="img-up-btn">📷 上传<input type="file" accept="image/*" onchange="handleUpload(this,'${id}')"></label></div><div class="img-preview${hasImg?' show':''}" id="${id}_preview">${hasImg?('<img src="'+esc(val)+'" alt="preview"><a class="img-rm" onclick="clearImg(\''+id+'\')">移除</a>'):''}</div>`;
+}
+function handleUpload(inp,targetId){
+  const f=inp.files[0];if(!f)return;
+  if(f.size>2*1024*1024){toast('图片不能超过 2MB','error');return}
+  const r=new FileReader();
+  r.onload=function(){const d=r.result;$(targetId).value=d;const p=$(targetId+'_preview');p.innerHTML='<img src="'+d+'" alt="preview"><a class="img-rm" onclick("clearImg(\\''+targetId+'\\')")>移除</a>';p.classList.add('show');toast('图片已上传','info')};
+  r.readAsDataURL(f);
+}
+function onImgChange(id){
+  // manual paste of path - no preview update needed for non-data URLs
+}
+function clearImg(id){$(id).value='';const p=$(id+'_preview');p.innerHTML='';p.classList.remove('show')}
 
 // =================== 存储 ===================
 function saveLocal(k,v){try{localStorage.setItem('qrc_'+k,JSON.stringify(v))}catch(e){}}
@@ -242,22 +328,30 @@ async function loadConfig(){
   currentUsers=loadLocal('users')||DEFAULT_USERS;
 }
 
-function updateStats(){
-  const cfg=currentConfig||siteConfig||DEFAULT_CONFIG;
-  $('dashStats').innerHTML=`
-    <div class="stat-card"><div class="num">${(cfg.products||[]).length}</div><div class="lbl">产品数量</div></div>
-    <div class="stat-card"><div class="num" style="color:${cfg.brand?.primaryColor||'#C9A96E'}">${i18nGet(cfg.brand?.name,'zh')}</div><div class="lbl">品牌名称</div></div>
-    <div class="stat-card"><div class="num">${cfg.contact?.whatsapp?.enabled?'✅':'❌'}</div><div class="lbl">WhatsApp</div></div>`;
-  const c=cfg.contact||{};
-  $('dashOverview').innerHTML=`<table>
-    <tr><td style="width:120px;color:#888">品牌</td><td>${i18nGet(cfg.brand?.name,'zh')}</td></tr>
-    <tr><td style="color:#888">标语</td><td>${i18nGet(cfg.brand?.slogan,'zh')}</td></tr>
-    <tr><td style="color:#888">产品</td><td>${(cfg.products||[]).length} 个</td></tr>
-    <tr><td style="color:#888">微信</td><td>${c.wechat?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
-    <tr><td style="color:#888">WhatsApp</td><td>${c.whatsapp?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
-    <tr><td style="color:#888">网站入口</td><td>${c.website?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
-    <tr><td style="color:#888">邮箱</td><td>${c.email?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
-  </table>`;
+// =================== 配置完成度计算 ===================
+function calcProgress(){
+  const cfg=currentConfig||DEFAULT_CONFIG;
+  let total=0,done=0;
+  // 品牌名称
+  total++;if(i18nGet(cfg.brand?.name,'zh'))done++;
+  total++;if(i18nGet(cfg.brand?.name,'en'))done++;
+  // Logo
+  total++;if(cfg.brand?.logo)done++;
+  // Hero
+  total++;if(cfg.hero?.image)done++;
+  total++;if(i18nGet(cfg.hero?.title,'zh'))done++;
+  // 产品
+  total++;if((cfg.products||[]).length>=1)done++;
+  // 关于
+  total++;if(i18nGet(cfg.about?.title,'zh'))done++;
+  // 微信
+  total++;if(cfg.contact?.wechat?.qrImage)done++;
+  // WhatsApp
+  total++;if(cfg.contact?.whatsapp?.phone)done++;
+  // SEO
+  total++;if(i18nGet(cfg.seo?.title,'zh'))done++;
+  total++;if(cfg.seo?.description)done++;
+  return {done,total,pct:Math.round(done/Math.max(total,1)*100)};
 }
 
 // =================== 页面渲染 ===================
@@ -272,26 +366,83 @@ function showPage(name){
     case 'deploy':renderDeploy();break;
     case 'users':renderUsers();break;
   }
-  updateStats();
 }
 
-// ===== Dashboard =====
+// ===== Dashboard（重新设计）=====
 function renderDashboard(){
-  updateStats();
+  const cfg=currentConfig||DEFAULT_CONFIG;
+  const c=cfg.contact||{};
+  const prog=calcProgress();
+  const siteUrl=deployRepo?deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/):null;
+
   $('pageContainer').innerHTML=`
-    <h1 class="page-title">📊 仪表盘</h1>
-    <div class="stats" id="dashStats"></div>
-    <div class="card"><div class="card-title">概览</div><div id="dashOverview"></div></div>
+    <!-- 欢迎横幅 -->
+    <div class="dash-welcome">
+      <h2>👋 欢迎，${currentUser?currentUser.username:'Admin'}！</h2>
+      <p>这里是你的营销网站管理中心，一站式完成配置与发布。</p>
+      ${siteUrl?('<a class="site-link" href="https://'+siteUrl[1]+'.github.io/'+siteUrl[2]+'/" target="_blank">🌐 访问我的网站 →</a>):'<span class="site-link" style="opacity:.6">⚠️ 请先配置部署信息</span>'}
+    </div>
+
+    <!-- 统计卡片 -->
+    <h3 style="font-size:15px;font-weight:600;margin-bottom:12px;color:var(--text-light)">📈 数据概览</h3>
+    <div class="stats">
+      <div class="stat-card"><div class="num">${(cfg.products||[]).length}</div><div class="lbl">产品数量</div></div>
+      <div class="stat-card"><div class="num">${prog.pct}%</div><div class="lbl">配置完成度</div></div>
+      <div class="stat-card"><div class="num" style="font-size:18px">${c.whatsapp?.enabled&&c.wechat?.enabled?'已就绪':'待完善'}</div><div class="lbl">联系方式状态</div></div>
+    </div>
+
+    <!-- 配置进度 -->
     <div class="card">
-      <div class="card-title">🚀 快速生成</div>
-      <p style="font-size:13px;color:#888;margin-bottom:12px;">配置完成后点击下方按钮。部署前请先在「生成&部署」页配置 GitHub 信息。</p>
+      <div class="card-title">📋 配置完成度</div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>已完成 ${prog.done}/${prog.total} 项基础配置</span><strong style="color:${prog.pct>=80?'var(--success)':prog.pct>=50?'#E67E22':'var(--danger)'}">${prog.pct}%</strong></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${prog.pct}%"></div></div>
+      <p style="font-size:12px;color:#888;margin-top:8px">${prog.pct<50?'💡 建议先完成「品牌设置」和「联系方式」的基本信息':prog.pct<80?'👍 进展不错！继续完善产品信息和页面内容':'🎉 太棒了！配置基本完整，可以预览并发布网站了'}</p>
+    </div>
+
+    <!-- 快速入口 -->
+    <div class="card">
+      <div class="card-title">⚡ 快速操作</div>
+      <div class="quick-grid">
+        <a class="quick-item" onclick="showPage('brand');qsa('.sidebar-nav a.active')[0]?.classList.remove('active');document.querySelector('[data-page=brand]').classList.add('active')"><span class="qi-icon">🏷️</span><div><div class="qi-text">品牌设置</div><div class="qi-sub">名称、Logo、配色</div></div></a>
+        <a class="quick-item" onclick="showPage('products');qsa('.sidebar-nav a.active')[0]?.classList.remove('active');document.querySelector('[data-page=products]').classList.add('active')"><span class="qi-icon">🛍️</span><div><div class="qi-text">产品管理</div><div class="qi-sub">添加编辑产品</div></div></a>
+        <a class="quick-item" onclick="showPage('contact');qsa('.sidebar-nav a.active')[0]?.classList.remove('active');document.querySelector('[data-page=contact]').classList.add('active')"><span class="qi-icon">📞</span><div><div class="qi-text">联系方式</div><div class="qi-sub">微信、WhatsApp 等</div></div></a>
+        <a class="quick-item" onclick="showPage('deploy');qsa('.sidebar-nav a.active')[0]?.classList.remove('active');document.querySelector('[data-page=deploy]').classList.add('active')"><span class="qi-icon">🚀</span><div><div class="qi-text">一键发布</div><div class="qi-sub">生成 & 部署到 GitHub</div></div></a>
+      </div>
+    </div>
+
+    <!-- 使用指引 -->
+    <div class="card">
+      <div class="card-title">📖 新手指南</div>
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-body"><div class="gt">设置品牌基本信息</div><div class="gd">填写品牌中英文名称、标语、选择主色调，可上传 Logo 图片。</div><a class="gb" onclick="showPage('brand')">前往设置 →</a></div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-body"><div class="gt">添加产品信息</div><div class="gd">添加产品名称、分类、价格和描述，每个产品可上传一张展示图。</div><a class="gb" onclick="showPage('products')">添加产品 →</a></div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-body"><div class="gt">配置联系方式</div><div class="gd">启用微信、WhatsApp 等渠道，填写手机号，上传二维码图片。</div><a class="gb" onclick="showPage('contact')">配置联系 →</a></div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-num"></div>
+          <div class="guide-body"><div class="gt">配置并一键部署</div><div class="gd">在「生成&部署」页填入 GitHub Token，点击按钮即可自动发布网站。</div><a class="gb" onclick="showPage('deploy')">开始部署 →</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 部署状态 -->
+    <div class="card">
+      <div class="card-title">🚀 发布站点</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">所有配置保存后，点击下方按钮一键生成并发布网站。</p>
       <div class="depoly-actions">
-        <button class="btn btn-p" onclick="generateSite(false)">📁 仅生成 config.js</button>
-        <button class="btn btn-s" onclick="generateSite(true)">🚀 生成并部署到 GitHub Pages</button>
+        <button class="btn btn-p" onclick="generateSite(false)">📁 仅下载 config.js</button>
+        <button class="btn btn-s" onclick="generateSite(true)">🚀 一键发布到线上</button>
       </div>
       <div class="status" id="genStatus"></div>
     </div>`;
-  updateStats();
 }
 
 // ===== 品牌设置 =====
@@ -305,9 +456,9 @@ function renderBrand(){
       <div class="fg"><div class="lh">ZH</div><label>中文名称</label><input class="fi" id="brand_name_zh" value="${esc(i18nGet(b.name,'zh'))}" placeholder="中文"></div>
       <div class="fg"><div class="lh">EN</div><label>品牌标语</label><input class="fi" id="brand_slogan_en" value="${esc(i18nGet(b.slogan,'en'))}" placeholder="English"></div>
       <div class="fg"><div class="lh">ZH</div><label>中文标语</label><input class="fi" id="brand_slogan_zh" value="${esc(i18nGet(b.slogan,'zh'))}" placeholder="中文"></div>
-      <div class="fg"><label>Logo 路径</label><input class="fi" id="brand_logo" value="${esc(b.logo||'')}" placeholder="/assets/images/logo.png"></div>
+      <div class="fg"><label>Logo 图片</label>${imgField('brand_logo','品牌 Logo',b.logo||'')}</div>
     </div>
-    <div class="card"><div class="card-title">配色</div>
+    <div class="card"><div class="card-title">配色方案</div>
       ${colorRow('主色调','brand_primary',b.primaryColor||'#C9A96E')}
       ${colorRow('辅助色','brand_secondary',b.secondaryColor||'#2D2D2D')}
       ${colorRow('背景色','brand_bg',b.bgColor||'#FFFFFF')}
@@ -329,7 +480,7 @@ function saveBrand(e){
   b.slogan=i18nSet(b.slogan,'en',$('brand_slogan_en').value);b.slogan=i18nSet(b.slogan,'zh',$('brand_slogan_zh').value);
   b.logo=$('brand_logo').value;b.primaryColor=$('brand_primary').value;b.secondaryColor=$('brand_secondary').value;
   b.bgColor=$('brand_bg').value;b.accentBg=$('brand_accent').value;
-  saveConfig();showAlert('mainAlert','品牌设置已保存','s');
+  saveConfig();toast('✅ 品牌设置已保存','success');
 }
 
 // ===== 产品管理 =====
@@ -337,7 +488,7 @@ function renderProducts(){
   const cfg=currentConfig,p=cfg.products||[],cats=cfg.productCategories||[];
   let rows='';
   p.forEach((pr,i)=>{
-    rows+=`<tr><td>${i+1}</td><td>${esc(i18nGet(pr.name,'zh'))}</td><td>${esc(i18nGet(pr.category,'zh'))}</td><td>${esc(pr.price||'-')}</td><td style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${esc(pr.image||'-')}</td><td><button class="btn btn-d btn-sm" onclick="deleteProduct(${i})">删除</button></td></tr>`;
+    rows+=`<tr><td>${i+1}</td><td>${esc(i18nGet(pr.name,'zh'))}</td><td>${esc(i18nGet(pr.category,'zh'))}</td><td>${esc(pr.price||'-')}</td><td style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${esc(pr.image?'已上传':'-')}</td><td><button class="btn btn-d btn-sm" onclick="deleteProduct(${i})">删除</button></td></tr>`;
   });
   $('pageContainer').innerHTML=`
     <h1 class="page-title">🛍️ 产品管理</h1>
@@ -356,7 +507,7 @@ function renderProducts(){
     <div class="card"><div class="card-title">＋ 添加产品</div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>名称</label><input class="fi" id="new_pname_en" placeholder="English" required></div><div class="fg"><div class="lh">ZH</div><label>中文名</label><input class="fi" id="new_pname_zh" placeholder="中文"></div></div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>分类</label><input class="fi" id="new_pcat_en" placeholder="English"></div><div class="fg"><div class="lh">ZH</div><label>中文分类</label><input class="fi" id="new_pcat_zh" placeholder="中文" required></div></div>
-      <div class="fr"><div class="fg"><label>价格</label><input class="fi" id="new_price" placeholder="$29.00"></div><div class="fg"><label>图片路径</label><input class="fi" id="new_pimg" placeholder="/assets/images/product.jpg"></div></div>
+      <div class="fr"><div class="fg"><label>价格</label><input class="fi" id="new_price" placeholder="$29.00"></div><div class="fg"><label>产品图片</label>${imgField('new_pimg','产品图','')}</div></div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>描述</label><input class="fi" id="new_pdesc_en" placeholder="English"></div><div class="fg"><div class="lh">ZH</div><label>中文描述</label><input class="fi" id="new_pdesc_zh" placeholder="中文"></div></div>
       <button type="submit" class="btn btn-p">＋ 添加</button>
     </div>
@@ -369,7 +520,7 @@ function saveProductMeta(e){e.preventDefault();
   currentConfig.productsMeta.title=i18nSet(currentConfig.productsMeta.title,'zh',$('prod_title_zh').value);
   const cats=$('prod_cats').value.split(',').map(s=>s.trim()).filter(Boolean);
   currentConfig.productCategories=cats.map(c=>({en:c,zh:c}));
-  saveConfig();showAlert('mainAlert','产品设置已保存','s');
+  saveConfig();toast('✅ 产品设置已保存','success');
 }
 
 function addProduct(e){e.preventDefault();
@@ -378,10 +529,10 @@ function addProduct(e){e.preventDefault();
   p.price=$('new_price').value;p.image=$('new_pimg').value;
   p.description={};if($('new_pdesc_en').value)p.description.en=$('new_pdesc_en').value;if($('new_pdesc_zh').value)p.description.zh=$('new_pdesc_zh').value;
   (currentConfig.products=currentConfig.products||[]).push(p);
-  saveConfig();renderProducts();showAlert('mainAlert','产品已添加','s');
+  saveConfig();renderProducts();toast('✅ 产品已添加','success');
 }
 
-function deleteProduct(i){if(confirm('确认删除该产品？')){currentConfig.products.splice(i,1);saveConfig();renderProducts();showAlert('mainAlert','产品已删除','s')}}
+function deleteProduct(i){if(confirm('确认删除该产品？')){currentConfig.products.splice(i,1);saveConfig();renderProducts();toast('产品已删除','info')}}
 
 // ===== 页面内容 =====
 function renderPages(){
@@ -391,33 +542,31 @@ function renderPages(){
   $('pageContainer').innerHTML=`
     <h1 class="page-title">📄 页面内容</h1>
     <form onsubmit="saveSEO(event)" style="margin:0">
-    <div class="card"><div class="card-title">🔍 SEO</div>
-      <div class="fg"><div class="lh">EN</div><label>标题</label><input class="fi" id="seo_title_en" value="${esc(i18nGet(s.title,'en'))}"></div>
-      <div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="seo_title_zh" value="${esc(i18nGet(s.title,'zh'))}"></div>
-      <div class="fg"><div class="lh">EN</div><label>描述</label><input class="fi" id="seo_desc_en" value="${esc(i18nGet(s.description,'en'))}"></div>
-      <div class="fg"><div class="lh">ZH</div><label>中文描述</label><input class="fi" id="seo_desc_zh" value="${esc(i18nGet(s.description,'zh'))}"></div>
+    <div class="card"><div class="card-title">🔍 SEO 设置</div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>页面标题</label><input class="fi" id="seo_title_en" value="${esc(i18nGet(s.title,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="seo_title_zh" value="${esc(i18nGet(s.title,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>描述</label><input class="fi" id="seo_desc_en" value="${esc(i18nGet(s.description,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文描述</label><input class="fi" id="seo_desc_zh" value="${esc(i18nGet(s.description,'zh'))}"></div></div>
       <div class="fg"><label>关键词</label><input class="fi" id="seo_kw" value="${esc(s.keywords||'')}"></div>
-      <div class="fg"><label>OG 图片</label><input class="fi" id="seo_og" value="${esc(s.ogImage||'')}"></div>
+      <div class="fg"><label>OG 封面图</label>${imgField('seo_og','OG封面图',s.ogImage||'')}</div>
       <button type="submit" class="btn btn-p btn-sm">💾 保存 SEO</button>
     </div></form>
     <form onsubmit="saveI18n(event)" style="margin:0">
-    <div class="card"><div class="card-title">🌐 多语言</div>
+    <div class="card"><div class="card-title">🌐 多语言设置</div>
       <div class="fr"><div class="fg"><label>默认语言</label><select class="fi" id="i18n_def"><option value="en" ${i18.defaultLanguage==='en'?'selected':''}>English</option><option value="zh" ${i18.defaultLanguage==='zh'?'selected':''}>中文</option></select></div><div class="fg"><label>启用语言</label><input class="fi" id="i18n_langs" value="${esc((i18.languages||['en','zh']).join(', '))}"></div></div>
       <button type="submit" class="btn btn-p btn-sm">💾 保存语言设置</button>
     </div></form>
     <form onsubmit="saveHero(event)" style="margin:0">
-    <div class="card"><div class="card-title">🎯 Hero 区域</div>
-      <div class="fg"><label>大图路径</label><input class="fi" id="hero_img" value="${esc(h.image||'')}"></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>标题</label><input class="fi" id="hero_title_en" value="${esc(i18nGet(h.title,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="hero_title_zh" value="${esc(i18nGet(h.title,'zh'))}"></div></div>
+    <div class="card"><div class="card-title">🎯 首屏 Hero 区域</div>
+      <div class="fg"><label>大图背景</label>${imgField('hero_img','首屏大图',h.image||'')}</div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>主标题</label><input class="fi" id="hero_title_en" value="${esc(i18nGet(h.title,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="hero_title_zh" value="${esc(i18nGet(h.title,'zh'))}"></div></div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>副标题</label><input class="fi" id="hero_sub_en" value="${esc(i18nGet(h.subtitle,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文副标题</label><input class="fi" id="hero_sub_zh" value="${esc(i18nGet(h.subtitle,'zh'))}"></div></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>CTA 文字</label><input class="fi" id="hero_cta_en" value="${esc(i18nGet(h.ctaText,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文 CTA</label><input class="fi" id="hero_cta_zh" value="${esc(i18nGet(h.ctaText,'zh'))}"></div></div>
-      <div class="fg"><label>CTA 链接</label><input class="fi" id="hero_cta_link" value="${esc(h.ctaLink||'#products')}"></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮文字</label><input class="fi" id="hero_cta_en" value="${esc(i18nGet(h.ctaText,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文 CTA</label><input class="fi" id="hero_cta_zh" value="${esc(i18nGet(h.ctaText,'zh'))}"></div></div>
+      <div class="fg"><label>按钮链接</label><input class="fi" id="hero_cta_link" value="${esc(h.ctaLink||'#products')}"></div>
       <button type="submit" class="btn btn-p btn-sm">💾 保存 Hero</button>
     </div></form>
     <form onsubmit="saveAbout(event)" style="margin:0">
     <div class="card"><div class="card-title">📖 关于我们</div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>标题</label><input class="fi" id="about_title_en" value="${esc(i18nGet(a.title,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="about_title_zh" value="${esc(i18nGet(a.title,'zh'))}"></div></div>
-      <div class="fg"><label>图片路径</label><input class="fi" id="about_img" value="${esc(a.image||'')}"></div>
+      <div class="fg"><label>配图</label>${imgField('about_img','关于页配图',a.image||'')}</div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>内容（每行一段）</label><textarea class="fi" id="about_p_en" rows="4">${esc(abt.en.trim())}</textarea></div><div class="fg"><div class="lh">ZH</div><label>中文内容</label><textarea class="fi" id="about_p_zh" rows="4">${esc(abt.zh.trim())}</textarea></div></div>
       <button type="submit" class="btn btn-p btn-sm">💾 保存关于</button>
     </div></form>`;
@@ -426,62 +575,62 @@ function renderPages(){
 function saveSEO(e){e.preventDefault();const s=currentConfig.seo=currentConfig.seo||{};
   s.title=i18nSet(s.title,'en',$('seo_title_en').value);s.title=i18nSet(s.title,'zh',$('seo_title_zh').value);
   s.description=i18nSet(s.description,'en',$('seo_desc_en').value);s.description=i18nSet(s.description,'zh',$('seo_desc_zh').value);
-  s.keywords=$('seo_kw').value;s.ogImage=$('seo_og').value;saveConfig();showAlert('mainAlert','SEO 已保存','s');}
-function saveI18n(e){e.preventDefault();currentConfig.i18n={defaultLanguage:$('i18n_def').value,languages:$('i18n_langs').value.split(',').map(s=>s.trim()).filter(Boolean)};saveConfig();showAlert('mainAlert','语言设置已保存','s');}
+  s.keywords=$('seo_kw').value;s.ogImage=$('seo_og').value;saveConfig();toast('✅ SEO 设置已保存','success');}
+function saveI18n(e){e.preventDefault();currentConfig.i18n={defaultLanguage:$('i18n_def').value,languages:$('i18n_langs').value.split(',').map(s=>s.trim()).filter(Boolean)};saveConfig();toast('✅ 语言设置已保存','success');}
 function saveHero(e){e.preventDefault();const h=currentConfig.hero=currentConfig.hero||{};
   h.image=$('hero_img').value;h.title=i18nSet(h.title,'en',$('hero_title_en').value);h.title=i18nSet(h.title,'zh',$('hero_title_zh').value);
   h.subtitle=i18nSet(h.subtitle,'en',$('hero_sub_en').value);h.subtitle=i18nSet(h.subtitle,'zh',$('hero_sub_zh').value);
   h.ctaText=i18nSet(h.ctaText,'en',$('hero_cta_en').value);h.ctaText=i18nSet(h.ctaText,'zh',$('hero_cta_zh').value);
-  h.ctaLink=$('hero_cta_link').value;saveConfig();showAlert('mainAlert','Hero 已保存','s');}
+  h.ctaLink=$('hero_cta_link').value;saveConfig();toast('✅ Hero 内容已保存','success');}
 function saveAbout(e){e.preventDefault();const a=currentConfig.about=currentConfig.about||{};
   a.image=$('about_img').value;a.title=i18nSet(a.title,'en',$('about_title_en').value);a.title=i18nSet(a.title,'zh',$('about_title_zh').value);
   const en=$('about_p_en').value.split('\n').map(s=>s.trim()).filter(Boolean),zh=$('about_p_zh').value.split('\n').map(s=>s.trim()).filter(Boolean);
   a.paragraphs=[];for(let i=0;i<Math.max(en.length,zh.length);i++){const p={};if(i<en.length)p.en=en[i];if(i<zh.length)p.zh=zh[i];if(Object.keys(p).length)a.paragraphs.push(p)}
-  saveConfig();showAlert('mainAlert','关于已保存','s');}
+  saveConfig();toast('✅ 关于内容已保存','success');}
 
 // ===== 联系方式 =====
 function renderContact(){
   const c=currentConfig.contact||{},w=c.wechat||{},wa=c.whatsapp||{},ws=c.website||{},em=c.email||{},sq=c.siteQR||{};
   $('pageContainer').innerHTML=`
     <h1 class="page-title">📞 联系方式</h1><form onsubmit="saveContact(event)" style="margin:0">
-    <div class="card"><div class="card-title">💬 微信</div>
+    <div class="card"><div class="card-title">💬 微信咨询</div>
       <label class="chk"><input type="checkbox" id="wx_en" ${w.enabled?'checked':''}> 启用微信入口</label>
-      <div class="fg"><label>QR 图片</label><input class="fi" id="wx_qr" value="${esc(w.qrImage||'')}" placeholder="/assets/qrcodes/wechat-qr.png"></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮</label><input class="fi" id="wx_label_en" value="${esc(i18nGet(w.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="wx_label_zh" value="${esc(i18nGet(w.label,'zh'))}"></div></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>提示</label><input class="fi" id="wx_hint_en" value="${esc(i18nGet(w.hint,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文提示</label><input class="fi" id="wx_hint_zh" value="${esc(i18nGet(w.hint,'zh'))}"></div></div>
+      <div class="fg"><label>二维码图片</label>${imgField('wx_qr','微信二维码',w.qrImage||'')}</div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮文字</label><input class="fi" id="wx_label_en" value="${esc(i18nGet(w.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="wx_label_zh" value="${esc(i18nGet(w.label,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>提示文字</label><input class="fi" id="wx_hint_en" value="${esc(i18nGet(w.hint,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文提示</label><input class="fi" id="wx_hint_zh" value="${esc(i18nGet(w.hint,'zh'))}"></div></div>
     </div>
     <div class="card"><div class="card-title">📱 WhatsApp</div>
       <label class="chk"><input type="checkbox" id="wa_en" ${wa.enabled?'checked':''}> 启用 WhatsApp</label>
       <div class="fg"><label>手机号（含国家码）</label><input class="fi" id="wa_phone" value="${esc(wa.phone||'')}" placeholder="8613800138000"></div>
-      <div class="fg"><label>QR 图片（可选）</label><input class="fi" id="wa_qr" value="${esc(wa.qrImage||'')}"></div>
+      <div class="fg"><label>二维码图片</label>${imgField('wa_qr','WhatsApp二维码',wa.qrImage||'')}</div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>招呼消息</label><input class="fi" id="wa_msg_en" value="${esc(i18nGet(wa.message,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文招呼</label><input class="fi" id="wa_msg_zh" value="${esc(i18nGet(wa.message,'zh'))}"></div></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮</label><input class="fi" id="wa_label_en" value="${esc(i18nGet(wa.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="wa_label_zh" value="${esc(i18nGet(wa.label,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮文字</label><input class="fi" id="wa_label_en" value="${esc(i18nGet(wa.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="wa_label_zh" value="${esc(i18nGet(wa.label,'zh'))}"></div></div>
     </div>
     <div class="card"><div class="card-title">🌐 个人网站</div>
       <label class="chk"><input type="checkbox" id="ws_en" ${ws.enabled?'checked':''}> 显示网站入口</label>
       <div class="fg"><label>网站 URL</label><input class="fi" id="ws_url" value="${esc(ws.url||'')}" placeholder="https://your-website.com"></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮</label><input class="fi" id="ws_label_en" value="${esc(i18nGet(ws.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="ws_label_zh" value="${esc(i18nGet(ws.label,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮文字</label><input class="fi" id="ws_label_en" value="${esc(i18nGet(ws.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="ws_label_zh" value="${esc(i18nGet(ws.label,'zh'))}"></div></div>
       <label class="chk"><input type="checkbox" id="ws_nt" ${ws.openNewTab?'checked':''}> 新窗口打开</label>
     </div>
     <div class="card"><div class="card-title">📧 邮箱</div>
       <label class="chk"><input type="checkbox" id="em_en" ${em.enabled?'checked':''}> 显示邮箱</label>
       <div class="fg"><label>邮箱地址</label><input class="fi" id="em_addr" value="${esc(em.address||'')}"></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮</label><input class="fi" id="em_label_en" value="${esc(i18nGet(em.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="em_label_zh" value="${esc(i18nGet(em.label,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>按钮文字</label><input class="fi" id="em_label_en" value="${esc(i18nGet(em.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="em_label_zh" value="${esc(i18nGet(em.label,'zh'))}"></div></div>
     </div>
     <div class="card"><div class="card-title">🔗 站点入口二维码</div>
       <label class="chk"><input type="checkbox" id="sq_en" ${sq.enabled?'checked':''}> 启用</label>
       <div class="fg"><label>网站 URL</label><input class="fi" id="sq_url" value="${esc(sq.url||'')}"></div>
-      <div class="fg"><label>自定义二维码</label><input class="fi" id="sq_qr" value="${esc(sq.qrImage||'')}"></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>标签</label><input class="fi" id="sq_label_en" value="${esc(i18nGet(sq.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标签</label><input class="fi" id="sq_label_zh" value="${esc(i18nGet(sq.label,'zh'))}"></div></div>
-      <div class="fr"><div class="fg"><div class="lh">EN</div><label>提示</label><input class="fi" id="sq_hint_en" value="${esc(i18nGet(sq.hint,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文提示</label><input class="fi" id="sq_hint_zh" value="${esc(i18nGet(sq.hint,'zh'))}"></div></div>
-      <label class="chk"><input type="checkbox" id="sq_show" ${sq.showOnPage?'checked':''}> 网页中展示</label>
+      <div class="fg"><label>自定义二维码</label>${imgField('sq_qr','站点二维码',sq.qrImage||'')}</div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>标签文字</label><input class="fi" id="sq_label_en" value="${esc(i18nGet(sq.label,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标签</label><input class="fi" id="sq_label_zh" value="${esc(i18nGet(sq.label,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>提示文字</label><input class="fi" id="sq_hint_en" value="${esc(i18nGet(sq.hint,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文提示</label><input class="fi" id="sq_hint_zh" value="${esc(i18nGet(sq.hint,'zh'))}"></div></div>
+      <label class="chk"><input type="checkbox" id="sq_show" ${sq.showOnPage?'checked':''}> 在网页中展示</label>
     </div>
     <button type="submit" class="btn btn-p">💾 保存联系方式</button></form>`;
 }
 
 function saveContact(e){e.preventDefault();
   const c=currentConfig.contact=currentConfig.contact||{};
-  c.wechat={enabled:$('wx_en').checked,qrImage:$('wx_qr').value,label:i18nSet({},'en',$('wx_label_en').value),hint:i18nSet({},'zh',$('wx_label_zh').value),modalTitle:{},modalHint:{}};
+  c.wechat={enabled:$('wx_en').checked,qrImage:$('wx_qr').value,label:i18nSet({},'en',$('wx_label_en').value),hint:i18nSet({},'zh',$('wx_hint_en').value),modalTitle:{},modalHint:{}};
   c.wechat.label=i18nSet(c.wechat.label,'zh',$('wx_label_zh').value);c.wechat.hint=i18nSet(c.wechat.hint,'en',$('wx_hint_en').value);c.wechat.hint=i18nSet(c.wechat.hint,'zh',$('wx_hint_zh').value);
   c.whatsapp={enabled:$('wa_en').checked,phone:$('wa_phone').value,qrImage:$('wa_qr').value,message:i18nSet({},'en',$('wa_msg_en').value),label:i18nSet({},'en',$('wa_label_en').value),modalTitle:{},modalHint:{}};
   c.whatsapp.message=i18nSet(c.whatsapp.message,'zh',$('wa_msg_zh').value);c.whatsapp.label=i18nSet(c.whatsapp.label,'zh',$('wa_label_zh').value);
@@ -490,7 +639,7 @@ function saveContact(e){e.preventDefault();
   c.email={enabled:$('em_en').checked,address:$('em_addr').value,label:i18nSet({},'en',$('em_label_en').value)};c.email.label=i18nSet(c.email.label,'zh',$('em_label_zh').value);
   c.siteQR={enabled:$('sq_en').checked,url:$('sq_url').value,qrImage:$('sq_qr').value,label:i18nSet({},'en',$('sq_label_en').value),hint:i18nSet({},'en',$('sq_hint_en').value),showOnPage:$('sq_show').checked};
   c.siteQR.label=i18nSet(c.siteQR.label,'zh',$('sq_label_zh').value);c.siteQR.hint=i18nSet(c.siteQR.hint,'zh',$('sq_hint_zh').value);
-  saveConfig();showAlert('mainAlert','联系方式已保存','s');
+  saveConfig();toast('✅ 联系方式已保存','success');
 }
 
 // ===== 部署 =====
@@ -500,39 +649,41 @@ function renderDeploy(){
     <form onsubmit="saveDeploy(event)" style="margin:0">
     <div class="card"><div class="card-title">📦 GitHub Pages 部署设置</div>
       <div class="fg"><label>仓库 URL</label><input class="fi" id="depo_repo" value="${esc(deployRepo)}" placeholder="https://github.com/用户名/仓库名.git"></div>
-      <div class="fr"><div class="fg"><label>分支</label><input class="fi" id="depo_branch" value="${esc(deployBranch)}"></div><div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="${esc(deployToken)}" placeholder="ghp_xxxxxxxx"></div></div>
+      <div class="fr"><div class="fg"><label>分支</label><input class="fi" id="depo_branch" value="${esc(deployBranch)}"></div><div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="${esc(deployToken)}" placeholder="github_pat_xxxxxxxx"></div></div>
       <p style="font-size:12px;color:#888;margin-bottom:12px">获取 Token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens (需 Contents 读写权限)</p>
       <button type="submit" class="btn btn-p btn-sm">💾 保存部署设置</button>
     </div></form>
     <div class="card"><div class="card-title">⚡ 一键生成</div>
       <p style="font-size:13px;color:#888;margin-bottom:12px">所有配置保存后，点击下方按钮。首次部署需要填写上方 GitHub 信息。</p>
       <div class="depoly-actions">
-        <button class="btn btn-p" onclick="generateSite(false)">📁 仅生成 config.js</button>
-        <button class="btn btn-s" onclick="generateSite(true)">🚀 生成并部署</button>
+        <button class="btn btn-p" onclick="generateSite(false)">📁 仅下载 config.js</button>
+        <button class="btn btn-s" onclick="generateSite(true)">🚀 一键发布到线上</button>
       </div>
       <div class="status" id="genStatus"></div>
     </div>`;
 }
 
-function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deployBranch=$('depo_branch').value||'gh-pages';deployToken=$('depo_token').value;saveLocal('deploy',{repo:deployRepo,branch:deployBranch,token:deployToken});showAlert('mainAlert','部署设置已保存','s');}
+function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deployBranch=$('depo_branch').value||'gh-pages';deployToken=$('depo_token').value;saveLocal('deploy',{repo:deployRepo,branch:deployBranch,token:deployToken});toast('✅ 部署设置已保存','success');}
 
 // ===== 生成 & 部署 =====
 async function generateSite(deploy){
-  const s=$('genStatus');s.innerHTML='<span style="color:#888">⏳ 正在生成 config.js...</span>';
+  const s=$('genStatus');if(!s)s.innerHTML='<span style="color:#888">⏳ 正在处理...</span>';
+  else{s.innerHTML='<span style="color:#888">⏳ 正在生成 config.js...</span>';}
   saveConfig();
   const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
-  if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br>手动替换网站目录中的 config.js 文件即可。';return}
-  if(!deployRepo||!deployToken){s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';return}
-  s.innerHTML='<span style="color:#888">⏳ 正在部署到 GitHub Pages...</span>';
+  if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();if(s)s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br><span style="color:#888">手动替换网站目录中的 config.js 文件即可。</span>';toast('✅ config.js 已下载','success');return}
+  if(!deployRepo||!deployToken){if(s)s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';toast('❌ 请先配置部署信息','error');return}
+  if(s)s.innerHTML='<span style="color:#888">⏳ 正在部署到 GitHub Pages...</span>';
   try{
     const repoMatch=deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/);
-    if(!repoMatch){s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';return}
+    if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
     const owner=repoMatch[1],repo=repoMatch[2];
     await uploadFile(owner,repo,deployBranch,'config.js',js,'Update site config');
     const adminHtml='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
     await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtml,'Update admin page');
-    s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="https://${owner}.github.io/${repo}/" target="_blank">访问网站</a><br>🔧 <a href="https://${owner}.github.io/${repo}/admin/" target="_blank">管理后台</a><br><span style="color:#888">⏱ 1-2 分钟后生效</span>`;
-  }catch(e){s.innerHTML=`<span class="s-e">❌ 部署失败: ${e.message}</span>`}
+    if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="https://${owner}.github.io/${repo}/" target="_blank">访问网站</a><br>🔧 <a href="https://${owner}.github.io/${repo}/admin/" target="_blank">管理后台</a><br><span style="color:#888">⏱ 1-2 分钟后生效</span>`;
+    toast('🎉 网站发布成功！1-2分钟后生效','success');
+  }catch(e){if(s)s.innerHTML=`<span class="s-e">❌ 部署失败: ${e.message}</span>`;toast('❌ 部署失败: '+e.message,'error')}
 }
 
 async function uploadFile(owner,repo,branch,path,content,msg){
@@ -558,23 +709,23 @@ function renderUsers(){
     </div></form>
     <form onsubmit="updateUserPass(event)" style="margin:0"><div class="card"><div class="card-title">✏️ 修改密码</div>
       <div class="fr"><div class="fg"><label>用户名</label><input class="fi" id="up_name" placeholder="用户名" required></div><div class="fg"><label>新密码</label><input type="password" class="fi" id="up_pass" placeholder="新密码" required></div></div>
-      <button type="submit" class="btn btn-o btn-sm">✏️ 修改密码</button>
+      <button type="submit" class="btn-o btn-sm">✏️ 修改密码</button>
     </div></form>`;
 }
 
 async function createUser(e){e.preventDefault();
   const name=$('nu_name').value.trim(),pass=$('nu_pass').value,role=$('nu_role').value;
-  if(currentUsers[name]){showAlert('mainAlert','用户已存在','e');return}
+  if(currentUsers[name]){toast('❌ 用户已存在','error');return}
   const hash=await sha256(pass+SALT);currentUsers[name]={username:name,password:hash,role:role};
-  saveLocal('users',currentUsers);renderUsers();showAlert('mainAlert',`用户 ${name} 创建成功`,'s');
+  saveLocal('users',currentUsers);renderUsers();toast('✅ 用户 '+name+' 创建成功','success');
 }
 async function updateUserPass(e){e.preventDefault();
   const name=$('up_name').value.trim(),pass=$('up_pass').value;
-  if(!currentUsers[name]){showAlert('mainAlert','用户不存在','e');return}
+  if(!currentUsers[name]){toast('❌ 用户不存在','error');return}
   currentUsers[name].password=await sha256(pass+SALT);
-  saveLocal('users',currentUsers);renderUsers();showAlert('mainAlert',`用户 ${name} 密码已更新`,'s');
+  saveLocal('users',currentUsers);renderUsers();toast('✅ '+name+' 密码已更新','success');
 }
-function deleteUser(name){if(!confirm(`确认删除用户 ${name}？`))return;delete currentUsers[name];saveLocal('users',currentUsers);renderUsers();showAlert('mainAlert',`用户 ${name} 已删除`,'s');}
+function deleteUser(name){if(!confirm('确认删除用户 '+name+'？'))return;delete currentUsers[name];saveLocal('users',currentUsers);renderUsers();toast(name+' 已删除','info')}
 
 function saveConfig(){localStorage.setItem('qrc_config',JSON.stringify(currentConfig));}
 
