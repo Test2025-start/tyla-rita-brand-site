@@ -16,7 +16,7 @@ window.SITE_CONFIG = {
       "en": "Crafted with Love",
       "zh": "用心打造"
     },
-    "logo": "https://picsum.photos/id/20/200/200",
+    "logo": "https://images.pexels.com/photos/1458867/pexels-photo-1458867.jpeg?w=200&h=200&fit=crop",
     "primaryColor": "#C9A96E",
     "secondaryColor": "#2D2D2D",
     "bgColor": "#FFFFFF",
@@ -57,7 +57,7 @@ window.SITE_CONFIG = {
     }
   ],
   "hero": {
-    "image": "https://picsum.photos/id/10/1200/800",
+    "image": "https://images.pexels.com/photos/7679824/pexels-photo-7679824.jpeg?w=1200&h=800&fit=crop",
     "title": {
       "en": "TylaRita Jewelry",
       "zh": "TylaRita 珠宝"
@@ -107,7 +107,7 @@ window.SITE_CONFIG = {
         "zh": "热销推荐"
       },
       "price": "$29.00",
-      "image": "https://picsum.photos/id/30/400/400",
+      "image": "https://images.pexels.com/photos/8774780/pexels-photo-8774780.jpeg?w=600&h=600&fit=crop",
       "description": {
         "en": "Elegant freshwater pearls with 18K gold clasp.",
         "zh": "优雅淡水珍珠，配18K金扣。"
@@ -123,7 +123,7 @@ window.SITE_CONFIG = {
         "zh": "新品上市"
       },
       "price": "$35.00",
-      "image": "https://picsum.photos/id/40/400/400",
+      "image": "https://images.pexels.com/photos/1458867/pexels-photo-1458867.jpeg?w=600&h=600&fit=crop",
       "description": {
         "en": "Sparkling crystal drops with sterling silver hooks.",
         "zh": "闪耀水晶吊坠，纯银耳钩。"
@@ -139,7 +139,7 @@ window.SITE_CONFIG = {
         "zh": "热销推荐"
       },
       "price": "$89.00",
-      "image": "https://picsum.photos/id/50/400/400",
+      "image": "https://images.pexels.com/photos/13924051/pexels-photo-13924051.jpeg?w=600&h=600&fit=crop",
       "description": {
         "en": "Set of 3 stackable gold bangles.",
         "zh": "3件套可叠戴黄金手镯。"
@@ -155,7 +155,7 @@ window.SITE_CONFIG = {
         "zh": "经典系列"
       },
       "price": "$45.00",
-      "image": "https://picsum.photos/id/60/400/400",
+      "image": "https://images.pexels.com/photos/14579309/pexels-photo-14579309.jpeg?w=600&h=600&fit=crop",
       "description": {
         "en": "Sterling silver bracelet with charm pendants.",
         "zh": "纯银手链，配有幸运挂饰。"
@@ -171,7 +171,7 @@ window.SITE_CONFIG = {
         "zh": "新品上市"
       },
       "price": "$199.00",
-      "image": "https://picsum.photos/id/70/400/400",
+      "image": "https://images.pexels.com/photos/12427695/pexels-photo-12427695.jpeg?w=600&h=600&fit=crop",
       "description": {
         "en": "Lab-grown diamond studs in 14K white gold.",
         "zh": "实验室培育钻石，14K白金耳钉。"
@@ -187,7 +187,7 @@ window.SITE_CONFIG = {
         "zh": "热销推荐"
       },
       "price": "$159.00",
-      "image": "https://picsum.photos/id/80/400/400",
+      "image": "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?w=600&h=600&fit=crop",
       "description": {
         "en": "Elegant rose gold watch with leather strap.",
         "zh": "优雅玫瑰金手表，真皮表带。"
@@ -195,7 +195,7 @@ window.SITE_CONFIG = {
     }
   ],
   "about": {
-    "image": "https://picsum.photos/id/30/800/600",
+    "image": "https://images.pexels.com/photos/33737462/pexels-photo-33737462.jpeg?w=800&h=600&fit=crop",
     "title": {
       "en": "About Us",
       "zh": "关于我们"
@@ -218,7 +218,7 @@ window.SITE_CONFIG = {
     },
     "wechat": {
       "enabled": true,
-      "qrImage": "https://picsum.photos/id/180/300/300",
+      "qrImage": "assets/qrcodes/wechat-qr.png",
       "label": {
         "en": "WeChat",
         "zh": "微信咨询"
@@ -243,7 +243,7 @@ window.SITE_CONFIG = {
         "en": "Hello!",
         "zh": "你好！"
       },
-      "qrImage": "https://picsum.photos/id/200/300/300",
+      "qrImage": "assets/qrcodes/whatsapp-qr.png",
       "label": {
         "en": "WhatsApp",
         "zh": "WhatsApp 联系"
@@ -290,7 +290,7 @@ window.SITE_CONFIG = {
         "zh": "扫码打开网站"
       },
       "showOnPage": true,
-      "qrImage": "https://picsum.photos/id/300/300/300"
+      "qrImage": "assets/qrcodes/site-qr.png"
     }
   },
   "seo": {
@@ -303,8 +303,8 @@ window.SITE_CONFIG = {
       "zh": "发现手工珠宝。优雅设计，适合每个场合。"
     },
     "keywords": "jewelry, accessories",
-    "ogImage": "https://picsum.photos/id/100/1200/630",
-    "favicon": "https://picsum.photos/id/20/32/32"
+    "ogImage": "https://images.pexels.com/photos/7679824/pexels-photo-7679824.jpeg?w=1200&h=630&fit=crop",
+    "favicon": "https://images.pexels.com/photos/1458867/pexels-photo-1458867.jpeg?w=32&h=32&fit=crop"
   },
   "advanced": {
     "gaTrackingId": "",
