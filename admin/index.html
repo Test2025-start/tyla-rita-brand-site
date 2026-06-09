@@ -870,7 +870,7 @@ function uploadFile(owner,repo,branch,path,content,msg,timeoutSec){
         }
       });
       xhr.addEventListener('error',function(){clearTimeout(timer);reject(new Error('网络错误，请检查网络连接'));});
-      xhr.addEventListener('timeout',function(){clearTimeout(timer);reject(new Error('上传超时('+timeoutSec+'s)，文件可能过大，请减少图片大小后重试');});
+      xhr.addEventListener('timeout',function(){clearTimeout(timer);reject(new Error('上传超时('+timeoutSec+'s)，文件可能过大，请减少图片大小后重试'));});
       xhr.addEventListener('abort',function(){clearTimeout(timer);reject(new Error('上传被中断'));});
       xhr.send(body);
     });
