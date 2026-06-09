@@ -286,7 +286,7 @@ function handleUpload(inp,targetId){
     var form=new FormData();
     form.append('image',f);
     var xhr=new XMLHttpRequest();
-    xhr.open('POST','https://api.imgbb.com/1/image?key='+imgbbKey);
+    xhr.open('POST','https://api.imgbb.com/1/upload?key='+imgbbKey);
     xhr.upload.addEventListener('progress',function(e){
       if(e.lengthComputable){
         var pct=Math.round(e.loaded/e.total*100);
