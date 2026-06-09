@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>管理后台 — Site Admin</title>
+<style>
+:root{--primary:#C9A96E;--primary-dark:#B08D4A;--bg:#F8F6F3;--white:#FFF;--text:#2D2D2D;--text-light:#888;--border:#E5E0D8;--danger:#E74C3C;--success:#27AE60;--radius:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text)}
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:40px;width:380px;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.login-box h1{font-size:22px;text-align:center;margin-bottom:4px}
+.login-box .sub{font-size:13px;color:#999;text-align:center;margin-bottom:28px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:#555}
+.fg .lh{font-size:11px;color:var(--primary);font-weight:600;margin-bottom:2px}
+.fi{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;background:var(--white)}
+.fi:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(201,169,110,.15)}
+textarea.fi{resize:vertical;min-height:70px}
+.fr{display:flex;gap:12px}.fr .fg{flex:1}
+.cr{display:flex;gap:8px;align-items:center}
+.cr input[type=color]{width:36px;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px}
+.chk{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.chk input[type=checkbox]{width:16px;height:16px;accent-color:var(--primary)}
+.btn{display:inline-block;padding:8px 18px;border:none;border-radius:6px;font-size:14px;cursor:pointer;font-weight:500;transition:.15s;text-decoration:none}
+.btn-p{background:var(--primary);color:#FFF}.btn-p:hover{background:var(--primary-dark)}
+.btn-d{background:var(--danger);color:#FFF}
+.btn-s{background:var(--success);color:#FFF}
+.btn-o{background:white;border:1px solid var(--border);color:var(--text)}
+.btn-o:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-login{width:100%;padding:10px;background:var(--primary);color:#FFF;border:none;border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-login:hover{background:var(--primary-dark)}
+.alert{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:14px;display:none}
+.alert.show{display:block;animation:fadeIn .3s}
+.alert-e{background:#FDECEA;color:var(--danger);border:1px solid #FADBD8}
+.alert-s{background:#E8F8F5;color:var(--success);border:1px solid #D5F5E3}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+#app{display:none;min-height:100vh}
+.sidebar{width:220px;background:#1E1E1E;color:#CCC;position:fixed;top:0;left:0;bottom:0;z-index:100;display:flex;flex-direction:column}
+.sidebar-logo{padding:24px 20px 16px;font-size:18px;font-weight:700;color:var(--primary);border-bottom:1px solid #333}
+.sidebar-info{padding:10px 20px;font-size:12px;color:#888;border-bottom:1px solid #333}
+.sidebar-info .role{color:var(--primary);font-size:11px;margin-top:2px}
+.sidebar-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sidebar-nav a{display:block;padding:10px 20px;color:#AAA;text-decoration:none;font-size:14px;border-left:3px solid transparent;cursor:pointer;transition:.15s}
+.sidebar-nav a:hover,.sidebar-nav a.active{color:#FFF;background:#2A2A2A;border-left-color:var(--primary)}
+.sidebar-nav .sec{padding:12px 20px 4px;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:2px}
+.sidebar-footer{padding:16px 20px;border-top:1px solid #333}
+.sidebar-footer a{color:#888;font-size:13px;text-decoration:none;cursor:pointer}
+.sidebar-footer a:hover{color:#FFF}
+.main{margin-left:220px;flex:1;padding:28px 36px;max-width:960px}
+.page{display:none}.page.active{display:block}
+.page-title{font-size:22px;font-weight:600;margin-bottom:20px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:18px}
+.card-title{font-size:15px;font-weight:600;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.tag-admin{background:#FDEBD0;color:#B9770E}
+.tag-editor{background:#D5F5E3;color:#1E8449}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center}
+.stat-card .num{font-size:28px;font-weight:700;color:var(--primary)}
+.stat-card .lbl{font-size:12px;color:var(--text-light);margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);font-weight:600;color:#555;font-size:11px;text-transform:uppercase}
+td{padding:8px 10px;border-bottom:1px solid var(--border)}
+tr:hover td{background:#FAFAFA}
+.empty{text-align:center;padding:32px;color:var(--text-light)}
+.status{margin-top:14px;font-size:13px;line-height:1.6}
+.s-e{color:var(--danger)}.s-s{color:var(--success)}.s-w{color:#E67E22}
+
+@media(max-width:768px){
+  .sidebar{width:160px}.main{margin-left:160px;padding:16px}
+  .stats{grid-template-columns:1fr}.fr{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 登录页 ===== -->
+<div id="loginPage">
+  <div class="login-box">
+    <h1>⚡ 管理后台</h1>
+    <p class="sub">营销网站配置 & 一键部署</p>
+    <div class="alert" id="loginAlert"></div>
+    <div class="fg"><label>用户名</label><input type="text" id="loginUser" class="fi" placeholder="输入用户名" autofocus></div>
+    <div class="fg"><label>密码</label><input type="password" id="loginPass" class="fi" placeholder="输入密码" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="btn-login" onclick="doLogin()">登 录</button>
+    <p style="text-align:center;font-size:12px;color:#BBB;margin-top:16px">默认: admin / admin123</p>
+  </div>
+</div>
+
+<!-- ===== 主应用 ===== -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">⚡ Site Admin</div>
+    <div class="sidebar-info"><span id="sUser"></span><div class="role" id="sRole"></div></div>
+    <div class="sidebar-nav">
+      <a class="active" data-page="dashboard">📊 仪表盘</a>
+      <div class="sec">内容配置</div>
+      <a data-page="brand">🏷️ 品牌设置</a>
+      <a data-page="products">🛍️ 产品管理</a>
+      <a data-page="pages">📄 页面内容</a>
+      <a data-page="contact">📞 联系方式</a>
+      <div class="sec">发布</div>
+      <a data-page="deploy">🚀 生成 & 部署</a>
+      <div class="sec" id="adminSec" style="display:none">管理</div>
+      <a data-page="users" id="navUsers" style="display:none">👥 用户管理</a>
+    </div>
+    <div class="sidebar-footer"><a onclick="doLogout()">退出登录 →</a></div>
+  </nav>
+  <main class="main">
+    <div class="alert" id="mainAlert"></div>
+    <div id="pageContainer"></div>
+  </main>
+</div>
+
+<script>
+// =================== 全局函数 ===================
+function sha256(m){return window.sha256lib?window.sha256lib(m):m}
+function $(id){return document.getElementById(id)}
+function qs(sel){return document.querySelector(sel)}
+function qsa(sel){return document.querySelectorAll(sel)}
+function showAlert(elId, msg, type){const e=$(elId);e.textContent=msg;e.className='alert alert-'+type+' show';setTimeout(()=>e.classList.remove('show'),4000)}
+
+// =================== SHA-256 (inline) ===================
+window.sha256lib=async function(m){const e=new TextEncoder().encode(m);const h=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+
+// =================== 配置 ===================
+const DEFAULT_CONFIG={
+  i18n:{defaultLanguage:"en",languages:["en","zh"]},
+  brand:{name:{en:"Your Brand",zh:"您的品牌"},slogan:{en:"Everyday Elegance",zh:"优雅每一天"},logo:"",primaryColor:"#C9A96E",secondaryColor:"#2D2D2D",bgColor:"#FFFFFF",accentBg:"#FAF8F5"},
+  navigation:[{id:"home",label:{en:"Home",zh:"首页"},href:"#home"},{id:"products",label:{en:"Products",zh:"产品"},href:"#products"},{id:"about",label:{en:"About",zh:"关于"},href:"#about"},{id:"contact",label:{en:"Contact",zh:"联系"},href:"#contact"}],
+  hero:{image:"",title:{en:"Your Brand",zh:"您的品牌"},subtitle:{en:"Everyday Elegance",zh:"优雅每一天"},ctaText:{en:"Explore Collection",zh:"探索产品"},ctaLink:"#products"},
+  productsMeta:{title:{en:"Our Products",zh:"我们的产品"}},
+  productCategories:[{en:"All",zh:"全部"},{en:"New Arrivals",zh:"新品上市"},{en:"Best Sellers",zh:"热销推荐"},{en:"Classic",zh:"经典系列"}],
+  products:[{name:{en:"Freshwater Pearl Necklace",zh:"淡水珍珠项链"},category:{en:"Best Sellers",zh:"热销推荐"},price:"$29.00",image:"",description:{en:"Elegant freshwater pearls.",zh:"优雅淡水珍珠"}}],
+  about:{image:"",title:{en:"About Us",zh:"关于我们"},paragraphs:[{en:"Our brand was born from a passion for beauty.",zh:"我们的品牌始于对美的追求。"},{en:"Every piece is carefully selected.",zh:"每一件产品都经过精心挑选。"}]},
+  contact:{title:{en:"Contact Us",zh:"联系我们"},wechat:{enabled:true,qrImage:"",label:{en:"WeChat",zh:"微信咨询"},hint:{en:"Scan to add on WeChat",zh:"扫描二维码添加微信好友"},modalTitle:{en:"Add on WeChat",zh:"添加微信"},modalHint:{en:"Scan the QR code with WeChat",zh:"请使用微信扫描下方二维码"}},whatsapp:{enabled:true,phone:"8613800138000",message:{en:"Hello!",zh:"你好！"},qrImage:"",label:{en:"WhatsApp",zh:"WhatsApp 联系"},hint:{en:"Chat on WhatsApp",zh:"点击通过 WhatsApp 联系我们"},modalTitle:{en:"WhatsApp",zh:"WhatsApp 联系"},modalHint:{en:"Scan or click",zh:"扫描或点击聊天"}},website:{enabled:false,url:"",label:{en:"Visit Website",zh:"访问官方网站"},openNewTab:true},email:{enabled:false,address:"",label:{en:"Send Email",zh:"发送邮件"}},siteQR:{enabled:false,url:"",label:{en:"Scan to Visit",zh:"扫码访问"},hint:{en:"QR to site",zh:"扫码打开网站"},showOnPage:true,qrImage:""}},
+  seo:{title:{en:"Your Brand | Jewelry",zh:"您的品牌 | 珠宝"},description:{en:"Discover handcrafted jewelry.",zh:"发现手工珠宝。"},keywords:"jewelry, accessories",ogImage:"",favicon:""},
+  advanced:{gaTrackingId:"",showFloatingWhatsApp:true}
+};
+
+const DEFAULT_USERS={admin:{username:"admin",password:"240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9",role:"admin"}};
+const SALT="qrcode-landing-2026";
+
+// =================== 状态 ===================
+let currentUser=null,currentConfig=null,currentUsers=null;
+let deployRepo="",deployBranch="gh-pages",deployToken="";
+let siteConfig=null;
+
+// =================== 工具 ===================
+function i18nGet(val,lang){return val&&typeof val==='object'?(val[lang]||val['en']||''):(val||'')}
+function i18nSet(existing,lang,value){if(typeof existing==='object'&&existing!==null){existing[lang]=value;return existing}const o={};o[lang]=value;return o}
+function deepClone(o){return JSON.parse(JSON.stringify(o))}
+
+// =================== 存储（localStorage 同步备份, 主存储: GitHub） ===================
+function saveLocal(k,v){try{localStorage.setItem('qrc_'+k,JSON.stringify(v))}catch(e){}}
+function loadLocal(k){try{const v=localStorage.getItem('qrc_'+k);return v?JSON.parse(v):null}catch(e){return null}}
+
+// =================== 登录系统 ===================
+async function doLogin(){
+  const u=$('loginUser').value.trim(),p=$('loginPass').value;
+  if(!u||!p){showAlert('loginAlert','请输入用户名和密码','e');return}
+  const users=currentUsers||DEFAULT_USERS;
+  const hash=await sha256(p+SALT);
+  if(users[u]&&users[u].password===hash){
+    currentUser={username:u,role:users[u].role};
+    saveLocal('user',currentUser);
+    $('loginPage').style.display='none';
+    $('app').style.display='flex';
+    $('sUser').textContent=u;$('sRole').textContent=users[u].role;
+    if(users[u].role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
+    loadConfig();
+    initNav();
+    showPage('dashboard');
+  }else{
+    showAlert('loginAlert','用户名或密码错误','e');
+  }
+}
+
+function doLogout(){
+  currentUser=null;localStorage.removeItem('qrc_user');
+  $('loginPage').style.display='flex';$('app').style.display='none';
+  $('loginUser').value='';$('loginPass').value='';$('loginAlert').className='alert';$('mainAlert').className='alert';
+}
+
+function initNav(){
+  qsa('.sidebar-nav a[data-page]').forEach(a=>a.addEventListener('click',function(e){
+    e.preventDefault();showPage(this.dataset.page);
+    qsa('.sidebar-nav a.active').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+  }));
+}
+
+async function loadConfig(){
+  try{const r=await fetch('../config.js');if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m){siteConfig=JSON.parse(m[1])}}else{siteConfig=deepClone(DEFAULT_CONFIG)}}catch(e){siteConfig=deepClone(DEFAULT_CONFIG)}
+  currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
+  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||''}
+  const users=loadLocal('users');currentUsers=users||DEFAULT_USERS;
+}
+
+function updateStats(){
+  const cfg=currentConfig||siteConfig||DEFAULT_CONFIG;
+  $('dashStats').innerHTML=`
+    <div class="stat-card"><div class="num">${(cfg.products||[]).length}</div><div class="lbl">产品数量</div></div>
+    <div class="stat-card"><div class="num" style="color:${cfg.brand?.primaryColor||'#C9A96E'}">${i18nGet(cfg.brand?.name,'zh')}</div><div class="lbl">品牌名称</div></div>
+    <div class="stat-card"><div class="num">${cfg.contact?.whatsapp?.enabled?'✅':'❌'}</div><div class="lbl">WhatsApp</div></div>`;
+  const c=cfg.contact||{};
+  $('dashOverview').innerHTML=`<table>
+    <tr><td style="width:120px;color:#888">品牌</td><td>${i18nGet(cfg.brand?.name,'zh')}</td></tr>
+    <tr><td style="color:#888">标语</td><td>${i18nGet(cfg.brand?.slogan,'zh')}</td></tr>
+    <tr><td style="color:#888">产品</td><td>${(cfg.products||[]).length} 个</td></tr>
+    <tr><td style="color:#888">微信</td><td>${c.wechat?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
+    <tr><td style="color:#888">WhatsApp</td><td>${c.whatsapp?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
+    <tr><td style="color:#888">网站入口</td><td>${c.website?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
+    <tr><td style="color:#888">邮箱</td><td>${c.email?.enabled?'✅ 启用':'❌ 未启用'}</td></tr>
+  </table>`;
+}
+
+// =================== 页面渲染 ===================
+function showPage(name){
+  $('pageContainer').innerHTML='';
+  $('mainAlert').className='alert';
+  switch(name){
+    case 'dashboard':renderDashboard();break;
+    case 'brand':renderBrand();break;
+    case 'products':renderProducts();break;
+    case 'pages':renderPages();break;
+    case 'contact':renderContact();break;
+    case 'deploy':renderDeploy();break;
+    case 'users':renderUsers();break;
+  }
+  updateStats();
+}
+
+function h(tag,attrs,content){
+  let html=`<${tag}`;
+  if(attrs)for(const[k,v]of Object.entries(attrs)){if(v===null||v===undefined)continue;html+=` ${k}="${v}"`}
+  html+=`>${content||''}</${tag}>`;
+  return html
+}
+
+// ===== Dashboard =====
+function renderDashboard(){
+  updateStats();
+  $('pageContainer').innerHTML=`
+    <h1 class="page-title">📊 仪表盘</h1>
+    <div class="stats" id="dashStats"></div>
+    <div class="card"><div class="card-title">概览</div><div id="dashOverview"></div></div>
+    <div class="card">
+      <div class="card-title">🚀 快速生成</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px;">配置完成后点击下方按钮生成网站。部署前请先在「生成&部署」页配置 GitHub 信息。</p>
+      <button class="btn btn-p" onclick="generateSite(false)">📁 仅生成 config.js</button>
+      <button class="btn btn-s" style="margin-left:8px" onclick="generateSite(true)">🚀 生成并部署到 GitHub Pages</button>
+      <div class="status" id="genStatus"></div>
+    </div>`;
+  updateStats();
+}
+
+// ===== 品牌设置 =====
+function renderBrand(){
+  const b=currentConfig.brand||{};
+  $('pageContainer').innerHTML=`
+    <h1 class="page-title">🏷️ 品牌设置</h1>
+    <form onsubmit="saveBrand(event)" style="margin:0">
+    <div class="card"><div class="card-title">基本信息</div>
+      <div class="fg"><div class="lh">EN</div><label>品牌名称</label><input class="fi" id="brand_name_en" value="${esc(i18nGet(b.name,'en'))}" placeholder="English"></div>
+      <div class="fg"><div class="lh">ZH</div><label>中文名称</label><input class="fi" id="brand_name_zh" value="${esc(i18nGet(b.name,'zh'))}" placeholder="中文"></div>
+      <div class="fg"><div class="lh">EN</div><label>品牌标语</label><input class="fi" id="brand_slogan_en" value="${esc(i18nGet(b.slogan,'en'))}" placeholder="English"></div>
+      <div class="fg"><div class="lh">ZH</div><label>中文标语</label><input class="fi" id="brand_slogan_zh" value="${esc(i18nGet(b.slogan,'zh'))}" placeholder="中文"></div>
+      <div class="fg"><label>Logo 图片路径</label><input class="fi" id="brand_logo" value="${esc(b.logo||'')}" placeholder="如 /assets/images/logo.png"></div>
+    </div>
+    <div class="card"><div class="card-title">配色</div>
+      ${colorRow('主色调','brand_primary',b.primaryColor||'#C9A96E')}
+      ${colorRow('辅助色','brand_secondary',b.secondaryColor||'#2D2D2D')}
+      ${colorRow('背景色','brand_bg',b.bgColor||'#FFFFFF')}
+      ${colorRow('区块底色','brand_accent',b.accentBg||'#FAF8F5')}
+    </div>
+    <button type="submit" class="btn btn-p">💾 保存品牌设置</button>
+    </form>`;
+}
+
+function colorRow(label,id,val){
+  return `<div class="fg"><label>${label}</label><div class="cr"><input type="color" id="${id}_c" value="${val}" onchange="$('${id}').value=this.value"><input class="fi" id="${id}" value="${val}" onchange="$('${id}_c').value=this.value" style="width:100px"></div></div>`;
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function saveBrand(e){
+  e.preventDefault();
+  currentConfig.brand=currentConfig.brand||{};
+  const b=currentConfig.brand;
+  b.name=i18nSet(b.name,'en',$('brand_name_en').value);
+  b.name=i18nSet(b.name,'zh',$('brand_name_zh').value);
+  b.slogan=i18nSet(b.slogan,'en',$('brand_slogan_en').value);
+  b.slogan=i18nSet(b.slogan,'zh',$('brand_slogan_zh').value);
+  b.logo=$('brand_logo').value;
+  b.primaryColor=$('brand_primary').value;b.secondaryColor=$('brand_secondary').value;
+  b.bgColor=$('brand_bg').value;b.accentBg=$('brand_accent').value;
+  saveConfig();showAlert('mainAlert','品牌设置已保存','s');
+}
+
+// ===== 产品管理 =====
+function renderProducts(){
+  const cfg=currentConfig,p=cfg.products||[],cats=cfg.productCategories||[];
+  let rows='';
+  p.forEach((pr,i)=>{
+    rows+=`<tr>
+      <td>${i+1}</td>
+      <td>${esc(i18nGet(pr.name,'zh'))}</td>
+      <td>${esc(i18nGet(pr.category,'zh'))}</td>
+      <td>${esc(pr.price||'-')}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(pr.image||'-')}</td>
+      <td><button class="btn btn-d btn-sm" onclick="deleteProduct(${i})">删除</button></td>
+    </tr>`;
+  });
+  $('pageContainer').innerHTML=`
+    <h1 class="page-title">🛍️ 产品管理</h1>
+    <form onsubmit="saveProductMeta(event)" style="margin:0">
+    <div class="card"><div class="card-title">区块设置</div>
+      <div class="fg"><div class="lh">EN</div><label>区块标题</label><input class="fi" id="prod_title_en" value="${esc(i18nGet(cfg.productsMeta?.title,'en'))}" placeholder="Our Products"></div>
+      <div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="prod_title_zh" value="${esc(i18nGet(cfg.productsMeta?.title,'zh'))}" placeholder="我们的产品"></div>
+      <div class="fg"><label>分类（逗号分隔）</label><input class="fi" id="prod_cats" value="${esc(cats.map(c=>i18nGet(c,'zh')).join(', '))}" placeholder="全部, 新品, 热销"></div>
+      <button type="submit" class="btn btn-p btn-sm">💾 保存设置</button>
+    </div>
+    </form>
+    <div class="card"><div class="card-title">产品列表 (${p.length})</div>
+      ${p.length?`<table><thead><tr><th>#</th><th>名称</th><th>分类</th><th>价格</th><th>图片</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty">📦 暂无产品，请在下方添加</div>'}
+    </div>
+    <form onsubmit="addProduct(event)" style="margin:0">
+    <div class="card"><div class="card-title">＋ 添加产品</div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>名称</label><input class="fi" id="new_pname_en" placeholder="English" required></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文名</label><input class="fi" id="new_pname_zh" placeholder="中文"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>分类</label><input class="fi" id="new_pcat_en" placeholder="English"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文分类</label><input class="fi" id="new_pcat_zh" placeholder="中文" required></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>价格</label><input class="fi" id="new_price" placeholder="$29.00"></div>
+        <div class="fg"><label>图片路径</label><input class="fi" id="new_pimg" placeholder="/assets/images/product.jpg"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>描述</label><input class="fi" id="new_pdesc_en" placeholder="English"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文描述</label><input class="fi" id="new_pdesc_zh" placeholder="中文"></div>
+      </div>
+      <button type="submit" class="btn btn-p">＋ 添加</button>
+    </div>
+    </form>`;
+}
+
+function saveProductMeta(e){e.preventDefault();
+  currentConfig.productsMeta=currentConfig.productsMeta||{};
+  currentConfig.productsMeta.title=i18nSet(currentConfig.productsMeta.title,'en',$('prod_title_en').value);
+  currentConfig.productsMeta.title=i18nSet(currentConfig.productsMeta.title,'zh',$('prod_title_zh').value);
+  const cats=$('prod_cats').value.split(',').map(s=>s.trim()).filter(Boolean);
+  currentConfig.productCategories=cats.map(c=>({en:c,zh:c}));
+  saveConfig();showAlert('mainAlert','产品设置已保存','s');
+}
+
+function addProduct(e){e.preventDefault();
+  const p={};
+  p.name={};if($('new_pname_en').value)p.name.en=$('new_pname_en').value;if($('new_pname_zh').value)p.name.zh=$('new_pname_zh').value;
+  p.category={};if($('new_pcat_en').value)p.category.en=$('new_pcat_en').value;if($('new_pcat_zh').value)p.category.zh=$('new_pcat_zh').value;
+  p.price=$('new_price').value;p.image=$('new_pimg').value;
+  p.description={};if($('new_pdesc_en').value)p.description.en=$('new_pdesc_en').value;if($('new_pdesc_zh').value)p.description.zh=$('new_pdesc_zh').value;
+  (currentConfig.products=currentConfig.products||[]).push(p);
+  saveConfig();renderProducts();showAlert('mainAlert','产品已添加','s');
+}
+
+function deleteProduct(i){
+  if(confirm('确认删除该产品？')){currentConfig.products.splice(i,1);saveConfig();renderProducts();showAlert('mainAlert','产品已删除','s')}
+}
+
+// ===== 页面内容 =====
+function renderPages(){
+  const cfg=currentConfig,s=cfg.seo||{},h=cfg.hero||{},a=cfg.about||{},abt=(a.paragraphs||[]).map(p=>p).reduce((acc,p)=>(acc.en+=(p.en||'')+'\n',acc.zh+=(p.zh||'')+'\n',acc),{en:'',zh:''});
+  const i18=cfg.i18n||{};
+  $('pageContainer').innerHTML=`
+    <h1 class="page-title">📄 页面内容</h1>
+
+    <form onsubmit="saveSEO(event)" style="margin:0">
+    <div class="card"><div class="card-title">🔍 SEO</div>
+      <div class="fg"><div class="lh">EN</div><label>标题</label><input class="fi" id="seo_title_en" value="${esc(i18nGet(s.title,'en'))}"></div>
+      <div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="seo_title_zh" value="${esc(i18nGet(s.title,'zh'))}"></div>
+      <div class="fg"><div class="lh">EN</div><label>描述</label><input class="fi" id="seo_desc_en" value="${esc(i18nGet(s.description,'en'))}"></div>
+      <div class="fg"><div class="lh">ZH</div><label>中文描述</label><input class="fi" id="seo_desc_zh" value="${esc(i18nGet(s.description,'zh'))}"></div>
+      <div class="fg"><label>关键词</label><input class="fi" id="seo_kw" value="${esc(s.keywords||'')}"></div>
+      <div class="fg"><label>OG 图片</label><input class="fi" id="seo_og" value="${esc(s.ogImage||'')}"></div>
+      <button type="submit" class="btn btn-p btn-sm">💾 保存 SEO</button>
+    </div>
+    </form>
+
+    <form onsubmit="saveI18n(event)" style="margin:0">
+    <div class="card"><div class="card-title">🌐 多语言</div>
+      <div class="fr">
+        <div class="fg"><label>默认语言</label><select class="fi" id="i18n_def"><option value="en" ${i18.defaultLanguage==='en'?'selected':''}>English</option><option value="zh" ${i18.defaultLanguage==='zh'?'selected':''}>中文</option></select></div>
+        <div class="fg"><label>启用语言</label><input class="fi" id="i18n_langs" value="${esc((i18.languages||['en','zh']).join(', '))}"></div>
+      </div>
+      <button type="submit" class="btn btn-p btn-sm">💾 保存语言设置</button>
+    </div>
+    </form>
+
+    <form onsubmit="saveHero(event)" style="margin:0">
+    <div class="card"><div class="card-title">🎯 Hero 区域</div>
+      <div class="fg"><label>大图路径</label><input class="fi" id="hero_img" value="${esc(h.image||'')}"></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>标题</label><input class="fi" id="hero_title_en" value="${esc(i18nGet(h.title,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="hero_title_zh" value="${esc(i18nGet(h.title,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>副标题</label><input class="fi" id="hero_sub_en" value="${esc(i18nGet(h.subtitle,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文副标题</label><input class="fi" id="hero_sub_zh" value="${esc(i18nGet(h.subtitle,'zh'))}"></div></div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>CTA 文字</label><input class="fi" id="hero_cta_en" value="${esc(i18nGet(h.ctaText,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文 CTA</label><input class="fi" id="hero_cta_zh" value="${esc(i18nGet(h.ctaText,'zh'))}"></div></div>
+      <div class="fg"><label>CTA 链接</label><input class="fi" id="hero_cta_link" value="${esc(h.ctaLink||'#products')}"></div>
+      <button type="submit" class="btn btn-p btn-sm">💾 保存 Hero</button>
+    </div>
+    </form>
+
+    <form onsubmit="saveAbout(event)" style="margin:0">
+    <div class="card"><div class="card-title">📖 关于我们</div>
+      <div class="fr"><div class="fg"><div class="lh">EN</div><label>标题</label><input class="fi" id="about_title_en" value="${esc(i18nGet(a.title,'en'))}"></div><div class="fg"><div class="lh">ZH</div><label>中文标题</label><input class="fi" id="about_title_zh" value="${esc(i18nGet(a.title,'zh'))}"></div></div>
+      <div class="fg"><label>图片路径</label><input class="fi" id="about_img" value="${esc(a.image||'')}"></div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>内容（每行一段）</label><textarea class="fi" id="about_p_en" rows="4">${esc(abt.en.trim())}</textarea></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文内容</label><textarea class="fi" id="about_p_zh" rows="4">${esc(abt.zh.trim())}</textarea></div>
+      </div>
+      <button type="submit" class="btn btn-p btn-sm">💾 保存关于</button>
+    </div>
+    </form>`;
+}
+
+function saveSEO(e){e.preventDefault();const s=currentConfig.seo=currentConfig.seo||{};
+  s.title=i18nSet(s.title,'en',$('seo_title_en').value);s.title=i18nSet(s.title,'zh',$('seo_title_zh').value);
+  s.description=i18nSet(s.description,'en',$('seo_desc_en').value);s.description=i18nSet(s.description,'zh',$('seo_desc_zh').value);
+  s.keywords=$('seo_kw').value;s.ogImage=$('seo_og').value;
+  saveConfig();showAlert('mainAlert','SEO 已保存','s');}
+function saveI18n(e){e.preventDefault();currentConfig.i18n={defaultLanguage:$('i18n_def').value,languages:$('i18n_langs').value.split(',').map(s=>s.trim()).filter(Boolean)};saveConfig();showAlert('mainAlert','语言设置已保存','s');}
+function saveHero(e){e.preventDefault();const h=currentConfig.hero=currentConfig.hero||{};
+  h.image=$('hero_img').value;h.title=i18nSet(h.title,'en',$('hero_title_en').value);h.title=i18nSet(h.title,'zh',$('hero_title_zh').value);
+  h.subtitle=i18nSet(h.subtitle,'en',$('hero_sub_en').value);h.subtitle=i18nSet(h.subtitle,'zh',$('hero_sub_zh').value);
+  h.ctaText=i18nSet(h.ctaText,'en',$('hero_cta_en').value);h.ctaText=i18nSet(h.ctaText,'zh',$('hero_cta_zh').value);
+  h.ctaLink=$('hero_cta_link').value;saveConfig();showAlert('mainAlert','Hero 已保存','s');}
+function saveAbout(e){e.preventDefault();const a=currentConfig.about=currentConfig.about||{};
+  a.image=$('about_img').value;a.title=i18nSet(a.title,'en',$('about_title_en').value);a.title=i18nSet(a.title,'zh',$('about_title_zh').value);
+  const en=$('about_p_en').value.split('\n').map(s=>s.trim()).filter(Boolean),zh=$('about_p_zh').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  a.paragraphs=[];for(let i=0;i<Math.max(en.length,zh.length);i++){const p={};if(i<en.length)p.en=en[i];if(i<zh.length)p.zh=zh[i];if(Object.keys(p).length)a.paragraphs.push(p)}
+  saveConfig();showAlert('mainAlert','关于已保存','s');}
+
+// ===== 联系方式 =====
+function renderContact(){
+  const c=currentConfig.contact||{},w=c.wechat||{},wa=c.whatsapp||{},ws=c.website||{},em=c.email||{},sq=c.siteQR||{};
+  $('pageContainer').innerHTML=`
+    <h1 class="page-title">📞 联系方式</h1>
+    <form onsubmit="saveContact(event)" style="margin:0">
+
+    <div class="card"><div class="card-title">💬 微信</div>
+      <label class="chk"><input type="checkbox" id="wx_en" ${w.enabled?'checked':''}> 启用微信入口</label>
+      <div class="fg"><label>QR 图片</label><input class="fi" id="wx_qr" value="${esc(w.qrImage||'')}" placeholder="如 /assets/qrcodes/wechat-qr.png"></div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>按钮文字</label><input class="fi" id="wx_label_en" value="${esc(i18nGet(w.label,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="wx_label_zh" value="${esc(i18nGet(w.label,'zh'))}"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>提示文字</label><input class="fi" id="wx_hint_en" value="${esc(i18nGet(w.hint,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文提示</label><input class="fi" id="wx_hint_zh" value="${esc(i18nGet(w.hint,'zh'))}"></div>
+      </div>
+    </div>
+
+    <div class="card"><div class="card-title">📱 WhatsApp</div>
+      <label class="chk"><input type="checkbox" id="wa_en" ${wa.enabled?'checked':''}> 启用 WhatsApp</label>
+      <div class="fg"><label>手机号码（含国家码）</label><input class="fi" id="wa_phone" value="${esc(wa.phone||'')}" placeholder="8613800138000"></div>
+      <div class="fg"><label>QR 图片（可选，留空自动生成）</label><input class="fi" id="wa_qr" value="${esc(wa.qrImage||'')}"></div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>招呼消息</label><input class="fi" id="wa_msg_en" value="${esc(i18nGet(wa.message,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文招呼</label><input class="fi" id="wa_msg_zh" value="${esc(i18nGet(wa.message,'zh'))}"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>按钮文字</label><input class="fi" id="wa_label_en" value="${esc(i18nGet(wa.label,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="wa_label_zh" value="${esc(i18nGet(wa.label,'zh'))}"></div>
+      </div>
+    </div>
+
+    <div class="card"><div class="card-title">🌐 个人网站</div>
+      <label class="chk"><input type="checkbox" id="ws_en" ${ws.enabled?'checked':''}> 显示网站入口</label>
+      <div class="fg"><label>网站 URL</label><input class="fi" id="ws_url" value="${esc(ws.url||'')}" placeholder="https://your-website.com"></div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>按钮</label><input class="fi" id="ws_label_en" value="${esc(i18nGet(ws.label,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="ws_label_zh" value="${esc(i18nGet(ws.label,'zh'))}"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="ws_nt" ${ws.openNewTab?'checked':''}> 新窗口打开</label>
+    </div>
+
+    <div class="card"><div class="card-title">📧 邮箱</div>
+      <label class="chk"><input type="checkbox" id="em_en" ${em.enabled?'checked':''}> 显示邮箱</label>
+      <div class="fg"><label>邮箱地址</label><input class="fi" id="em_addr" value="${esc(em.address||'')}"></div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>按钮</label><input class="fi" id="em_label_en" value="${esc(i18nGet(em.label,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文按钮</label><input class="fi" id="em_label_zh" value="${esc(i18nGet(em.label,'zh'))}"></div>
+      </div>
+    </div>
+
+    <div class="card"><div class="card-title">🔗 站点入口二维码</div>
+      <label class="chk"><input type="checkbox" id="sq_en" ${sq.enabled?'checked':''}> 启用</label>
+      <div class="fg"><label>网站 URL</label><input class="fi" id="sq_url" value="${esc(sq.url||'')}" placeholder="https://xxx.github.io/repo/"></div>
+      <div class="fg"><label>自定义二维码（可选）</label><input class="fi" id="sq_qr" value="${esc(sq.qrImage||'')}"></div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>标签</label><input class="fi" id="sq_label_en" value="${esc(i18nGet(sq.label,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文标签</label><input class="fi" id="sq_label_zh" value="${esc(i18nGet(sq.label,'zh'))}"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><div class="lh">EN</div><label>提示</label><input class="fi" id="sq_hint_en" value="${esc(i18nGet(sq.hint,'en'))}"></div>
+        <div class="fg"><div class="lh">ZH</div><label>中文提示</label><input class="fi" id="sq_hint_zh" value="${esc(i18nGet(sq.hint,'zh'))}"></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="sq_show" ${sq.showOnPage?'checked':''}> 网页中展示</label>
+    </div>
+
+    <button type="submit" class="btn btn-p">💾 保存联系方式</button>
+    </form>`;
+}
+
+function saveContact(e){e.preventDefault();
+  const c=currentConfig.contact=currentConfig.contact||{};
+  c.wechat={enabled:$('wx_en').checked,qrImage:$('wx_qr').value,label:i18nSet({},'en',$('wx_label_en').value),hint:i18nSet({},'zh',$('wx_label_zh').value),modalTitle:{},modalHint:{}};
+  c.wechat.label=i18nSet(c.wechat.label,'zh',$('wx_label_zh').value);
+  c.wechat.hint=i18nSet(c.wechat.hint,'en',$('wx_hint_en').value);c.wechat.hint=i18nSet(c.wechat.hint,'zh',$('wx_hint_zh').value);
+  c.whatsapp={enabled:$('wa_en').checked,phone:$('wa_phone').value,qrImage:$('wa_qr').value,message:i18nSet({},'en',$('wa_msg_en').value),label:i18nSet({},'en',$('wa_label_en').value),modalTitle:{},modalHint:{}};
+  c.whatsapp.message=i18nSet(c.whatsapp.message,'zh',$('wa_msg_zh').value);
+  c.whatsapp.label=i18nSet(c.whatsapp.label,'zh',$('wa_label_zh').value);
+  c.website={enabled:$('ws_en').checked,url:$('ws_url').value,label:i18nSet({},'en',$('ws_label_en').value),openNewTab:$('ws_nt').checked};
+  c.website.label=i18nSet(c.website.label,'zh',$('ws_label_zh').value);
+  c.email={enabled:$('em_en').checked,address:$('em_addr').value,label:i18nSet({},'en',$('em_label_en').value)};
+  c.email.label=i18nSet(c.email.label,'zh',$('em_label_zh').value);
+  c.siteQR={enabled:$('sq_en').checked,url:$('sq_url').value,qrImage:$('sq_qr').value,label:i18nSet({},'en',$('sq_label_en').value),hint:i18nSet({},'en',$('sq_hint_en').value),showOnPage:$('sq_show').checked};
+  c.siteQR.label=i18nSet(c.siteQR.label,'zh',$('sq_label_zh').value);c.siteQR.hint=i18nSet(c.siteQR.hint,'zh',$('sq_hint_zh').value);
+  saveConfig();showAlert('mainAlert','联系方式已保存','s');
+}
+
+// ===== 部署 =====
+function renderDeploy(){
+  $('pageContainer').innerHTML=`
+    <h1 class="page-title">🚀 生成 & 部署</h1>
+    <form onsubmit="saveDeploy(event)" style="margin:0">
+    <div class="card"><div class="card-title">📦 GitHub Pages 部署设置</div>
+      <div class="fg"><label>仓库 URL</label><input class="fi" id="depo_repo" value="${esc(deployRepo)}" placeholder="https://github.com/用户名/仓库名.git"></div>
+      <div class="fr">
+        <div class="fg"><label>分支</label><input class="fi" id="depo_branch" value="${esc(deployBranch)}"></div>
+        <div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="${esc(deployToken)}" placeholder="ghp_xxxxxxxx"></div>
+      </div>
+      <p style="font-size:12px;color:#888;margin-bottom:12px">获取 Token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens (需 Contents 读写权限)</p>
+      <button type="submit" class="btn btn-p btn-sm">💾 保存部署设置</button>
+    </div>
+    </form>
+    <div class="card"><div class="card-title">⚡ 一键生成</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">所有配置保存后，点击下方按钮。首次部署需要填写上方 GitHub 信息。</p>
+      <button class="btn btn-p" onclick="generateSite(false)">📁 仅生成 config.js</button>
+      <button class="btn btn-s" style="margin-left:8px" onclick="generateSite(true)">🚀 生成并部署</button>
+      <div class="status" id="genStatus"></div>
+    </div>`;
+}
+
+function saveDeploy(e){e.preventDefault();
+  deployRepo=$('depo_repo').value;deployBranch=$('depo_branch').value||'gh-pages';deployToken=$('depo_token').value;
+  saveLocal('deploy',{repo:deployRepo,branch:deployBranch,token:deployToken});
+  showAlert('mainAlert','部署设置已保存','s');
+}
+
+// ===== 生成 & 部署 =====
+async function generateSite(deploy){
+  const s=$('genStatus');s.innerHTML='<span style="color:#888">⏳ 正在生成 config.js...</span>';
+  saveConfig();
+  const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
+
+  if(!deploy){
+    // 仅生成：下载 config.js
+    const blob=new Blob([js],{type:'application/javascript'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();
+    s.innerHTML='<span class="s-s">✅ config.js 已生成并下载！</span><br>手动替换网站目录中的 config.js 文件即可。';
+    return;
+  }
+
+  // 部署模式
+  if(!deployRepo||!deployToken){s.innerHTML='<span class="s-e">❌ 请先在「生成&部署」页配置 GitHub 仓库和 Token</span>';return}
+
+  s.innerHTML='<span style="color:#888">⏳ 正在部署到 GitHub Pages...</span>';
+
+  try{
+    const repoMatch=deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/);
+    if(!repoMatch){s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';return}
+    const owner=repoMatch[1],repo=repoMatch[2];
+
+    // 上传 config.js
+    await uploadFile(owner,repo,deployBranch,'config.js',js,'Update site config via admin');
+
+    // 上传 admin/index.html (自身)
+    const adminHtml=document.documentElement.outerHTML;
+    const adminContent='<!DOCTYPE html>\n'+adminHtml;
+    await uploadFile(owner,repo,deployBranch,'admin/index.html',adminContent,'Update admin page');
+
+    s.innerHTML=`<span class="s-s">✅ 网站已生成并推送到 ${deployBranch} 分支！</span><br>
+      🌐 访问地址: <a href="https://${owner}.github.io/${repo}/" target="_blank">https://${owner}.github.io/${repo}/</a><br>
+      🔧 管理后台: <a href="https://${owner}.github.io/${repo}/admin/" target="_blank">https://${owner}.github.io/${repo}/admin/</a><br>
+      <span style="color:#888">⏱ 首次部署 GitHub Pages 可能需要 1-2 分钟生效</span>`;
+  }catch(e){
+    s.innerHTML=`<span class="s-e">❌ 部署失败: ${e.message}</span>`;
+  }
+}
+
+async function uploadFile(owner,repo,branch,path,content,msg){
+  // 先获取现有文件的 SHA（如果存在）
+  let sha=null;
+  try{
+    const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,{
+      headers:{Authorization:`Bearer ${deployToken}`,Accept:'application/vnd.github.v3+json'}
+    });
+    if(resp.ok){const d=await resp.json();sha=d.sha}
+  }catch(e){}
+
+  const encoded=btoa(unescape(encodeURIComponent(content)));
+  const body={message:msg,content:encoded,branch:branch};
+  if(sha)body.sha=sha;
+
+  const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{
+    method:'PUT',
+    headers:{Authorization:`Bearer ${deployToken}`,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},
+    body:JSON.stringify(body)
+  });
+
+  if(!resp.ok){const d=await resp.json();throw new Error(d.message||'上传失败')}
+}
+
+// ===== 用户管理 =====
+function renderUsers(){
+  if(!currentUser||currentUser.role!=='admin'){showPage('dashboard');return}
+  const users=currentUsers||DEFAULT_USERS;
+  let rows='';
+  Object.values(users).forEach(u=>{
+    rows+=`<tr>
+      <td><strong>${esc(u.username)}</strong></td>
+      <td><span class="tag ${u.role==='admin'?'tag-admin':'tag-editor'}">${u.role}</span></td>
+      <td>${u.username==='admin'?'<span style="font-size:11px;color:#BBB">系统管理员</span>':`<button class="btn btn-d btn-sm" onclick="deleteUser('${esc(u.username)}')">删除</button>`}</td>
+    </tr>`;
+  });
+  $('pageContainer').innerHTML=`
+    <h1 class="page-title">👥 用户管理</h1>
+    <div class="card"><div class="card-title">用户列表 (${Object.keys(users).length})</div>
+      <table><thead><tr><th>用户名</th><th>角色</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>
+    </div>
+    <form onsubmit="createUser(event)" style="margin:0">
+    <div class="card"><div class="card-title">＋ 创建用户</div>
+      <div class="fr">
+        <div class="fg"><label>用户名</label><input class="fi" id="nu_name" placeholder="新用户名" required></div>
+        <div class="fg"><label>密码</label><input type="password" class="fi" id="nu_pass" placeholder="密码" required></div>
+        <div class="fg"><label>角色</label><select class="fi" id="nu_role"><option value="editor">Editor（编辑者）</option><option value="admin">Admin（管理员）</option></select></div>
+      </div>
+      <button type="submit" class="btn btn-p">＋ 创建用户</button>
+    </div>
+    </form>
+    <form onsubmit="updateUserPass(event)" style="margin:0">
+    <div class="card"><div class="card-title">✏️ 修改密码</div>
+      <div class="fr">
+        <div class="fg"><label>用户名</label><input class="fi" id="up_name" placeholder="用户名" required></div>
+        <div class="fg"><label>新密码</label><input type="password" class="fi" id="up_pass" placeholder="新密码" required></div>
+      </div>
+      <button type="submit" class="btn btn-o btn-sm">✏️ 修改密码</button>
+    </div>
+    </form>`;
+}
+
+async function createUser(e){e.preventDefault();
+  const name=$('nu_name').value.trim(),pass=$('nu_pass').value,role=$('nu_role').value;
+  if(currentUsers[name]){showAlert('mainAlert','用户已存在','e');return}
+  const hash=await sha256(pass+SALT);
+  currentUsers[name]={username:name,password:hash,role:role};
+  saveLocal('users',currentUsers);renderUsers();showAlert('mainAlert',`用户 ${name} 创建成功`,'s');
+}
+
+async function updateUserPass(e){e.preventDefault();
+  const name=$('up_name').value.trim(),pass=$('up_pass').value;
+  if(!currentUsers[name]){showAlert('mainAlert','用户不存在','e');return}
+  currentUsers[name].password=await sha256(pass+SALT);
+  saveLocal('users',currentUsers);renderUsers();showAlert('mainAlert',`用户 ${name} 密码已更新`,'s');
+}
+
+function deleteUser(name){
+  if(!confirm(`确认删除用户 ${name}？`))return;
+  delete currentUsers[name];saveLocal('users',currentUsers);renderUsers();showAlert('mainAlert',`用户 ${name} 已删除`,'s');
+}
+
+// ===== 配置持久化 =====
+function saveConfig(){
+  localStorage.setItem('qrc_config',JSON.stringify(currentConfig));
+}
+
+// ===== 初始化 =====
+(async function(){
+  // 加载用户和配置
+  currentUsers=loadLocal('users')||DEFAULT_USERS;
+  const savedUser=loadLocal('user');
+  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||''}
+
+  // 尝试加载已有 config.js
+  try{
+    const r=await fetch('../config.js');if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m){siteConfig=JSON.parse(m[1])}}
+  }catch(e){siteConfig=deepClone(DEFAULT_CONFIG)}
+  currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
+
+  if(savedUser&&currentUsers[savedUser.username]){
+    const u=currentUsers[savedUser.username];
+    currentUser=savedUser;$('loginPage').style.display='none';$('app').style.display='flex';
+    $('sUser').textContent=savedUser.username;$('sRole').textContent=u.role;
+    if(u.role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
+    initNav();showPage('dashboard');
+  }else{
+    $('loginUser').focus();
+  }
+
+  // 回车登录
+  $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
+})();
+</script>
+</body>
+</html>

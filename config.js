@@ -232,20 +232,6 @@ window.SITE_CONFIG = {
         "en": "Send Email",
         "zh": "发送邮件"
       }
-    },
-    "siteQR": {
-      "enabled": true,
-      "url": "https://example.com/my-site",
-      "label": {
-        "en": "Scan to Visit",
-        "zh": "扫码访问网站"
-      },
-      "hint": {
-        "en": "Scan QR code to open this site",
-        "zh": "扫描二维码打开本网站"
-      },
-      "showOnPage": true,
-      "qrImage": "assets/qrcodes/site-qr.png"
     }
   },
   "seo": {
