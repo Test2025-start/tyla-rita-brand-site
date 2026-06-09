@@ -270,6 +270,7 @@ let siteConfig=null;
 function i18nGet(val,lang){return val&&typeof val==='object'?(val[lang]||val['en']||''):(val||'')}
 function i18nSet(existing,lang,value){if(typeof existing==='object'&&existing!==null){existing[lang]=value;return existing}const o={};o[lang]=value;return o}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function deepMerge(base,override){if(!override||typeof override!=='object')return override;if(!base||typeof base!=='object')return override;if(Array.isArray(override))return override;var result=JSON.parse(JSON.stringify(base));for(var key in override){if(override.hasOwnProperty(key))result[key]=deepMerge(result[key],override[key])}return result}
 
 // =================== 图片上传工具 ===================
 function imgField(id,label,val){
@@ -792,7 +793,7 @@ async function generateSite(deploy){
     var now=new Date();
     var ver='v'+now.getFullYear()+(now.getMonth()+1).toString().padStart(2,'0')+now.getDate().toString().padStart(2,'0')+now.getHours().toString().padStart(2,'0')+now.getMinutes().toString().padStart(2,'0')+now.getSeconds().toString().padStart(2,'0');
     var cfgFile='config.live.js?v='+Date.now();
-    const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
+    var js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
     if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();if(s)s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br><span style="color:#888">手动替换网站目录中的 config.js 文件即可。</span>';toast('✅ config.js 已下载','success');return}
     if(!deployRepo||!deployToken){if(s)s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';toast('❌ 请先配置部署信息','error');return}
     try{
@@ -800,9 +801,26 @@ async function generateSite(deploy){
       if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
       const owner=repoMatch[1],repo=repoMatch[2];
       const siteUrl='https://'+owner+'.github.io/'+repo+'/';
+      // 增量合并：先获取远程已有配置，再深度合并本地修改（避免全量覆盖）
+      if(s)s.innerHTML='<span style="color:#888">⏳ [0/4] 正在合并远程已有配置...</span>';
+      try{
+        var rawUrl='https://raw.githubusercontent.com/'+owner+'/'+repo+'/'+deployBranch+'/config.live.js?t='+Date.now();
+        var rawResp=await fetch(rawUrl);
+        if(rawResp.ok){
+          var rawText=await rawResp.text();
+          var rawMatch=rawText.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);
+          if(rawMatch){
+            var remoteConfig=JSON.parse(rawMatch[1]);
+            currentConfig=deepMerge(remoteConfig,currentConfig);
+            saveConfig();
+            js='window.SITE_CONFIG = '+JSON.stringify(currentConfig,null,2)+';';
+            jsWithVer='/* '+ver+' */\n'+js;
+          }
+        }
+      }catch(e){/* 获取失败则使用本地配置，不影响部署 */}
       var cfgSize=(js.length/1024).toFixed(0);
       if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件 ('+cfgSize+'KB)...</span>';
-      const jsWithVer=`/* ${ver} */\n`+js;
+      if(!jsWithVer)jsWithVer='/* '+ver+' */\n'+js;
       if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件...（文件较大请耐心等待，最多2分钟）</span>';
       await uploadFile(owner,repo,deployBranch,cfgFile,jsWithVer,'Update site config ['+ver+']',120);
       if(s)s.innerHTML='<span style="color:#888">⏳ [2/4] 正在上传网站主页...</span>';
