@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="robots" content="noindex">
+<meta name="deploy-ver" content="v20260609174204">
 <title>管理后台 — Site Admin</title>
 <style>
 /* ========== 基础变量 ========== */
@@ -732,11 +733,9 @@ async function generateSite(deploy){
       if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
       const owner=repoMatch[1],repo=repoMatch[2];
       const siteUrl='https://'+owner+'.github.io/'+repo+'/';
-      var cfgSize=(js.length/1024).toFixed(0);
-      if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件 ('+cfgSize+'KB)...</span>';
+      if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传新配置文件...</span>';
       const jsWithVer=`/* ${ver} */\n`+js;
-      if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件...（文件较大请耐心等待，最多2分钟）</span>';
-      await uploadFile(owner,repo,deployBranch,cfgFile,jsWithVer,'Update site config ['+ver+']',120);
+      await uploadFile(owner,repo,deployBranch,cfgFile,jsWithVer,'Update site config ['+ver+']',30);
       if(s)s.innerHTML='<span style="color:#888">⏳ [2/4] 正在上传网站主页...</span>';
       const idxResp=await fetch(location.href.replace(/\/admin\/.*/,'/index.html'));
       if(!idxResp.ok)throw new Error('获取网站主页模板失败，请确认网站目录中存在 index.html');
@@ -759,7 +758,7 @@ async function generateSite(deploy){
       toast('🎉 网站发布成功！','success');
   }catch(e){
     var errMsg=e.message||'未知错误';
-    if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='上传超时！文件太大，建议减少图片数量或尺寸后重试。单个base64图片建议不超过200KB。';}
+    if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='请求超时，请检查网络或稍后重试';}
     if(errMsg.includes('401')||errMsg.includes('403')){errMsg='Token 无效或权限不足，请检查 Token 是否有 Contents 写入权限';}
     if(errMsg.includes('413')||errMsg.includes('payload')){errMsg='文件过大，请减少上传的图片大小';}
     if(s)s.innerHTML=`<span class="s-e">❌ 部署失败: ${errMsg}</span>`;
@@ -769,50 +768,30 @@ async function generateSite(deploy){
   }
 }
 
-// uploadFile: 使用 XMLHttpRequest 支持上传进度
-function uploadFile(owner,repo,branch,path,content,msg,timeoutSec){
-  return new Promise(function(resolve,reject){
-    timeoutSec=timeoutSec||30;
-    var sha=null;
-    // 先获取文件SHA
-    fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,{
-      headers:{Authorization:`Bearer ${deployToken}`,Accept:'application/vnd.github.v3+json'}
-    }).then(function(resp){
-      if(resp.ok)return resp.json().then(function(d){sha=d.sha});
-    }).catch(function(){}).then(function(){
-      // 上传文件（带进度）
-      var xhr=new XMLHttpRequest();
-      var timer=setTimeout(function(){xhr.abort();},timeoutSec*1000);
-      var encoded=btoa(unescape(encodeURIComponent(content)));
-      var body=JSON.stringify({message:msg,content:encoded,branch:branch});
-      if(sha)body=JSON.stringify({message:msg,content:encoded,branch:branch,sha:sha});
-      xhr.open('PUT',`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
-      xhr.setRequestHeader('Authorization',`Bearer ${deployToken}`);
-      xhr.setRequestHeader('Content-Type','application/json');
-      xhr.setRequestHeader('Accept','application/vnd.github.v3+json');
-      xhr.upload.addEventListener('progress',function(e){
-        if(e.lengthComputable){
-          var pct=Math.round(e.loaded/e.total*100);
-          var st=$('genStatus');
-          if(st&&pct<100)st.innerHTML='<span style="color:#888">⏳ 上传中... '+pct+'%</span>';
-        }
-      });
-      xhr.addEventListener('load',function(){
-        clearTimeout(timer);
-        if(xhr.status>=200&&xhr.status<300){
-          resolve(JSON.parse(xhr.responseText));
-        }else{
-          var err='上传失败(HTTP '+xhr.status+')';
-          try{var d=JSON.parse(xhr.responseText);if(d.message)err=d.message;}catch(e){}
-          reject(new Error(err));
-        }
-      });
-      xhr.addEventListener('error',function(){clearTimeout(timer);reject(new Error('网络错误，请检查网络连接'));});
-      xhr.addEventListener('timeout',function(){clearTimeout(timer);reject(new Error('上传超时('+timeoutSec+'s)，文件可能过大，请减少图片大小后重试');});
-      xhr.addEventListener('abort',function(){clearTimeout(timer);reject(new Error('上传被中断'));});
-      xhr.send(body);
-    });
-  });
+async function uploadFile(owner,repo,branch,path,content,msg,timeoutSec){
+  timeoutSec=timeoutSec||30;
+  const controller=new AbortController();
+  var timer=setTimeout(function(){controller.abort();},timeoutSec*1000);
+  let sha=null;
+  try{
+    const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,{headers:{Authorization:`Bearer ${deployToken}`,Accept:'application/vnd.github.v3+json'},signal:controller.signal});
+    if(resp.ok){const d=await resp.json();sha=d.sha}
+  }catch(e){
+    if(e.name==='AbortError')throw new Error('获取文件信息超时('+timeoutSec+'s)');
+    // 新文件不存在时忽略错误
+  }
+  const encoded=btoa(unescape(encodeURIComponent(content)));
+  const body={message:msg,content:encoded,branch:branch};if(sha)body.sha=sha;
+  clearTimeout(timer);timer=setTimeout(function(){controller.abort();},timeoutSec*1000);
+  try{
+    const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{method:'PUT',headers:{Authorization:`Bearer ${deployToken}`,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},body:JSON.stringify(body),signal:controller.signal});
+    if(!resp.ok){const d=await resp.json();throw new Error(d.message||'上传失败(HTTP '+resp.status+')')}
+    clearTimeout(timer);
+  }catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError')throw new Error('上传文件超时('+timeoutSec+'s)，内容可能过大');
+    throw e;
+  }
 }
 
 // ===== 用户管理 =====
