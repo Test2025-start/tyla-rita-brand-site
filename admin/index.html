@@ -386,14 +386,17 @@ function renderDashboard(){
   const cfg=currentConfig||DEFAULT_CONFIG;
   const c=cfg.contact||{};
   const prog=calcProgress();
-  const siteUrl=deployRepo?deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/):null;
+  var m=deployRepo?deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/):null;
+  var siteLinkHtml='';
+  if(m){siteLinkHtml='<a class=\"site-link\" href=\"https://'+m[1]+'.github.io/'+m[2]+'/\" target=\"_blank\">\u{1f310} \u8bbf\u95ee\u6211\u7684\u7f51\u7ad9 \u2192</a>';}
+  else{siteLinkHtml='<span class=\"site-link\" style=\"opacity:.6\">\u26a0\ufe0f \u8bf7\u5148\u914d\u7f6e\u90e8\u7f72\u4fe1\u606f</span>';}
 
   $('pageContainer').innerHTML=`
     <!-- 欢迎横幅 -->
     <div class="dash-welcome">
       <h2>👋 欢迎，${currentUser?currentUser.username:'Admin'}！</h2>
       <p>这里是你的营销网站管理中心，一站式完成配置与发布。</p>
-      ${siteUrl?('<a class="site-link" href="https://'+siteUrl[1]+'.github.io/'+siteUrl[2]+'/" target="_blank">🌐 访问我的网站 →</a>):'<span class="site-link" style="opacity:.6">⚠️ 请先配置部署信息</span>'}
+      ${siteLinkHtml}
     </div>
 
     <!-- 统计卡片 -->
