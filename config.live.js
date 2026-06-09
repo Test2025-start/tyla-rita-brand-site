@@ -16,7 +16,7 @@ window.SITE_CONFIG = {
       "en": "Crafted with Love",
       "zh": "用心打造"
     },
-    "logo": "https://images.pexels.com/photos/1458867/pexels-photo-1458867.jpeg?w=200&h=200&fit=crop",
+    "logo": "https://i.ibb.co/6c09MKqR/IMG-1138.jpg",
     "primaryColor": "#C9A96E",
     "secondaryColor": "#2D2D2D",
     "bgColor": "#FFFFFF",
@@ -218,7 +218,7 @@ window.SITE_CONFIG = {
     },
     "wechat": {
       "enabled": true,
-      "qrImage": "assets/qrcodes/wechat-qr.png",
+      "qrImage": "https://i.ibb.co/MxrMytRy/IMG-1182.jpg",
       "label": {
         "en": "WeChat",
         "zh": "微信咨询"
@@ -243,7 +243,7 @@ window.SITE_CONFIG = {
         "en": "Hello!",
         "zh": "你好！"
       },
-      "qrImage": "assets/qrcodes/whatsapp-qr.png",
+      "qrImage": "https://i.ibb.co/279wQRLj/IMG-1183.jpg",
       "label": {
         "en": "WhatsApp",
         "zh": "WhatsApp 联系"
@@ -272,7 +272,7 @@ window.SITE_CONFIG = {
     },
     "email": {
       "enabled": true,
-      "address": "hello@example.com",
+      "address": "caiqitai@qq.com",
       "label": {
         "en": "Send Email",
         "zh": "发送邮件"

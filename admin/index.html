@@ -396,16 +396,20 @@ function initNav(){
 }
 
 async function loadConfig(){
-  // 优先从GitHub raw获取（绕过CDN缓存），fallback到相对路径
-  var cfgUrl='../config.js?t='+Date.now();
+  // 优先加载 live 配置文件（兼容 config.js / config.live.js）
+  var cfgUrl='../config.live.js?t='+Date.now();
   var loaded=false;
   try{var r=await fetch(cfgUrl);if(r.ok){var t=await r.text();var m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m){siteConfig=JSON.parse(m[1]);loaded=true}}}catch(e){}
-  // 如果解析失败，尝试直接获取GitHub raw（用于admin页面自身）
+  // fallback 到 config.js
+  if(!loaded){
+    try{var r3=await fetch('../config.js?t='+Date.now());if(r3.ok){var t3=await r3.text();var m3=t3.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m3){siteConfig=JSON.parse(m3[1]);loaded=true}}}catch(e){}
+  }
+  // 再尝试直接从GitHub raw获取实时配置
   if(!loaded){
     try{
       var repoM=location.hostname.match(/^([^\.]+)\.github\.io/);
       if(repoM){
-        var rawUrl='https://raw.githubusercontent.com/'+repoM[1]+'/'+location.pathname.match(/\/([^\/]+)\//)[1]+'/gh-pages/config.js?t='+Date.now();
+        var rawUrl='https://raw.githubusercontent.com/'+repoM[1]+'/'+location.pathname.match(/\/([^\/]+)\//)[1]+'/gh-pages/config.live.js?t='+Date.now();
         var r2=await fetch(rawUrl);
         if(r2.ok){var t2=await r2.text();var m2=t2.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m2){siteConfig=JSON.parse(m2[1]);loaded=true}}
       }
@@ -1013,7 +1017,7 @@ function downloadQR(){
   localStorage.removeItem('qrc_user'); // 清理旧session，强制要求重新登录
   currentUsers=loadLocal('users')||DEFAULT_USERS;
   const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
-  try{const r=await fetch('../config.js?t='+Date.now());if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m)siteConfig=JSON.parse(m[1])}}catch(e){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}
+  try{const r=await fetch('../config.live.js?t='+Date.now());if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m)siteConfig=JSON.parse(m[1])}}catch(e1){try{const r2=await fetch('../config.js?t='+Date.now());if(r2.ok){const t2=await r2.text();const m2=t2.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m2)siteConfig=JSON.parse(m2[1])}}catch(e2){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}}
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
   $('loginUser').focus();
   $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
