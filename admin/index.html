@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="zh" style="-webkit-touch-callout: none;"><head>
+<html lang="zh">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="robots" content="noindex">
@@ -164,25 +165,25 @@ tr:hover td{background:#FAFAFA}
 <div id="toastContainer"></div>
 
 <!-- ===== 登录页 ===== -->
-<div id="loginPage" style="display: none;">
+<div id="loginPage">
   <div class="login-box">
     <h1>⚡ 管理后台</h1>
-    <p class="sub">营销网站配置 &amp; 一键部署</p>
+    <p class="sub">营销网站配置 & 一键部署</p>
     <div class="alert" id="loginAlert"></div>
-    <div class="fg"><label>用户名</label><input type="text" id="loginUser" class="fi" placeholder="输入用户名" autofocus="" autocomplete="username"></div>
+    <div class="fg"><label>用户名</label><input type="text" id="loginUser" class="fi" placeholder="输入用户名" autofocus autocomplete="username"></div>
     <div class="fg"><label>密码</label><input type="password" id="loginPass" class="fi" placeholder="输入密码" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="btn-login" id="loginBtn" onclick="doLogin()" style="opacity: 1;">登 录</button>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">登 录</button>
     <p style="text-align:center;font-size:12px;color:#BBB;margin-top:16px">默认: admin / admin123</p>
   </div>
 </div>
 
 <!-- ===== 主应用 ===== -->
-<div id="app" style="display: flex;">
+<div id="app">
   <!-- 移动端顶栏 -->
   <div class="topbar" id="topbar">
     <button class="tb-menu" onclick="toggleSidebar()" aria-label="菜单">☰</button>
     <span class="tb-logo">⚡ Site Admin</span>
-    <span style="font-size:12px;color:#888" id="tbUser">admin</span>
+    <span style="font-size:12px;color:#888" id="tbUser"></span>
   </div>
 
   <!-- 遮罩 -->
@@ -191,41 +192,25 @@ tr:hover td{background:#FAFAFA}
   <!-- 侧边栏 -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">⚡ Site Admin</div>
-    <div class="sidebar-info"><span id="sUser">admin</span><div class="role" id="sRole">admin</div></div>
+    <div class="sidebar-info"><span id="sUser"></span><div class="role" id="sRole"></div></div>
     <div class="sidebar-nav">
-      <a class="" data-page="dashboard">📊 仪表盘</a>
+      <a class="active" data-page="dashboard">📊 仪表盘</a>
       <div class="sec">内容配置</div>
-      <a data-page="brand" class="">🏷️ 品牌设置</a>
-      <a data-page="products" class="">🛍️ 产品管理</a>
-      <a data-page="pages" class="">📄 页面内容</a>
-      <a data-page="contact" class="">📞 联系方式</a>
+      <a data-page="brand">🏷️ 品牌设置</a>
+      <a data-page="products">🛍️ 产品管理</a>
+      <a data-page="pages">📄 页面内容</a>
+      <a data-page="contact">📞 联系方式</a>
       <div class="sec">发布</div>
-      <a data-page="deploy" class="active">🚀 生成 &amp; 部署</a>
-      <div class="sec" id="adminSec" style="display: block;">管理</div>
-      <a data-page="users" id="navUsers" style="display: block;">👥 用户管理</a>
+      <a data-page="deploy">🚀 生成 & 部署</a>
+      <div class="sec" id="adminSec" style="display:none">管理</div>
+      <a data-page="users" id="navUsers" style="display:none">👥 用户管理</a>
     </div>
     <div class="sidebar-footer"><a onclick="doLogout()">退出登录 →</a></div>
   </nav>
 
   <main class="main">
     <div class="alert" id="mainAlert"></div>
-    <div id="pageContainer">
-    <h1 class="page-title">🚀 生成 &amp; 部署</h1>
-    <form onsubmit="saveDeploy(event)" style="margin:0">
-    <div class="card"><div class="card-title">📦 GitHub Pages 部署设置</div>
-      <div class="fg"><label>仓库 URL</label><input class="fi" id="depo_repo" value="" placeholder="https://github.com/用户名/仓库名.git"></div>
-      <div class="fr"><div class="fg"><label>分支</label><input class="fi" id="depo_branch" value="gh-pages"></div><div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="" placeholder="github_pat_xxxxxxxx"></div></div>
-      <p style="font-size:12px;color:#888;margin-bottom:12px">获取 Token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens (需 Contents 读写权限)</p>
-      <button type="submit" class="btn btn-p btn-sm">💾 保存部署设置</button>
-    </div></form>
-    <div class="card"><div class="card-title">⚡ 一键生成</div>
-      <p style="font-size:13px;color:#888;margin-bottom:12px">所有配置保存后，点击下方按钮。首次部署需要填写上方 GitHub 信息。</p>
-      <div class="depoly-actions">
-        <button class="btn btn-p" onclick="generateSite(false)">📁 仅下载 config.js</button>
-        <button class="btn btn-s" onclick="generateSite(true)">🚀 一键发布到线上</button>
-      </div>
-      <div class="status" id="genStatus"><span style="color:#888">⏳ 正在部署到 GitHub Pages...</span></div>
-    </div></div>
+    <div id="pageContainer"></div>
   </main>
 </div>
 
@@ -710,32 +695,60 @@ function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deploy
 
 // ===== 生成 & 部署 =====
 async function generateSite(deploy){
-  const s=$('genStatus');if(!s)s.innerHTML='<span style="color:#888">⏳ 正在处理...</span>';
+  const s=$('genStatus');
+  if(!s)s.innerHTML='<span style="color:#888">⏳ 正在处理...</span>';
   else{s.innerHTML='<span style="color:#888">⏳ 正在生成 config.js...</span>';}
   saveConfig();
   const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
   if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();if(s)s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br><span style="color:#888">手动替换网站目录中的 config.js 文件即可。</span>';toast('✅ config.js 已下载','success');return}
   if(!deployRepo||!deployToken){if(s)s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';toast('❌ 请先配置部署信息','error');return}
-  if(s)s.innerHTML='<span style="color:#888">⏳ 正在部署到 GitHub Pages...</span>';
   try{
     const repoMatch=deployRepo.match(/github\.com\/([^\/]+?)\/([^\/]+?)(?:\.git)?$/);
     if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
     const owner=repoMatch[1],repo=repoMatch[2];
-    await uploadFile(owner,repo,deployBranch,'config.js',js,'Update site config');
-    const adminHtml='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
-    await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtml,'Update admin page');
+    if(s)s.innerHTML='<span style="color:#888">⏳ [1/2] 正在上传 config.js...</span>';
+    await uploadFile(owner,repo,deployBranch,'config.js',js,'Update site config',30);
+    if(s)s.innerHTML='<span style="color:#888">⏳ [2/2] 正在上传管理页面...</span>';
+    // 只上传精简版admin页(不含用户数据)，不上传完整outerHTML避免base64图片过大
+    const resp=await fetch(location.href);
+    const adminHtmlText=await resp.text();
+    await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtmlText,'Update admin page',60);
     if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="https://${owner}.github.io/${repo}/" target="_blank">访问网站</a><br>🔧 <a href="https://${owner}.github.io/${repo}/admin/" target="_blank">管理后台</a><br><span style="color:#888">⏱ 1-2 分钟后生效</span>`;
     toast('🎉 网站发布成功！1-2分钟后生效','success');
-  }catch(e){if(s)s.innerHTML=`<span class="s-e">❌ 部署失败: ${e.message}</span>`;toast('❌ 部署失败: '+e.message,'error')}
+  }catch(e){
+    var errMsg=e.message||'未知错误';
+    if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='请求超时，请检查网络或稍后重试';}
+    if(errMsg.includes('401')||errMsg.includes('403')){errMsg='Token 无效或权限不足，请检查 Token 是否有 Contents 写入权限';}
+    if(errMsg.includes('413')||errMsg.includes('payload')){errMsg='文件过大，请减少上传的图片大小';}
+    if(s)s.innerHTML=`<span class="s-e">❌ 部署失败: ${errMsg}</span>`;
+    toast('❌ 部署失败: '+errMsg,'error');
+  }
 }
 
-async function uploadFile(owner,repo,branch,path,content,msg){
+async function uploadFile(owner,repo,branch,path,content,msg,timeoutSec){
+  timeoutSec=timeoutSec||30;
+  const controller=new AbortController();
+  var timer=setTimeout(function(){controller.abort();},timeoutSec*1000);
   let sha=null;
-  try{const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,{headers:{Authorization:`Bearer ${deployToken}`,Accept:'application/vnd.github.v3+json'}});if(resp.ok){const d=await resp.json();sha=d.sha}}catch(e){}
+  try{
+    const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,{headers:{Authorization:`Bearer ${deployToken}`,Accept:'application/vnd.github.v3+json'},signal:controller.signal});
+    if(resp.ok){const d=await resp.json();sha=d.sha}
+  }catch(e){
+    if(e.name==='AbortError')throw new Error('获取文件信息超时('+timeoutSec+'s)');
+    // 新文件不存在时忽略错误
+  }
   const encoded=btoa(unescape(encodeURIComponent(content)));
   const body={message:msg,content:encoded,branch:branch};if(sha)body.sha=sha;
-  const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{method:'PUT',headers:{Authorization:`Bearer ${deployToken}`,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},body:JSON.stringify(body)});
-  if(!resp.ok){const d=await resp.json();throw new Error(d.message||'上传失败')}
+  clearTimeout(timer);timer=setTimeout(function(){controller.abort();},timeoutSec*1000);
+  try{
+    const resp=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{method:'PUT',headers:{Authorization:`Bearer ${deployToken}`,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},body:JSON.stringify(body),signal:controller.signal});
+    if(!resp.ok){const d=await resp.json();throw new Error(d.message||'上传失败(HTTP '+resp.status+')')}
+    clearTimeout(timer);
+  }catch(e){
+    clearTimeout(timer);
+    if(e.name==='AbortError')throw new Error('上传文件超时('+timeoutSec+'s)，内容可能过大');
+    throw e;
+  }
 }
 
 // ===== 用户管理 =====
@@ -820,6 +833,5 @@ function downloadQR(){
   $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
 })();
 </script>
-
-
-</body></html>
+</body>
+</html>
