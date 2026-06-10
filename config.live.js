@@ -1,4 +1,4 @@
-/* v20260609201059 */
+/* v20260610181929 */
 window.SITE_CONFIG = {
   "i18n": {
     "defaultLanguage": "en",
@@ -238,7 +238,7 @@ window.SITE_CONFIG = {
     },
     "whatsapp": {
       "enabled": true,
-      "phone": "8613800138000",
+      "phone": "8613560147067",
       "message": {
         "en": "Hello!",
         "zh": "你好！"
