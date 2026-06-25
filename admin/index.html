@@ -816,6 +816,10 @@ function renderProducts(){
     <div class="card"><div class="card-title">产品列表 (${p.length})</div>
       ${p.length?`<table><thead><tr><th>#</th><th>名称</th><th>分类</th><th>价格</th><th>图片</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty">📦 暂无产品，请在下方添加</div>'}
     </div>
+    <div class="card"><div class="card-title">📸 批量上传产品图片</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">批量上传图片后，可在添加产品时选择已上传的图片。</p>
+      ${renderBatchUploadArea('products')}
+    </div>
     <form onsubmit="addProduct(event)" style="margin:0">
     <div class="card"><div class="card-title">＋ 添加产品</div>
       <div class="fr"><div class="fg"><div class="lh">EN</div><label>名称</label><input class="fi" id="new_pname_en" placeholder="English" required></div><div class="fg"><div class="lh">ZH</div><label>中文名</label><input class="fi" id="new_pname_zh" placeholder="中文"></div></div>
