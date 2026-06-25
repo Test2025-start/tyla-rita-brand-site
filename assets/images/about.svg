@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#2d2d44;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0d78c"/>
+      <stop offset="30%" style="stop-color:#e2b04a"/>
+      <stop offset="50%" style="stop-color:#f7e8b0"/>
+      <stop offset="70%" style="stop-color:#d4a017"/>
+      <stop offset="100%" style="stop-color:#c9970a"/>
+    </linearGradient>
+    <radialGradient id="spotlight" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#spotlight)"/>
+  <g transform="translate(400,500)">
+    <rect x="-300" y="-80" width="600" height="80" rx="4" fill="#2a1f14" stroke="url(#goldGrad)" stroke-width="1"/>
+    <rect x="-295" y="-78" width="590" height="76" rx="2" fill="#1a1008" opacity="0.6"/>
+    <line x1="-200" y1="-40" x2="-200" y2="-10" stroke="url(#goldGrad)" stroke-width="2"/>
+    <circle cx="-200" cy="-45" r="6" fill="url(#goldGrad)" filter="url(#glow)"/>
+    <line x1="-100" y1="-50" x2="-100" y2="-10" stroke="url(#goldGrad)" stroke-width="1.5"/>
+    <circle cx="-100" cy="-55" r="4" fill="url(#goldGrad)"/>
+    <path d="M50,-60 C100,-100 180,-100 230,-60" fill="none" stroke="url(#goldGrad)" stroke-width="2.5"/>
+    <circle cx="140" cy="-78" r="12" fill="url(#goldGrad)" opacity="0.3"/>
+    <circle cx="140" cy="-78" r="8" fill="white" opacity="0.4" filter="url(#glow)"/>
+    <circle cx="100" cy="-70" r="5" fill="url(#goldGrad)" opacity="0.2"/>
+    <circle cx="180" cy="-70" r="5" fill="url(#goldGrad)" opacity="0.2"/>
+  </g>
+  <text x="400" y="180" text-anchor="middle" font-family="Georgia,serif" font-size="42" fill="url(#goldGrad)" letter-spacing="12" filter="url(#glow)">CRAFTED</text>
+  <text x="400" y="230" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#d4c5b9" letter-spacing="6">WITH PASSION &amp; PRECISION</text>
+  <line x1="320" y1="260" x2="480" y2="260" stroke="url(#goldGrad)" stroke-width="1" opacity="0.5"/>
+</svg>

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="surface" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#faf8f5;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#ede8e0;stop-opacity:1"/>
+    </linearGradient>
+    <radialGradient id="spotlight" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f0d78c"/>
+      <stop offset="30%" style="stop-color:#e2b04a"/>
+      <stop offset="50%" style="stop-color:#f7e8b0"/>
+      <stop offset="70%" style="stop-color:#d4a017"/>
+      <stop offset="100%" style="stop-color:#c9970a"/>
+    </linearGradient>
+    <linearGradient id="goldGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#c9970a"/>
+      <stop offset="50%" style="stop-color:#f7e8b0"/>
+      <stop offset="100%" style="stop-color:#e2b04a"/>
+    </linearGradient>
+    <radialGradient id="diamondGrad" cx="40%" cy="35%" r="55%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="25%" style="stop-color:#f0f4ff"/>
+      <stop offset="50%" style="stop-color:#d4e4ff"/>
+      <stop offset="75%" style="stop-color:#a0c0e8"/>
+      <stop offset="100%" style="stop-color:#6080a0"/>
+    </radialGradient>
+    <radialGradient id="sapphireGrad" cx="45%" cy="35%" r="50%">
+      <stop offset="0%" style="stop-color:#d4f0ff"/>
+      <stop offset="35%" style="stop-color:#3498db"/>
+      <stop offset="100%" style="stop-color:#0a2463"/>
+    </radialGradient>
+    <radialGradient id="rubyGrad" cx="45%" cy="35%" r="50%">
+      <stop offset="0%" style="stop-color:#ffe0e0"/>
+      <stop offset="35%" style="stop-color:#e74c3c"/>
+      <stop offset="100%" style="stop-color:#7b1113"/>
+    </radialGradient>
+    <radialGradient id="amethystGrad" cx="45%" cy="35%" r="50%">
+      <stop offset="0%" style="stop-color:#e8c8ff"/>
+      <stop offset="35%" style="stop-color:#9b59b6"/>
+      <stop offset="100%" style="stop-color:#4a154b"/>
+    </radialGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.15"/></filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="600" height="600" fill="url(#surface)"/>
+  <rect width="600" height="600" fill="url(#spotlight)"/>
+  <g transform="translate(300,280)" filter="url(#shadow)">
+    <ellipse cx="0" cy="0" rx="110" ry="80" fill="none" stroke="url(#goldGrad)" stroke-width="12" stroke-linecap="round"/>
+    <ellipse cx="0" cy="0" rx="110" ry="80" fill="none" stroke="url(#goldGrad2)" stroke-width="4" opacity="0.5" stroke-linecap="round"/>
+    <ellipse cx="0" cy="0" rx="102" ry="72" fill="none" stroke="#f0d78c" stroke-width="1" opacity="0.4"/>
+    <circle cx="0" cy="-80" r="8" fill="url(#goldGrad)" filter="url(#softGlow)"/>
+    <circle cx="0" cy="80" r="8" fill="url(#goldGrad)" filter="url(#softGlow)"/>
+    <circle cx="110" cy="0" r="8" fill="url(#goldGrad)" filter="url(#softGlow)"/>
+    <circle cx="-110" cy="0" r="8" fill="url(#goldGrad)" filter="url(#softGlow)"/>
+    <circle cx="0" cy="-80" r="5" fill="url(#diamondGrad)"/>
+    <circle cx="0" cy="80" r="5" fill="url(#sapphireGrad)"/>
+    <circle cx="110" cy="0" r="5" fill="url(#rubyGrad)"/>
+    <circle cx="-110" cy="0" r="5" fill="url(#amethystGrad)"/>
+  </g>
+  <text x="300" y="560" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#d4c5b9" letter-spacing="8" opacity="0.6">LUXE JEWELRY</text>
+</svg>
