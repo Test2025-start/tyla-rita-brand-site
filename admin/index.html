@@ -4,10 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="robots" content="noindex">
-<meta name="deploy-ver" content="v20260624220132">
-<meta name="deploy-ver" content="v20260610181929">
-<meta name="deploy-ver" content="v20260609211148">
-<meta name="deploy-ver" content="v20260609201059">
 <title>管理后台 — Site Admin</title>
 <style>
 /* ========== 基础变量 ========== */
@@ -65,6 +61,44 @@ textarea.fi{resize:vertical;min-height:70px}
 .img-preview.show{display:block}
 .img-preview img{max-width:120px;max-height:80px;border-radius:6px;border:1px solid var(--border);object-fit:cover}
 .img-preview .img-rm{display:inline-block;margin-left:8px;font-size:12px;color:var(--danger);cursor:pointer;text-decoration:none}
+
+/* ========== 未发布横幅 ========== */
+.dirty-banner{background:linear-gradient(135deg,#FFF3CD,#FFE69C);color:#856404;padding:12px 20px;border-radius:8px;margin-bottom:16px;font-size:14px;font-weight:500;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #FFE69C;animation:fadeIn .3s}
+.dirty-banner .db-text{flex:1}
+.dirty-banner .db-btn{padding:6px 16px;background:var(--primary);color:#FFF;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.dirty-banner .db-btn:hover{background:var(--primary-dark)}
+
+/* ========== 上传进度 ========== */
+.upload-progress{margin-top:8px;padding:10px;background:#F8F6F3;border-radius:6px;font-size:13px;color:#888}
+.upload-progress .up-bar{height:4px;background:#EEE;border-radius:2px;overflow:hidden;margin-top:6px}
+.upload-progress .up-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-dark));border-radius:2px;transition:width .3s}
+
+/* ========== 批量上传 ========== */
+.batch-upload-area{border:2px dashed var(--border);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:16px;background:#FAFAFA}
+.batch-upload-area:hover,.batch-upload-area.dragover{border-color:var(--primary);background:#FDFBF7}
+.batch-upload-area .bu-icon{font-size:48px;margin-bottom:12px}
+.batch-upload-area .bu-text{font-size:15px;color:var(--text);margin-bottom:4px}
+.batch-upload-area .bu-hint{font-size:12px;color:#999}
+.batch-upload-panel{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}
+.batch-upload-panel .bup-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.batch-upload-panel .bup-header h4{font-size:15px;font-weight:600}
+.batch-upload-item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px}
+.batch-upload-item img{width:48px;height:48px;object-fit:cover;border-radius:4px;background:#f0f0f0}
+.batch-upload-item .bui-info{flex:1;min-width:0}
+.batch-upload-item .bui-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.batch-upload-item .bui-size{font-size:11px;color:#999}
+.batch-upload-item .bui-status{font-size:12px;font-weight:500}
+.batch-upload-item .bui-status.success{color:var(--success)}
+.batch-upload-item .bui-status.error{color:var(--danger)}
+.batch-upload-item .bui-status.uploading{color:var(--primary)}
+.batch-upload-item .bui-bar{height:3px;background:#EEE;border-radius:2px;overflow:hidden;margin-top:4px}
+.batch-upload-item .bui-bar-fill{height:100%;background:var(--primary);border-radius:2px;transition:width .2s}
+.batch-summary{padding:12px;background:#F8F6F3;border-radius:6px;font-size:13px;margin-top:12px}
+.batch-summary .bs-success{color:var(--success);font-weight:600}
+.batch-summary .bs-error{color:var(--danger);font-weight:600}
+.btn-batch{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#FFF;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+.btn-batch:hover{opacity:.9}
+.btn-batch:disabled{opacity:.5;cursor:not-allowed}
 
 /* ========== 桌面布局 ========== */
 #app{display:none;min-height:100vh}
@@ -131,17 +165,6 @@ tr:hover td{background:#FAFAFA}
 .quick-item .qi-text{font-size:13px;font-weight:500}
 .quick-item .qi-sub{font-size:11px;color:var(--text-light)}
 
-/* ========== 产品排序 & 缩略图 ========== */
-.order-cell{display:flex;gap:4px;align-items:center;justify-content:center;white-space:nowrap}
-.order-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px solid var(--border);border-radius:4px;background:white;cursor:pointer;font-size:14px;color:#888;transition:.15s;touch-action:manipulation;padding:0}
-.order-btn:hover{background:var(--primary);color:#FFF;border-color:var(--primary)}
-.order-btn:disabled{opacity:.25;cursor:default;pointer-events:none}
-.order-btn:disabled:hover{background:white;color:#888;border-color:var(--border)}
-.prod-thumb{width:40px;height:40px;border-radius:4px;object-fit:cover;border:1px solid var(--border);background:#F5F5F5}
-.prod-img-cell{text-align:center}
-.config-status{font-size:12px;color:var(--text-light);margin-bottom:12px;padding:8px 12px;background:#FDFBF7;border-radius:6px;border:1px solid #EDE5DA}
-.config-status .ok{color:var(--success)}.config-status .warn{color:#E67E22}
-
 /* ========== 移动端适配 (<768px) ========== */
 @media(max-width:768px){
   .login-box{padding:28px 20px}
@@ -171,8 +194,6 @@ tr:hover td{background:#FAFAFA}
   .quick-grid{grid-template-columns:1fr}
   .img-upload-wrap{flex-direction:column;align-items:stretch}
   .img-up-btn{justify-content:center}
-  .order-btn{width:36px;height:36px;font-size:16px}
-  .prod-thumb{width:32px;height:32px}
 }
 </style>
 </head>
@@ -269,7 +290,7 @@ const DEFAULT_CONFIG={
   products:[{name:{en:"Freshwater Pearl Necklace",zh:"淡水珍珠项链"},category:{en:"Best Sellers",zh:"热销推荐"},price:"$29.00",image:"",description:{en:"Elegant freshwater pearls.",zh:"优雅淡水珍珠"}}],
   about:{image:"",title:{en:"About Us",zh:"关于我们"},paragraphs:[{en:"Our brand was born from a passion for beauty.",zh:"我们的品牌始于对美的追求。"},{en:"Every piece is carefully selected.",zh:"每一件产品都经过精心挑选。"}]},
   contact:{title:{en:"Contact Us",zh:"联系我们"},wechat:{enabled:true,qrImage:"",label:{en:"WeChat",zh:"微信咨询"},hint:{en:"Scan to add on WeChat",zh:"扫描二维码添加微信好友"},modalTitle:{en:"Add on WeChat",zh:"添加微信"},modalHint:{en:"Scan the QR code with WeChat",zh:"请使用微信扫描下方二维码"}},whatsapp:{enabled:true,phone:"8613800138000",message:{en:"Hello!",zh:"你好！"},qrImage:"",label:{en:"WhatsApp",zh:"WhatsApp 联系"},hint:{en:"Chat on WhatsApp",zh:"点击通过 WhatsApp 联系我们"},modalTitle:{en:"WhatsApp",zh:"WhatsApp 联系"},modalHint:{en:"Scan or click",zh:"扫描或点击聊天"}},website:{enabled:false,url:"",label:{en:"Visit Website",zh:"访问官方网站"},openNewTab:true},email:{enabled:false,address:"",label:{en:"Send Email",zh:"发送邮件"}},siteQR:{enabled:false,url:"",label:{en:"Scan to Visit",zh:"扫码访问"},hint:{en:"QR to site",zh:"扫码打开网站"},showOnPage:true,qrImage:""}},
-  seo:{title:{en:"Your Brand | Jewelry",zh:"您的品牌 | 珠宝"},description:{en:"Discover handcrafted jewelry.",zh:"发现手工珠宝。"},keywords:"jewelry, accessories",ogImage:"",favicon:""},
+  seo:{title:{en:"Your Brand | Jewelry",zh:"您的品牌 | 首饰"},description:{en:"Discover handcrafted jewelry.",zh:"发现手工首饰。"},keywords:"jewelry, accessories",ogImage:"",favicon:""},
   advanced:{gaTrackingId:"",showFloatingWhatsApp:true}
 };
 
@@ -279,80 +300,119 @@ const SALT="qrcode-landing-2026";
 // =================== 状态 ===================
 let currentUser=null,currentConfig=null,currentUsers=null;
 let deployRepo="",deployBranch="gh-pages",deployToken="",imgbbKey="";
-let siteConfig=null,_cfgSource='';
+let siteConfig=null,isConfigDirty=false,cachedConfig=null;
 
 // =================== 工具 ===================
 function i18nGet(val,lang){return val&&typeof val==='object'?(val[lang]||val['en']||''):(val||'')}
 function i18nSet(existing,lang,value){if(typeof existing==='object'&&existing!==null){existing[lang]=value;return existing}const o={};o[lang]=value;return o}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function deepMerge(base,override){if(!override||typeof override!=='object')return override;if(!base||typeof base!=='object')return override;if(Array.isArray(override))return override;var result=JSON.parse(JSON.stringify(base));for(var key in override){if(override.hasOwnProperty(key))result[key]=deepMerge(result[key],override[key])}return result}
 
-// =================== 图片上传工具 ===================
+// =================== 图片压缩 & 上传工具 ===================
+var IMG_MAX_WIDTH=1200,IMG_JPEG_QUALITY=0.7,IMG_MAX_SIZE_NO_IMGBB=200*1024;
+
+function compressImage(file,maxWidth,quality){
+  maxWidth=maxWidth||IMG_MAX_WIDTH;quality=quality||IMG_JPEG_QUALITY;
+  return new Promise(function(resolve,reject){
+    var img=new Image();
+    var url=URL.createObjectURL(file);
+    img.onload=function(){
+      URL.revokeObjectURL(url);
+      var w=img.width,h=img.height;
+      if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth;}
+      if(h>maxWidth){w=Math.round(w*maxWidth/h);h=maxWidth;}
+      var canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(function(blob){blob?resolve(blob):reject(new Error('压缩失败'))},file.type==='image/png'?'image/png':'image/jpeg',quality);
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);reject(new Error('图片加载失败'));};
+    img.src=url;
+  });
+}
+
+function formatFileSize(bytes){
+  if(bytes<1024)return bytes+'B';
+  if(bytes<1024*1024)return (bytes/1024).toFixed(1)+'KB';
+  return (bytes/(1024*1024)).toFixed(1)+'MB';
+}
+
 function imgField(id,label,val){
-  const isUrl=val&&(val.startsWith('http')||val.startsWith('data:')||val.startsWith('/')||val.match(/\.(jpg|jpeg|png|gif|webp|svg|bmp|ico)/i));
+  const isUrl=val&&(val.startsWith('http')||val.startsWith('data:'));
   return `<div class="img-upload-wrap"><input class="fi" id="${id}" value="${esc(val||'')}" placeholder="${label}" onchange="onImgChange('${id}')"><label class="img-up-btn">📷 上传<input type="file" accept="image/*" onchange="handleUpload(this,'${id}')"></label></div><div class="img-preview${isUrl?' show':''}" id="${id}_preview">${isUrl?('<img src="'+esc(val)+'" alt="preview"><a class="img-rm" onclick="clearImg(\''+id+'\')">移除</a>'):''}</div>`;
 }
+
 function handleUpload(inp,targetId){
-  const f=inp.files[0];if(!f)return;
+  var f=inp.files[0];if(!f)return;
   var preview=$(targetId+'_preview');
-  // 显示上传中状态
-  preview.innerHTML='<div style="text-align:center;padding:12px;color:var(--primary)"><span>⏳ 正在上传...</span><br><span id="'+targetId+'_prog" style="font-size:11px;color:#888"></span></div>';
+  preview.innerHTML='<div class="upload-progress" id="'+targetId+'_prog"><span>⏳ 准备上传...</span><div class="up-bar"><div class="up-fill" style="width:0%"></div></div></div>';
   preview.classList.add('show');
+
   if(imgbbKey){
-    // 方式1：上传到 ImgBB CDN（推荐，支持高清大图）
-    var form=new FormData();
-    form.append('image',f);
-    var xhr=new XMLHttpRequest();
-    xhr.open('POST','https://api.imgbb.com/1/upload?key='+imgbbKey);
-    xhr.upload.addEventListener('progress',function(e){
-      if(e.lengthComputable){
-        var pct=Math.round(e.loaded/e.total*100);
-        var pg=$(targetId+'_prog');
-        if(pg)pg.textContent='上传中... '+pct+'%';
-      }
-    });
-    xhr.addEventListener('load',function(){
-      if(xhr.status===200){
-        try{
-          var d=JSON.parse(xhr.responseText);
-          if(d&&d.data&&d.data.url){
-            $(targetId).value=d.data.url;
-            preview.innerHTML='<img src="'+esc(d.data.url)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';
-            toast('✅ 图片已上传至图床','success');
-          }else{toast('❌ ImgBB返回数据格式错误','error');preview.innerHTML='';preview.classList.remove('show');}
-        }catch(e){toast('❌ 解析ImgBB响应失败','error');preview.innerHTML='';preview.classList.remove('show');}
-      }else{
-        var errMsg='上传失败';
-        try{var rd=JSON.parse(xhr.responseText);if(rd&&rd.error)errMsg=rd.error.message||rd.error;if(typeof rd==='string'&&rd.includes('error'))errMsg=rd;}catch(e2){}
-        toast('❌ ImgBB上传失败: '+errMsg,'error');
-        preview.innerHTML='';preview.classList.remove('show');
-      }
-    });
-    xhr.addEventListener('error',function(){toast('❌ 网络错误，请检查网络连接','error');preview.innerHTML='';preview.classList.remove('show');});
-    xhr.send(form);
+    // ImgBB CDN 直传（保留原图质量）
+    compressImage(f,99999,0.95).then(function(blob){
+      var form=new FormData();form.append('image',blob||f);
+      var xhr=new XMLHttpRequest();
+      xhr.open('POST','https://api.imgbb.com/1/image?key='+imgbbKey);
+      xhr.upload.addEventListener('progress',function(e){
+        if(e.lengthComputable){
+          var pct=Math.round(e.loaded/e.total*100);
+          var pg=$(targetId+'_prog');
+          if(pg){pg.querySelector('span').textContent='上传中... '+pct+'%';pg.querySelector('.up-fill').style.width=pct+'%';}
+        }
+      });
+      xhr.addEventListener('load',function(){
+        if(xhr.status===200){
+          try{
+            var d=JSON.parse(xhr.responseText);
+            if(d&&d.data&&d.data.url){
+              $(targetId).value=d.data.url;
+              preview.innerHTML='<img src="'+esc(d.data.url)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';
+              toast('✅ 图片已上传至图床','success');markDirty();
+            }else{toast('❌ ImgBB返回数据格式错误','error');preview.innerHTML='';preview.classList.remove('show');}
+          }catch(e){toast('❌ 解析ImgBB响应失败','error');preview.innerHTML='';preview.classList.remove('show');}
+        }else{
+          var errMsg='上传失败';
+          try{var rd=JSON.parse(xhr.responseText);if(rd&&rd.error)errMsg=rd.error.message||rd.error;}catch(e2){}
+          toast('❌ ImgBB上传失败: '+errMsg,'error');
+          preview.innerHTML='';preview.classList.remove('show');
+        }
+      });
+      xhr.addEventListener('error',function(){toast('❌ 网络错误，请检查网络连接','error');preview.innerHTML='';preview.classList.remove('show');});
+      xhr.send(form);
+    }).catch(function(e){toast('❌ '+e.message,'error');preview.innerHTML='';preview.classList.remove('show');});
   }else{
-    // 方式2：无ImgBB Key时，使用本地base64（限制200KB）
-    if(f.size>200*1024){
-      toast('⚠️ 未配置ImgBB Key，大图建议先压缩到200KB以下，或在部署设置中添加ImgBB Key','error',5000);
-    }
-    if(f.size>5*1024*1024){
-      toast('❌ 图片超过5MB且无ImgBB Key，无法上传','error');preview.innerHTML='';preview.classList.remove('show');return;
-    }
-    var r=new FileReader();
-    r.onload=function(){
-      var d=r.result;
-      if(d.length>5*1024*1024){
-        toast('❌ 图片太大！请使用ImgBB Key上传高清图片（单张最大32MB）','error');preview.innerHTML='';preview.classList.remove('show');return;
+    // 无 ImgBB Key → 压缩后 base64 内联
+    var pg=$(targetId+'_prog');
+    if(pg)pg.querySelector('span').textContent='⏳ 正在压缩图片...';
+    compressImage(f,IMG_MAX_WIDTH,IMG_JPEG_QUALITY).then(function(blob){
+      if(blob.size>IMG_MAX_SIZE_NO_IMGBB){
+        toast('⚠️ 压缩后仍有'+formatFileSize(blob.size)+'，建议配置ImgBB Key上传高清图片','info');
       }
-      $(targetId).value=d;
-      preview.innerHTML='<img src="'+esc(d)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';
-      toast('✅ 图片已保存（本地模式，建议配置ImgBB Key）','info');
-    };
-    r.readAsDataURL(f);
+      if(blob.size>5*1024*1024){
+        toast('❌ 图片超过5MB，无法使用本地模式','error');preview.innerHTML='';preview.classList.remove('show');return;
+      }
+      if(pg){pg.querySelector('span').textContent='⏳ 正在保存...';pg.querySelector('.up-fill').style.width='80%';}
+      var r=new FileReader();
+      r.onload=function(){
+        $(targetId).value=r.result;
+        preview.innerHTML='<img src="'+esc(r.result)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';
+        toast('✅ 图片已保存（本地模式，'+formatFileSize(blob.size)+'）','success');markDirty();
+      };
+      r.readAsDataURL(blob);
+    }).catch(function(e){
+      // 压缩失败时回退到原图
+      if(f.size>5*1024*1024){toast('❌ 图片过大且压缩失败','error');preview.innerHTML='';preview.classList.remove('show');return;}
+      var r2=new FileReader();
+      r2.onload=function(){
+        $(targetId).value=r2.result;
+        preview.innerHTML='<img src="'+esc(r2.result)+'" alt="preview"><a class="img-rm" href="javascript:void(0)" onclick="clearImg(\''+targetId+'\')">移除</a>';
+        toast('✅ 图片已保存（未压缩，'+formatFileSize(f.size)+'）','info');markDirty();
+      };
+      r2.readAsDataURL(f);
+    });
   }
 }
+
 function onImgChange(id){
-  // 手动粘贴URL时，实时更新预览
   var val=$(id).value.trim();
   var preview=$(id+'_preview');
   if(val&&(val.startsWith('http')||val.startsWith('data:'))){
@@ -362,7 +422,141 @@ function onImgChange(id){
     preview.innerHTML='';preview.classList.remove('show');
   }
 }
-function clearImg(id){$(id).value='';const p=$(id+'_preview');p.innerHTML='';p.classList.remove('show')}
+function clearImg(id){$(id).value='';const p=$(id+'_preview');p.innerHTML='';p.classList.remove('show');markDirty()}
+
+// =================== 批量上传系统 ===================
+var batchUploadQueue=[];var batchUploadActive=0;var batchUploadMaxConcurrent=5;var batchUploadCancelled=false;
+
+function renderBatchUploadArea(callbackId){
+  return `<div class="batch-upload-area" id="batchArea_${callbackId}" ondragover="event.preventDefault();this.classList.add('dragover')" ondragleave="this.classList.remove('dragover')" ondrop="handleBatchDrop(event,'${callbackId}')" onclick="document.getElementById('batchInput_${callbackId}').click()">
+    <div class="bu-icon">📸</div>
+    <div class="bu-text">点击或拖拽图片到这里批量上传</div>
+    <div class="bu-hint">支持 JPG/PNG/GIF/WebP，最多同时上传 20 张</div>
+    <input type="file" id="batchInput_${callbackId}" accept="image/*" multiple style="display:none" onchange="handleBatchSelect(this,'${callbackId}')">
+  </div><div id="batchPanel_${callbackId}"></div>`;
+}
+
+function handleBatchDrop(e,callbackId){
+  e.preventDefault();e.stopPropagation();
+  var area=$('batchArea_'+callbackId);
+  if(area)area.classList.remove('dragover');
+  var files=Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/'));
+  if(files.length)startBatchUpload(files,callbackId);
+}
+
+function handleBatchSelect(inp,callbackId){
+  var files=Array.from(inp.files).filter(f=>f.type.startsWith('image/'));
+  if(files.length)startBatchUpload(files,callbackId);
+  inp.value='';
+}
+
+function startBatchUpload(files,callbackId){
+  if(files.length>20){toast('❌ 最多同时上传20张图片','error');return;}
+  batchUploadCancelled=false;
+  batchUploadQueue=files.map((f,i)=>({file:f,id:i,status:'pending',progress:0,url:'',error:''}));
+  batchUploadActive=0;
+  renderBatchPanel(callbackId);
+  processBatchQueue(callbackId);
+}
+
+function renderBatchPanel(callbackId){
+  var panel=$('batchPanel_'+callbackId);
+  if(!panel)return;
+  var html='<div class="batch-upload-panel"><div class="bup-header"><h4>📸 批量上传 ('+batchUploadQueue.length+' 张)</h4>';
+  html+='<button class="btn btn-o btn-sm" onclick="cancelBatchUpload()">取消</button></div>';
+  batchUploadQueue.forEach(function(item){
+    var statusClass=item.status==='success'?'success':item.status==='error'?'error':item.status==='uploading'?'uploading':'';
+    var statusText=item.status==='pending'?'等待中':item.status==='uploading'?'上传中 '+item.progress+'%':item.status==='success'?'✅ 成功':item.status==='error'?'❌ '+item.error:'';
+    html+='<div class="batch-upload-item">';
+    if(item.url)html+='<img src="'+esc(item.url)+'" alt="preview">';
+    else html+='<div style="width:48px;height:48px;background:#f0f0f0;border-radius:4px;display:flex;align-items:center;justify-content:center">📷</div>';
+    html+='<div class="bui-info"><div class="bui-name">'+esc(item.file.name)+'</div><div class="bui-size">'+formatFileSize(item.file.size)+'</div>';
+    if(item.status==='uploading')html+='<div class="bui-bar"><div class="bui-bar-fill" style="width:'+item.progress+'%"></div></div>';
+    html+='</div><div class="bui-status '+statusClass+'">'+statusText+'</div>';
+    if(item.status==='error')html+='<button class="btn btn-o btn-sm" onclick="retryBatchItem('+item.id+','+callbackId+')">重试</button>';
+    html+='</div>';
+  });
+  var successCount=batchUploadQueue.filter(i=>i.status==='success').length;
+  var errorCount=batchUploadQueue.filter(i=>i.status==='error').length;
+  var doneCount=successCount+errorCount;
+  if(doneCount===batchUploadQueue.length){
+    html+='<div class="batch-summary">上传完成：<span class="bs-success">成功 '+successCount+' 张</span>';
+    if(errorCount)html+='，<span class="bs-error">失败 '+errorCount+' 张</span>';
+    html+='</div>';
+  }
+  html+='</div>';
+  panel.innerHTML=html;
+}
+
+function processBatchQueue(callbackId){
+  if(batchUploadCancelled)return;
+  while(batchUploadActive<batchUploadMaxConcurrent){
+    var next=batchUploadQueue.find(i=>i.status==='pending');
+    if(!next)break;
+    next.status='uploading';
+    batchUploadActive++;
+    uploadBatchItem(next,callbackId);
+  }
+  renderBatchPanel(callbackId);
+}
+
+function uploadBatchItem(item,callbackId){
+  var file=item.file;
+  var doUpload=function(blob){
+    if(imgbbKey){
+      var form=new FormData();form.append('image',blob||file);
+      var xhr=new XMLHttpRequest();
+      xhr.open('POST','https://api.imgbb.com/1/image?key='+imgbbKey);
+      xhr.upload.addEventListener('progress',function(e){
+        if(e.lengthComputable){item.progress=Math.round(e.loaded/e.total*100);renderBatchPanel(callbackId);}
+      });
+      xhr.addEventListener('load',function(){
+        if(xhr.status===200){
+          try{var d=JSON.parse(xhr.responseText);if(d&&d.data&&d.data.url){item.url=d.data.url;item.status='success';}else{item.status='error';item.error='格式错误';}}catch(e){item.status='error';item.error='解析失败';}
+        }else{item.status='error';item.error='HTTP '+xhr.status;}
+        batchUploadActive--;processBatchQueue(callbackId);
+      });
+      xhr.addEventListener('error',function(){item.status='error';item.error='网络错误';batchUploadActive--;processBatchQueue(callbackId);});
+      xhr.send(form);
+    }else{
+      var r=new FileReader();
+      r.onload=function(){item.url=r.result;item.status='success';batchUploadActive--;processBatchQueue(callbackId);};
+      r.onerror=function(){item.status='error';item.error='读取失败';batchUploadActive--;processBatchQueue(callbackId);};
+      r.readAsDataURL(blob);
+    }
+  };
+  compressImage(file,IMG_MAX_WIDTH,IMG_JPEG_QUALITY).then(doUpload).catch(function(){doUpload(file);});
+}
+
+function retryBatchItem(id,callbackId){
+  var item=batchUploadQueue.find(i=>i.id===id);
+  if(item){item.status='pending';item.progress=0;item.error='';processBatchQueue(callbackId);}
+}
+
+function cancelBatchUpload(){
+  batchUploadCancelled=true;
+  batchUploadQueue.forEach(function(i){if(i.status==='pending')i.status='cancelled';});
+}
+
+function getBatchUploadedUrls(){
+  return batchUploadQueue.filter(i=>i.status==='success'&&i.url).map(i=>i.url);
+}
+
+// =================== 配置脏标记 & 横幅 ===================
+function markDirty(){isConfigDirty=true;updateDirtyBanner()}
+function clearDirty(){isConfigDirty=false;updateDirtyBanner()}
+function updateDirtyBanner(){
+  var banner=$('dirtyBanner');
+  if(!banner)return;
+  if(isConfigDirty&&currentUser){
+    banner.style.display='flex';
+  }else{
+    banner.style.display='none';
+  }
+}
+function renderDirtyBanner(){
+  return isConfigDirty?'<div id="dirtyBanner" class="dirty-banner"><span class="db-text">⚠️ 配置未发布到线上，修改后请点击"一键发布"同步</span><button class="db-btn" onclick="showPage(\'deploy\');qsa(\'.sidebar-nav a.active\')[0]?.classList.remove(\'active\');document.querySelector(\'[data-page=deploy]\').classList.add(\'active\')">去发布</button></div>':'';
+}
 
 // =================== 存储 ===================
 function saveLocal(k,v){try{localStorage.setItem('qrc_'+k,JSON.stringify(v))}catch(e){}}
@@ -385,7 +579,7 @@ async function doLogin(){
       $('sUser').textContent=u;$('sRole').textContent=users[u].role;
       $('tbUser').textContent=u;
       if(users[u].role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
-      await loadConfig();initNav();showPage('dashboard');renderDeployLog();
+      loadConfig();initNav();showPage('dashboard');renderDeployLog();
     }else{
       showAlert('loginAlert','用户名或密码错误','e');
       $('loginPass').value='';$('loginPass').focus();
@@ -413,27 +607,14 @@ function initNav(){
 }
 
 async function loadConfig(){
-  // 优先加载 live 配置文件（兼容 config.js / config.live.js）
-  var cfgUrl='../config.live.js?t='+Date.now();
+  // 检查缓存
+  if(cachedConfig){siteConfig=cachedConfig;currentConfig=JSON.parse(JSON.stringify(cachedConfig));return;}
+  // 仅使用相对路径，移除 GitHub raw fallback
+  var cfgUrl='../config.js?t='+Date.now();
   var loaded=false;
   try{var r=await fetch(cfgUrl);if(r.ok){var t=await r.text();var m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m){siteConfig=JSON.parse(m[1]);loaded=true}}}catch(e){}
-  // fallback 到 config.js
-  if(!loaded){
-    try{var r3=await fetch('../config.js?t='+Date.now());if(r3.ok){var t3=await r3.text();var m3=t3.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m3){siteConfig=JSON.parse(m3[1]);loaded=true}}}catch(e){}
-  }
-  // 再尝试直接从GitHub raw获取实时配置
-  if(!loaded){
-    try{
-      var repoM=location.hostname.match(/^([^\.]+)\.github\.io/);
-      if(repoM){
-        var rawUrl='https://raw.githubusercontent.com/'+repoM[1]+'/'+location.pathname.match(/\/([^\/]+)\//)[1]+'/gh-pages/config.live.js?t='+Date.now();
-        var r2=await fetch(rawUrl);
-        if(r2.ok){var t2=await r2.text();var m2=t2.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m2){siteConfig=JSON.parse(m2[1]);loaded=true}}
-      }
-    }catch(e2){}
-  }
   if(!loaded)siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
-  _cfgSource=loaded?'live':'default';
+  cachedConfig=JSON.parse(JSON.stringify(siteConfig));
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
   const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
   currentUsers=loadLocal('users')||DEFAULT_USERS;
@@ -467,9 +648,9 @@ function calcProgress(){
 
 // =================== 页面渲染 ===================
 function showPage(name){
-  $('pageContainer').innerHTML='';$('mainAlert').className='alert';
+  $('pageContainer').innerHTML=renderDirtyBanner();$('mainAlert').className='alert';
   switch(name){
-    case 'dashboard':renderDashboard();renderDeployLog();break;
+    case 'dashboard':renderDashboard();setTimeout(renderDeployLog,100);break;
     case 'brand':renderBrand();break;
     case 'products':renderProducts();break;
     case 'pages':renderPages();break;
@@ -504,7 +685,6 @@ function renderDashboard(){
       <div class="stat-card"><div class="num">${prog.pct}%</div><div class="lbl">配置完成度</div></div>
       <div class="stat-card"><div class="num" style="font-size:18px">${c.whatsapp?.enabled&&c.wechat?.enabled?'已就绪':'待完善'}</div><div class="lbl">联系方式状态</div></div>
     </div>
-    <div class="config-status">${_cfgSource==='live'?'<span class="ok">✅ 已同步线上配置</span> — 所有字段已从网站回显':'<span class="warn">⚠️ 使用默认配置</span> — 未能加载线上配置，请检查网络后刷新页面'}</div>
 
     <!-- 配置进度 -->
     <div class="card">
@@ -621,19 +801,7 @@ function renderProducts(){
   const cfg=currentConfig,p=cfg.products||[],cats=cfg.productCategories||[];
   let rows='';
   p.forEach((pr,i)=>{
-    var imgCell=pr.image?`<img class="prod-thumb" src="${esc(pr.image)}" alt="" onerror="this.alt='⚠';this.style.display='block';this.style.width='40px';this.style.height='40px';this.style.background='#FDECEA'">`:'<span style="color:#CCC;font-size:20px">—</span>';
-    rows+=`<tr>
-      <td class="order-cell">
-        <button class="order-btn" onclick="moveProduct(${i},'up')" ${i===0?'disabled':''} title="上移">↑</button>
-        <span style="font-size:12px;color:#999;min-width:18px;text-align:center">${i+1}</span>
-        <button class="order-btn" onclick="moveProduct(${i},'down')" ${i===p.length-1?'disabled':''} title="下移">↓</button>
-      </td>
-      <td><strong>${esc(i18nGet(pr.name,'zh'))}</strong><br><span style="font-size:11px;color:#888">${esc(i18nGet(pr.name,'en'))}</span></td>
-      <td>${esc(i18nGet(pr.category,'zh'))}</td>
-      <td>${esc(pr.price||'-')}</td>
-      <td class="prod-img-cell">${imgCell}</td>
-      <td><button class="btn btn-d btn-sm" onclick="deleteProduct(${i})">删除</button></td>
-    </tr>`;
+    rows+=`<tr><td>${i+1}</td><td>${esc(i18nGet(pr.name,'zh'))}</td><td>${esc(i18nGet(pr.category,'zh'))}</td><td>${esc(pr.price||'-')}</td><td style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${esc(pr.image?'已上传':'-')}</td><td><button class="btn btn-d btn-sm" onclick="deleteProduct(${i})">删除</button></td></tr>`;
   });
   $('pageContainer').innerHTML=`
     <h1 class="page-title">🛍️ 产品管理</h1>
@@ -645,8 +813,8 @@ function renderProducts(){
       <button type="submit" class="btn btn-p btn-sm">💾 保存设置</button>
     </div>
     </form>
-    <div class="card"><div class="card-title">产品列表 (${p.length}) <span style="font-size:11px;color:#888;font-weight:400">— 点击 ↑↓ 调整顺序</span></div>
-      ${p.length?`<table><thead><tr><th style="width:100px">排序</th><th>名称</th><th>分类</th><th>价格</th><th>图片</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty">📦 暂无产品，请在下方添加</div>'}
+    <div class="card"><div class="card-title">产品列表 (${p.length})</div>
+      ${p.length?`<table><thead><tr><th>#</th><th>名称</th><th>分类</th><th>价格</th><th>图片</th><th>操作</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="empty">📦 暂无产品，请在下方添加</div>'}
     </div>
     <form onsubmit="addProduct(event)" style="margin:0">
     <div class="card"><div class="card-title">＋ 添加产品</div>
@@ -678,7 +846,6 @@ function addProduct(e){e.preventDefault();
 }
 
 function deleteProduct(i){if(confirm('确认删除该产品？')){currentConfig.products.splice(i,1);saveConfig();renderProducts();toast('产品已删除','info')}}
-function moveProduct(i,dir){var p=currentConfig.products||[];if(dir==='up'&&i>0){var tmp=p[i];p[i]=p[i-1];p[i-1]=tmp;saveConfig();renderProducts();toast('✅ 产品顺序已调整','success')}else if(dir==='down'&&i<p.length-1){var tmp=p[i];p[i]=p[i+1];p[i+1]=tmp;saveConfig();renderProducts();toast('✅ 产品顺序已调整','success')}}
 
 // ===== 页面内容 =====
 function renderPages(){
@@ -815,6 +982,20 @@ function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deploy
 
 // ===== 生成 & 部署 =====
 async function generateSite(deploy){
+  if(deploy){
+    // 发布前确认对话框（含变更文件列表）
+    const brand=i18nGet(currentConfig?.brand?.name)||'未配置';
+    const products=(currentConfig?.products||[]).length;
+    var changedFiles='';
+    try{
+      const cf=await API('/api/changed-files');
+      if(cf.ok&&cf.changed_files.length){
+        changedFiles='\n\n将更新的文件:\n'+cf.changed_files.join('\n');
+      }
+    }catch(e){}
+    const msg=`即将发布到线上\n\n品牌: ${brand}\n产品数: ${products} 个${changedFiles}\n\n确认发布吗？`;
+    if(!confirm(msg)){return;}
+  }
   const s=$('genStatus');
   if(!s)s.innerHTML='<span style="color:#888">⏳ 正在处理...</span>';
   else{s.innerHTML='<span style="color:#888">⏳ 正在生成 config.js...</span>';}
@@ -823,7 +1004,7 @@ async function generateSite(deploy){
     var now=new Date();
     var ver='v'+now.getFullYear()+(now.getMonth()+1).toString().padStart(2,'0')+now.getDate().toString().padStart(2,'0')+now.getHours().toString().padStart(2,'0')+now.getMinutes().toString().padStart(2,'0')+now.getSeconds().toString().padStart(2,'0');
     var cfgFile='config.live.js?v='+Date.now();
-    var js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
+    const js=`window.SITE_CONFIG = ${JSON.stringify(currentConfig,null,2)};`;
     if(!deploy){const blob=new Blob([js],{type:'application/javascript'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='config.js';a.click();if(s)s.innerHTML='<span class="s-s">✅ config.js 已下载！</span><br><span style="color:#888">手动替换网站目录中的 config.js 文件即可。</span>';toast('✅ config.js 已下载','success');return}
     if(!deployRepo||!deployToken){if(s)s.innerHTML='<span class="s-e">❌ 请先配置 GitHub 仓库和 Token</span>';toast('❌ 请先配置部署信息','error');return}
     try{
@@ -831,26 +1012,9 @@ async function generateSite(deploy){
       if(!repoMatch){if(s)s.innerHTML='<span class="s-e">❌ 仓库 URL 格式错误</span>';toast('❌ 仓库URL格式错误','error');return}
       const owner=repoMatch[1],repo=repoMatch[2];
       const siteUrl='https://'+owner+'.github.io/'+repo+'/';
-      // 增量合并：先获取远程已有配置，再深度合并本地修改（避免全量覆盖）
-      if(s)s.innerHTML='<span style="color:#888">⏳ [0/4] 正在合并远程已有配置...</span>';
-      try{
-        var rawUrl='https://raw.githubusercontent.com/'+owner+'/'+repo+'/'+deployBranch+'/config.live.js?t='+Date.now();
-        var rawResp=await fetch(rawUrl);
-        if(rawResp.ok){
-          var rawText=await rawResp.text();
-          var rawMatch=rawText.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);
-          if(rawMatch){
-            var remoteConfig=JSON.parse(rawMatch[1]);
-            currentConfig=deepMerge(remoteConfig,currentConfig);
-            saveConfig();
-            js='window.SITE_CONFIG = '+JSON.stringify(currentConfig,null,2)+';';
-            jsWithVer='/* '+ver+' */\n'+js;
-          }
-        }
-      }catch(e){/* 获取失败则使用本地配置，不影响部署 */}
       var cfgSize=(js.length/1024).toFixed(0);
       if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件 ('+cfgSize+'KB)...</span>';
-      if(!jsWithVer)jsWithVer='/* '+ver+' */\n'+js;
+      const jsWithVer=`/* ${ver} */\n`+js;
       if(s)s.innerHTML='<span style="color:#888">⏳ [1/4] 正在上传配置文件...（文件较大请耐心等待，最多2分钟）</span>';
       await uploadFile(owner,repo,deployBranch,cfgFile,jsWithVer,'Update site config ['+ver+']',120);
       if(s)s.innerHTML='<span style="color:#888">⏳ [2/4] 正在上传网站主页...</span>';
@@ -873,6 +1037,7 @@ async function generateSite(deploy){
       var forceUrl=siteUrl+'?t='+Date.now();
       if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="${forceUrl}" target="_blank">🔄 立即访问网站</a><br>🔧 <a href="${forceUrl}admin/" target="_blank">管理后台</a><br><span style="color:#888">⚡ 使用新配置文件 <code>${cfgFile}</code>，完全绕过CDN缓存</span>`;
       toast('🎉 网站发布成功！','success');
+      clearDirty();
   }catch(e){
     var errMsg=e.message||'未知错误';
     if(errMsg.includes('timeout')||errMsg.includes('aborted')){errMsg='上传超时！文件太大，建议减少图片数量或尺寸后重试。单个base64图片建议不超过200KB。';}
@@ -963,7 +1128,7 @@ async function updateUserPass(e){e.preventDefault();
 }
 function deleteUser(name){if(!confirm('确认删除用户 '+name+'？'))return;delete currentUsers[name];saveLocal('users',currentUsers);renderUsers();toast(name+' 已删除','info')}
 
-function saveConfig(){localStorage.setItem('qrc_config',JSON.stringify(currentConfig));}
+function saveConfig(){localStorage.setItem('qrc_config',JSON.stringify(currentConfig));markDirty()}
 
 // ===== 部署日志 =====
 const MAX_LOG=50; // 最多保留50条
@@ -1066,8 +1231,7 @@ function downloadQR(){
   localStorage.removeItem('qrc_user'); // 清理旧session，强制要求重新登录
   currentUsers=loadLocal('users')||DEFAULT_USERS;
   const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
-  try{const r=await fetch('../config.live.js?t='+Date.now());if(r.ok){const t=await r.text();const m=t.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m)siteConfig=JSON.parse(m[1])}}catch(e1){try{const r2=await fetch('../config.js?t='+Date.now());if(r2.ok){const t2=await r2.text();const m2=t2.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(m2)siteConfig=JSON.parse(m2[1])}}catch(e2){siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG))}}
-  currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
+  // 启动时不加载 config.js，登录后按需加载
   $('loginUser').focus();
   $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
 })();
