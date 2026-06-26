@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <meta name="robots" content="noindex">
-<meta name="deploy-ver" content="v20260626141020">
-<meta name="deploy-ver" content="v20260626101623">
 <title>管理后台 — Site Admin</title>
 <style>
 /* ========== 基础变量 ========== */
@@ -232,7 +230,11 @@ tr:hover td{background:#FAFAFA}
   <!-- 侧边栏 -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">⚡ Site Admin</div>
-    <div class="sidebar-info"><span id="sUser"></span><div class="role" id="sRole"></div></div>
+    <div class="sidebar-info">
+      <span id="sUser"></span>
+      <div class="role" id="sRole"></div>
+      <div id="envBadge" style="margin-top:6px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;display:inline-block"></div>
+    </div>
     <div class="sidebar-nav">
       <a class="active" data-page="dashboard">📊 仪表盘</a>
       <div class="sec">内容配置</div>
@@ -244,6 +246,9 @@ tr:hover td{background:#FAFAFA}
       <a data-page="deploy">🚀 生成 & 部署</a>
       <div class="sec" id="adminSec" style="display:none">管理</div>
       <a data-page="users" id="navUsers" style="display:none">👥 用户管理</a>
+      <div class="sec">环境</div>
+      <a id="envSwitchLink" onclick="switchEnv()"></a>
+      <a id="envSiteLink" href="#" target="_blank" style="font-size:12px;color:#666"></a>
     </div>
     <div class="sidebar-footer"><a onclick="doLogout()">退出登录 →</a></div>
   </nav>
@@ -303,6 +308,34 @@ const SALT="qrcode-landing-2026";
 let currentUser=null,currentConfig=null,currentUsers=null;
 let deployRepo="",deployBranch="gh-pages",deployToken="",imgbbKey="";
 let siteConfig=null,isConfigDirty=false,cachedConfig=null;
+
+// =================== 环境识别 ===================
+var currentEnv='production'; // 默认生产环境
+var envConfig={
+  staging:{
+    name:'灰度',
+    icon:'🟢',
+    siteUrl:'https://test2025-start.github.io/dev-tyla-rita-brand-site/',
+    adminUrl:'https://test2025-start.github.io/dev-tyla-rita-brand-site/admin/',
+    repo:'dev-tyla-rita-brand-site'
+  },
+  production:{
+    name:'生产',
+    icon:'🔵',
+    siteUrl:'https://test2025-start.github.io/tyla-rita-brand-site/',
+    adminUrl:'https://test2025-start.github.io/tyla-rita-brand-site/admin/',
+    repo:'tyla-rita-brand-site'
+  }
+};
+// 通过 URL 自动识别环境
+(function(){
+  var host=location.hostname+location.pathname;
+  if(host.indexOf('dev-tyla-rita-brand-site')!==-1){
+    currentEnv='staging';
+  }else{
+    currentEnv='production';
+  }
+})();
 
 // =================== 工具 ===================
 function i18nGet(val,lang){return val&&typeof val==='object'?(val[lang]||val['en']||''):(val||'')}
@@ -636,6 +669,38 @@ function batchCreateProducts(){
   }
 }
 
+// =================== 环境切换 ===================
+function initEnvUI(){
+  var env=envConfig[currentEnv];
+  var otherEnv=currentEnv==='staging'?'production':'staging';
+  var other=envConfig[otherEnv];
+  // 环境标识
+  var badge=$('envBadge');
+  if(badge){
+    badge.textContent=env.icon+' '+env.name+'环境';
+    badge.style.background=currentEnv==='staging'?'#E8F8F5':'#EBF5FB';
+    badge.style.color=currentEnv==='staging'?'#1E8449':'#2980B9';
+  }
+  // 切换链接
+  var switchLink=$('envSwitchLink');
+  if(switchLink){
+    switchLink.textContent='🔗 切换到'+other.name+'环境';
+    switchLink.href=other.adminUrl;
+  }
+  // 网站链接
+  var siteLink=$('envSiteLink');
+  if(siteLink){
+    siteLink.textContent='🌐 访问'+env.name+'网站';
+    siteLink.href=env.siteUrl;
+  }
+}
+
+function switchEnv(){
+  var otherEnv=currentEnv==='staging'?'production':'staging';
+  var other=envConfig[otherEnv];
+  window.location.href=other.adminUrl;
+}
+
 // =================== 配置脏标记 & 横幅 ===================
 function markDirty(){isConfigDirty=true;updateDirtyBanner()}
 function clearDirty(){isConfigDirty=false;updateDirtyBanner()}
@@ -673,7 +738,7 @@ async function doLogin(){
       $('sUser').textContent=u;$('sRole').textContent=users[u].role;
       $('tbUser').textContent=u;
       if(users[u].role==='admin'){$('adminSec').style.display='block';$('navUsers').style.display='block'}
-      loadConfig();initNav();showPage('dashboard');renderDeployLog();
+      initEnvUI();loadConfig();initNav();showPage('dashboard');renderDeployLog();
     }else{
       showAlert('loginAlert','用户名或密码错误','e');
       $('loginPass').value='';$('loginPass').focus();
@@ -1081,17 +1146,10 @@ function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deploy
 // ===== 生成 & 部署 =====
 async function generateSite(deploy){
   if(deploy){
-    // 发布前确认对话框（含变更文件列表）
+    // 发布前确认对话框
     const brand=i18nGet(currentConfig?.brand?.name)||'未配置';
     const products=(currentConfig?.products||[]).length;
-    var changedFiles='';
-    try{
-      const cf=await API('/api/changed-files');
-      if(cf.ok&&cf.changed_files.length){
-        changedFiles='\n\n将更新的文件:\n'+cf.changed_files.join('\n');
-      }
-    }catch(e){}
-    const msg=`即将发布到线上\n\n品牌: ${brand}\n产品数: ${products} 个${changedFiles}\n\n确认发布吗？`;
+    const msg=`即将发布到线上\n\n品牌: ${brand}\n产品数: ${products} 个\n\n确认发布吗？`;
     if(!confirm(msg)){return;}
   }
   const s=$('genStatus');
