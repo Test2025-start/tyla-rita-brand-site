@@ -1079,17 +1079,10 @@ function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deploy
 // ===== 生成 & 部署 =====
 async function generateSite(deploy){
   if(deploy){
-    // 发布前确认对话框（含变更文件列表）
+    // 发布前确认对话框
     const brand=i18nGet(currentConfig?.brand?.name)||'未配置';
     const products=(currentConfig?.products||[]).length;
-    var changedFiles='';
-    try{
-      const cf=await API('/api/changed-files');
-      if(cf.ok&&cf.changed_files.length){
-        changedFiles='\n\n将更新的文件:\n'+cf.changed_files.join('\n');
-      }
-    }catch(e){}
-    const msg=`即将发布到线上\n\n品牌: ${brand}\n产品数: ${products} 个${changedFiles}\n\n确认发布吗？`;
+    const msg=`即将发布到线上\n\n品牌: ${brand}\n产品数: ${products} 个\n\n确认发布吗？`;
     if(!confirm(msg)){return;}
   }
   const s=$('genStatus');
