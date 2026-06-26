@@ -452,6 +452,13 @@ function handleBatchSelect(inp,callbackId){
 
 function startBatchUpload(files,callbackId){
   if(files.length>20){toast('❌ 最多同时上传20张图片','error');return;}
+  // 显示当前上传模式
+  if(imgbbKey&&imgbbKey.trim()){
+    console.log('批量上传模式: ImgBB CDN (Key: '+imgbbKey.trim().substring(0,8)+'...)');
+  }else{
+    console.log('批量上传模式: base64 本地模式（无 ImgBB Key）');
+    toast('ℹ️ 使用本地模式上传（建议配置 ImgBB Key 上传高清图片）','info');
+  }
   batchUploadCancelled=false;
   batchUploadQueue=files.map((f,i)=>({file:f,id:i,status:'pending',progress:0,url:'',error:''}));
   batchUploadActive=0;
