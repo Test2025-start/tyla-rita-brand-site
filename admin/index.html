@@ -483,6 +483,9 @@ function renderBatchPanel(callbackId){
     html+='<div class="batch-summary">上传完成：<span class="bs-success">成功 '+successCount+' 张</span>';
     if(errorCount)html+='，<span class="bs-error">失败 '+errorCount+' 张</span>';
     html+='</div>';
+    if(successCount>0){
+      html+='<div style="margin-top:12px"><button class="btn btn-p" onclick="showBatchProductCreator()">🛍️ 从已上传图片批量创建产品</button></div>';
+    }
   }
   html+='</div>';
   panel.innerHTML=html;
@@ -503,10 +506,12 @@ function processBatchQueue(callbackId){
 function uploadBatchItem(item,callbackId){
   var file=item.file;
   var doUpload=function(blob){
-    if(imgbbKey){
-      var form=new FormData();form.append('image',blob||file);
+    var useBlob=blob||file;
+    // 有 ImgBB Key 时直传 CDN
+    if(imgbbKey&&imgbbKey.trim()){
+      var form=new FormData();form.append('image',useBlob);
       var xhr=new XMLHttpRequest();
-      xhr.open('POST','https://api.imgbb.com/1/image?key='+imgbbKey);
+      xhr.open('POST','https://api.imgbb.com/1/image?key='+imgbbKey.trim());
       xhr.upload.addEventListener('progress',function(e){
         if(e.lengthComputable){item.progress=Math.round(e.loaded/e.total*100);renderBatchPanel(callbackId);}
       });
@@ -514,15 +519,19 @@ function uploadBatchItem(item,callbackId){
         if(xhr.status===200){
           try{var d=JSON.parse(xhr.responseText);if(d&&d.data&&d.data.url){item.url=d.data.url;item.status='success';}else{item.status='error';item.error='格式错误';}}catch(e){item.status='error';item.error='解析失败';}
         }else{item.status='error';item.error='HTTP '+xhr.status;}
-        batchUploadActive--;processBatchQueue(callbackId);
+        batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);
       });
-      xhr.addEventListener('error',function(){item.status='error';item.error='网络错误';batchUploadActive--;processBatchQueue(callbackId);});
+      xhr.addEventListener('error',function(){item.status='error';item.error='网络错误';batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);});
       xhr.send(form);
     }else{
+      // 无 ImgBB Key → 压缩后 base64 内联
       var r=new FileReader();
-      r.onload=function(){item.url=r.result;item.status='success';batchUploadActive--;processBatchQueue(callbackId);};
-      r.onerror=function(){item.status='error';item.error='读取失败';batchUploadActive--;processBatchQueue(callbackId);};
-      r.readAsDataURL(blob);
+      r.onload=function(){
+        item.url=r.result;item.status='success';item.isBase64=true;
+        batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);
+      };
+      r.onerror=function(){item.status='error';item.error='读取失败';batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);};
+      r.readAsDataURL(useBlob);
     }
   };
   compressImage(file,IMG_MAX_WIDTH,IMG_JPEG_QUALITY).then(doUpload).catch(function(){doUpload(file);});
@@ -540,6 +549,75 @@ function cancelBatchUpload(){
 
 function getBatchUploadedUrls(){
   return batchUploadQueue.filter(i=>i.status==='success'&&i.url).map(i=>i.url);
+}
+
+// =================== 批量创建产品 ===================
+function showBatchProductCreator(){
+  var urls=getBatchUploadedUrls();
+  if(!urls.length){toast('❌ 没有已上传的图片','error');return;}
+  var cfg=currentConfig||{};
+  var cats=(cfg.productCategories||[]).map(c=>i18nGet(c,'zh')||i18nGet(c,'en'));
+  var catOptions=cats.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('');
+
+  var html='<div class="card" id="batchProductCreator"><div class="card-title">🛍️ 批量创建产品 ('+urls.length+' 张图片)</div>';
+  html+='<p style="font-size:13px;color:#888;margin-bottom:16px">为每张图片填写产品信息，然后点击"批量添加"。</p>';
+
+  urls.forEach(function(url,i){
+    html+='<div style="display:flex;gap:12px;padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px;align-items:start">';
+    html+='<img src="'+esc(url)+'" style="width:80px;height:80px;object-fit:cover;border-radius:6px;background:#f0f0f0">';
+    html+='<div style="flex:1">';
+    html+='<div class="fr"><div class="fg"><div class="lh">EN</div><input class="fi bpc-name-en" placeholder="Product name (EN)" required></div><div class="fg"><div class="lh">ZH</div><input class="fi bpc-name-zh" placeholder="产品名称（中文）"></div></div>';
+    html+='<div class="fr"><div class="fg"><select class="fi bpc-cat" style="margin-top:4px">'+catOptions+'</select></div><div class="fg"><input class="fi bpc-price" placeholder="价格 如 $29.00" style="margin-top:4px"></div></div>';
+    html+='<input type="hidden" class="bpc-image" value="'+esc(url)+'">';
+    html+='</div></div>';
+  });
+
+  html+='<div style="margin-top:16px;display:flex;gap:12px">';
+  html+='<button class="btn btn-p" onclick="batchCreateProducts()">✅ 批量添加到产品列表</button>';
+  html+='<button class="btn btn-o" onclick="document.getElementById(\'batchProductCreator\').remove()">取消</button>';
+  html+='</div></div>';
+
+  var existing=$('batchProductCreator');
+  if(existing)existing.remove();
+  var container=document.createElement('div');
+  container.innerHTML=html;
+  $('pageContainer').appendChild(container);
+  container.scrollIntoView({behavior:'smooth'});
+}
+
+function batchCreateProducts(){
+  var creator=$('batchProductCreator');
+  if(!creator)return;
+  var items=creator.querySelectorAll('[style*="border:1px solid"]');
+  var count=0;
+  items.forEach(function(item){
+    var nameEn=item.querySelector('.bpc-name-en').value.trim();
+    var nameZh=item.querySelector('.bpc-name-zh').value.trim();
+    var cat=item.querySelector('.bpc-cat').value;
+    var price=item.querySelector('.bpc-price').value.trim();
+    var image=item.querySelector('.bpc-image').value;
+    if(!nameEn&&!nameZh)return; // 跳过没有名称的
+    var p={
+      name:{},
+      category:{},
+      price:price,
+      image:image,
+      description:{}
+    };
+    if(nameEn)p.name.en=nameEn;
+    if(nameZh)p.name.zh=nameZh;
+    if(cat){p.category.en=cat;p.category.zh=cat;}
+    (currentConfig.products=currentConfig.products||[]).push(p);
+    count++;
+  });
+  if(count>0){
+    saveConfig();
+    renderProducts();
+    toast('✅ 成功添加 '+count+' 个产品','success');
+    creator.remove();
+  }else{
+    toast('❌ 请至少填写一个产品的名称','error');
+  }
 }
 
 // =================== 配置脏标记 & 横幅 ===================
