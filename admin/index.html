@@ -518,8 +518,15 @@ function uploadBatchItem(item,callbackId){
       xhr.addEventListener('load',function(){
         if(xhr.status===200){
           try{var d=JSON.parse(xhr.responseText);if(d&&d.data&&d.data.url){item.url=d.data.url;item.status='success';}else{item.status='error';item.error='格式错误';}}catch(e){item.status='error';item.error='解析失败';}
-        }else{item.status='error';item.error='HTTP '+xhr.status;}
-        batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);
+          batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);
+        }else if(xhr.status===400||xhr.status===403){
+          // ImgBB Key 无效，自动降级到 base64
+          console.warn('ImgBB 上传失败(HTTP '+xhr.status+')，自动降级到 base64 模式');
+          var r=new FileReader();
+          r.onload=function(){item.url=r.result;item.status='success';item.isBase64=true;batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);};
+          r.onerror=function(){item.status='error';item.error='降级也失败了';batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);};
+          r.readAsDataURL(useBlob);
+        }else{item.status='error';item.error='HTTP '+xhr.status;batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);}
       });
       xhr.addEventListener('error',function(){item.status='error';item.error='网络错误';batchUploadActive--;renderBatchPanel(callbackId);processBatchQueue(callbackId);});
       xhr.send(form);
