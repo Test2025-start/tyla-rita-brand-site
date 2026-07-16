@@ -317,14 +317,18 @@ var envConfig={
     icon:'🟢',
     siteUrl:'https://test2025-start.github.io/dev-tyla-rita-brand-site/',
     adminUrl:'https://test2025-start.github.io/dev-tyla-rita-brand-site/admin/',
-    repo:'dev-tyla-rita-brand-site'
+    repo:'dev-tyla-rita-brand-site',
+    repoUrl:'https://github.com/Test2025-start/dev-tyla-rita-brand-site.git',
+    branch:'main'
   },
   production:{
     name:'生产',
     icon:'🔵',
     siteUrl:'https://test2025-start.github.io/tyla-rita-brand-site/',
     adminUrl:'https://test2025-start.github.io/tyla-rita-brand-site/admin/',
-    repo:'tyla-rita-brand-site'
+    repo:'tyla-rita-brand-site',
+    repoUrl:'https://github.com/Test2025-start/tyla-rita-brand-site.git',
+    branch:'gh-pages'
   }
 };
 // 通过 URL 自动识别环境
@@ -775,7 +779,11 @@ async function loadConfig(){
   if(!loaded)siteConfig=JSON.parse(JSON.stringify(DEFAULT_CONFIG));
   cachedConfig=JSON.parse(JSON.stringify(siteConfig));
   currentConfig=JSON.parse(JSON.stringify(siteConfig||DEFAULT_CONFIG));
-  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
+  // 部署目标（仓库/分支）由 envConfig 锁定（URL 识别环境），操作者无法通过 localStorage 改向
+  const envLocked=envConfig[currentEnv]||{};
+  deployRepo=envLocked.repoUrl||'';
+  deployBranch=envLocked.branch||'gh-pages';
+  const du=loadLocal('deploy');if(du){deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
   currentUsers=loadLocal('users')||DEFAULT_USERS;
 }
 
@@ -1120,22 +1128,28 @@ function saveContact(e){e.preventDefault();
 
 // ===== 部署 =====
 function renderDeploy(){
+  var env=envConfig[currentEnv];
+  var isStaging=currentEnv==='staging';
   $('pageContainer').innerHTML=`
     <h1 class="page-title">🚀 生成 & 部署</h1>
+    <div class="card" style="background:${isStaging?'#E8F8F5':'#EBF5FB'};border-color:${isStaging?'#27AE60':'#3498DB'}">
+      <div style="font-size:15px;font-weight:600">${env.icon} 当前环境：${env.name}环境</div>
+      <div style="font-size:13px;color:#888;margin-top:4px">网站：${env.siteUrl}</div>
+    </div>
     <form onsubmit="saveDeploy(event)" style="margin:0">
     <div class="card"><div class="card-title">📦 GitHub Pages 部署设置</div>
-      <div class="fg"><label>仓库 URL</label><input class="fi" id="depo_repo" value="${esc(deployRepo)}" placeholder="https://github.com/用户名/仓库名.git"></div>
-      <div class="fr"><div class="fg"><label>分支</label><input class="fi" id="depo_branch" value="${esc(deployBranch)}"></div><div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="${esc(deployToken)}" placeholder="github_pat_xxxxxxxx"></div></div>
+      <div class="fg"><label>仓库 URL（已由环境锁定）</label><input class="fi" id="depo_repo" value="${esc(deployRepo)}" readonly style="background:#f5f5f5;color:#888"></div>
+      <div class="fr"><div class="fg"><label>分支（已由环境锁定）</label><input class="fi" id="depo_branch" value="${esc(deployBranch)}" readonly style="background:#f5f5f5;color:#888"></div><div class="fg"><label>GitHub Token</label><input type="password" class="fi" id="depo_token" value="${esc(deployToken)}" placeholder="github_pat_xxxxxxxx"></div></div>
       <p style="font-size:12px;color:#888;margin-bottom:12px">获取 Token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens (需 Contents 读写权限)</p>
       <div class="fg"><label>🖼️ ImgBB API Key（可选，上传高清图片用）</label><input type="password" class="fi" id="depo_imgbb" value="${esc(imgbbKey||'')}" placeholder="点击查看如何获取免费Key">
       <p style="font-size:12px;color:#888;margin-top:4px"><a href="javascript:void(0)" onclick="alert('ImgBB免费图床申请方法：\n1. 打开 https://api.imgbb.com/\n2. 点击 \"Sign in\" 或 \"Registration\"\n3. 注册/登录后访问 https://api.imgbb.com/1/image?key=\n4. 或直接访问 https://imgbb.com/upload\n5. 登录后在 https://api.imgbb.com/ 获取您的API Key\n\n免费额度：10GB存储空间，单张最大32MB，支持JPG/PNG/GIF/WebP等格式。\n\n如果没有ImgBB Key，系统会改用本地base64存储（适合小图片）')">📖 如何获取免费 ImgBB Key？</a></p></div>
       <button type="submit" class="btn btn-p btn-sm">💾 保存部署设置</button>
     </div></form>
-    <div class="card"><div class="card-title">⚡ 一键生成</div>
-      <p style="font-size:13px;color:#888;margin-bottom:12px">所有配置保存后，点击下方按钮。首次部署需要填写上方 GitHub 信息。</p>
+    <div class="card"><div class="card-title">⚡ 部署操作</div>
+      <p style="font-size:13px;color:#888;margin-bottom:12px">所有配置保存后，点击下方按钮。</p>
       <div class="depoly-actions">
         <button class="btn btn-p" onclick="generateSite(false)">📁 仅下载 config.js</button>
-        <button class="btn btn-s" onclick="generateSite(true)">🚀 一键发布到线上</button>
+        <button class="btn btn-s" onclick="generateSite(true)">🚀 部署到${env.name}环境</button>
       </div>
       <div class="status" id="genStatus"></div>
     </div>`;
@@ -1143,13 +1157,124 @@ function renderDeploy(){
 
 function saveDeploy(e){e.preventDefault();deployRepo=$('depo_repo').value;deployBranch=$('depo_branch').value||'gh-pages';deployToken=$('depo_token').value;imgbbKey=$('depo_imgbb').value.trim();saveLocal('deploy',{repo:deployRepo,branch:deployBranch,token:deployToken,imgbbKey:imgbbKey});toast('✅ 部署设置已保存','success');}
 
+// ===== 配置合并（多人协作防覆盖，对标 shared/config_merge.py）=====
+function _isImageField(key,value){
+  if(typeof value!=='string')return false;
+  if({image:1,logo:1,qrImage:1,ogImage:1,favicon:1,qr:1}[key])return true;
+  return key.endsWith('Image')||key.endsWith('image');
+}
+function _mergeI18n(local,remote){
+  if(local&&typeof local==='object'&&remote&&typeof remote==='object'){
+    var r=JSON.parse(JSON.stringify(remote));
+    for(var k in local)if(local[k])r[k]=local[k];
+    return r;
+  }
+  if(local&&typeof local==='object')return local;
+  if(remote&&typeof remote==='object')return remote;
+  return (local!==null&&local!=='')?local:remote;
+}
+function _mergeImage(local,remote){if(!local)return remote;if(!remote)return local;return local;}
+function _itemName(item){
+  if(item&&typeof item==='object'){var n=item.name;if(!n)return '';if(typeof n==='object')return n.zh||n.en||String(n);return String(n);}
+  return String(item);
+}
+function _mergeArray(local,remote){
+  if(!Array.isArray(local))return Array.isArray(remote)?JSON.parse(JSON.stringify(remote)):[];
+  if(!Array.isArray(remote))return JSON.parse(JSON.stringify(local));
+  var result=JSON.parse(JSON.stringify(remote));
+  var rnames={};remote.forEach(function(it,i){var n=_itemName(it);if(n)rnames[n]=i;});
+  local.forEach(function(it){
+    var n=_itemName(it);
+    if(n&&n in rnames)result[rnames[n]]=_mergeDicts(it,result[rnames[n]]);
+    else result.push(JSON.parse(JSON.stringify(it)));
+  });
+  return result;
+}
+function _mergeDicts(local,remote){
+  if(!local||typeof local!=='object')return(remote&&typeof remote==='object')?remote:local;
+  if(!remote||typeof remote!=='object')return local;
+  var result=JSON.parse(JSON.stringify(remote));
+  for(var key in local){if(!local.hasOwnProperty(key))continue;
+    var lv=local[key],rv=remote[key];
+    if(key==='_meta'){result[key]=lv;continue;}
+    if(_isImageField(key,lv)||_isImageField(key,rv)){result[key]=_mergeImage(lv,rv);continue;}
+    if(lv&&typeof lv==='object'&&rv&&typeof rv==='object'){
+      if(('en' in lv)||('zh' in lv)||('en' in rv)||('zh' in rv)){result[key]=_mergeI18n(lv,rv);continue;}
+    }
+    if(Array.isArray(lv)&&Array.isArray(rv)){result[key]=_mergeArray(lv,rv);continue;}
+    if(lv&&typeof lv==='object'&&rv&&typeof rv==='object'){result[key]=_mergeDicts(lv,rv);continue;}
+    if(lv!==null&&lv!=='')result[key]=lv;
+  }
+  return result;
+}
+function mergeConfigs(localConfig,remoteConfig){
+  if(!remoteConfig)return JSON.parse(JSON.stringify(localConfig));
+  if(!localConfig)return JSON.parse(JSON.stringify(remoteConfig));
+  return _mergeDicts(localConfig,remoteConfig);
+}
+function mergeSummary(localConfig,remoteConfig){
+  if(!remoteConfig)return '（无远程配置，首次部署）';
+  var parts=[];
+  var lp=(localConfig&&localConfig.products)||[],rp=(remoteConfig&&remoteConfig.products)||[];
+  var ln={},rn={};
+  lp.forEach(function(p){var n=_itemName(p);if(n)ln[n]=1;});
+  rp.forEach(function(p){var n=_itemName(p);if(n)rn[n]=1;});
+  var ro=rp.filter(function(p){var n=_itemName(p);return n&&!ln[n];}).length;
+  var lo=lp.filter(function(p){var n=_itemName(p);return n&&!rn[n];}).length;
+  if(ro)parts.push('远程他人新增产品 '+ro+' 个（将保留）');
+  if(lo)parts.push('你新增产品 '+lo+' 个（将加入）');
+  var lb=localConfig&&localConfig.brand&&localConfig.brand.name,rb=remoteConfig&&remoteConfig.brand&&remoteConfig.brand.name;
+  if(JSON.stringify(lb)!==JSON.stringify(rb))parts.push('品牌名你已改');
+  return parts.length?('合并: '+parts.join('，')):'无差异（远程未变，直接发布）';
+}
+
 // ===== 生成 & 部署 =====
 async function generateSite(deploy){
   if(deploy){
-    // 发布前确认对话框
+    // 部署目标已由 envConfig 锁定（URL 识别环境）
+    const envLocked=envConfig[currentEnv]||{};
+    deployRepo=envLocked.repoUrl||deployRepo;
+    deployBranch=envLocked.branch||deployBranch;
+    const targetSite=envLocked.siteUrl||'';
+    const isProd=currentEnv==='production';
+    // 4.4 部署前合并：拉远程 config.live.js，本地改动叠在远程之上（防多人覆盖）
+    var diffMsg='（首次部署或无法获取远程）';
+    var remoteConfig=null;
+    if(targetSite){
+      try{
+        var rr=await fetch(targetSite+'config.live.js?t='+Date.now(),{cache:'no-store'});
+        if(rr.ok){var rt=await rr.text();var rm=rt.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(rm){remoteConfig=JSON.parse(rm[1]);}}
+      }catch(e){}
+    }
+    if(remoteConfig){
+      // 找出远程有、本地没有的产品（可能是有意删除，也可能是本地过期）
+      var lp=(currentConfig&&currentConfig.products)||[],rp=remoteConfig.products||[];
+      var ln={};lp.forEach(function(p){var n=_itemName(p);if(n)ln[n]=1;});
+      var remoteOnly=rp.filter(function(p){var n=_itemName(p);return n&&!ln[n];});
+      var deleteMode=false;
+      if(remoteOnly.length>0){
+        var rnames=remoteOnly.map(function(p){return _itemName(p);}).join(', ');
+        if(confirm('线上有 '+remoteOnly.length+' 个产品你本地没有（可能是别人部署的，也可能是你删除的）：\n  '+rnames+'\n\n点「确定」= 从线上删除这些产品\n点「取消」= 保留它们（默认，防误删）')){
+          deleteMode=true;
+        }
+      }
+      var mergedConfig=mergeConfigs(currentConfig,remoteConfig);
+      if(deleteMode){
+        // 删除模式：产品用本地清单（删除生效），其他字段仍合并
+        mergedConfig.products=JSON.parse(JSON.stringify(currentConfig.products||[]));
+      }
+      diffMsg=mergeSummary(currentConfig,remoteConfig)+(deleteMode?' | ⚠️ 将删除远程独有产品 '+remoteOnly.length+' 个':'');
+      if(JSON.stringify(mergedConfig)!==JSON.stringify(currentConfig)){
+        currentConfig=mergedConfig; // 部署合并后的配置；下方 saveConfig() 会持久化到 localStorage
+      }
+    }else{
+      diffMsg='（无法获取远程，按本地配置部署）';
+    }
+    // 4.5 PROD 显式确认门
     const brand=i18nGet(currentConfig?.brand?.name)||'未配置';
     const products=(currentConfig?.products||[]).length;
-    const msg=`即将发布到线上\n\n品牌: ${brand}\n产品数: ${products} 个\n\n确认发布吗？`;
+    const envLabel=isProd?'⚠️ 生产环境（PROD）':'灰度环境';
+    const msg=`即将发布到${envLabel}\n\n目标仓库: ${deployRepo}\n分支: ${deployBranch}\n线上: ${targetSite}\n品牌: ${brand}\n产品数: ${products} 个\n配置 diff: ${diffMsg}\n\n${isProd?'⚠️ 这是生产环境部署，确认发布吗？':'确认发布吗？'}`;
     if(!confirm(msg)){return;}
   }
   const s=$('genStatus');
@@ -1187,11 +1312,24 @@ async function generateSite(deploy){
       let adminHtmlText=await resp.text();
       adminHtmlText=adminHtmlText.replace('<meta name="robots" content="noindex">','<meta name="robots" content="noindex">\n<meta name="deploy-ver" content="'+ver+'">');
       await uploadFile(owner,repo,deployBranch,'admin/index.html',adminHtmlText,'Update admin page ['+ver+']',60);
+      // 4.6 部署后校验：回拉远程 config.live.js 比对
+      var verifyMsg='';
+      if(siteUrl){
+        try{await new Promise(r=>setTimeout(r,2000));
+          var vr=await fetch(siteUrl+'config.live.js?t='+Date.now(),{cache:'no-store'});
+          if(vr.ok){var vt=await vr.text();var vm=vt.match(/SITE_CONFIG\s*=\s*([\s\S]*?);/);if(vm){
+            var vc=JSON.parse(vm[1]);
+            if(JSON.stringify(vc.brand&&vc.brand.name)!==JSON.stringify(currentConfig&&currentConfig.brand&&currentConfig.brand.name)){
+              verifyMsg='⚠️ 线上品牌字段暂不符（可能 CDN 缓存，几分钟后刷新）';
+            }
+          }}
+        }catch(e){verifyMsg='⚠️ 线上校验拉取失败（可能 CDN 延迟）'}
+      }
       var newHash=getConfigHash(currentConfig);
       var logEntry={user:currentUser?currentUser.username:deployRepo.match(/github\.com\/([^\/]+?)\//)[1],prevConfigHash:prevHash,configHash:newHash,siteUrl:siteUrl,status:'success',version:ver};
       addLog(logEntry);
       var forceUrl=siteUrl+'?t='+Date.now();
-      if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="${forceUrl}" target="_blank">🔄 立即访问网站</a><br>🔧 <a href="${forceUrl}admin/" target="_blank">管理后台</a><br><span style="color:#888">⚡ 使用新配置文件 <code>${cfgFile}</code>，完全绕过CDN缓存</span>`;
+      if(s)s.innerHTML=`<span class="s-s">✅ 发布成功！</span><br>🌐 <a href="${forceUrl}" target="_blank">🔄 立即访问网站</a><br>🔧 <a href="${forceUrl}admin/" target="_blank">管理后台</a><br><span style="color:#888">⚡ 使用新配置文件 <code>${cfgFile}</code>，完全绕过CDN缓存</span>${verifyMsg?'<br><span style="color:#E67E22">'+verifyMsg+'</span>':''}`;
       toast('🎉 网站发布成功！','success');
       clearDirty();
   }catch(e){
@@ -1386,7 +1524,8 @@ function downloadQR(){
 (async function(){
   localStorage.removeItem('qrc_user'); // 清理旧session，强制要求重新登录
   currentUsers=loadLocal('users')||DEFAULT_USERS;
-  const du=loadLocal('deploy');if(du){deployRepo=du.repo||'';deployBranch=du.branch||'gh-pages';deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
+  const envLocked0=envConfig[currentEnv]||{};deployRepo=envLocked0.repoUrl||'';deployBranch=envLocked0.branch||'gh-pages';
+  const du=loadLocal('deploy');if(du){deployToken=du.token||'';imgbbKey=du.imgbbKey||''}
   // 启动时不加载 config.js，登录后按需加载
   $('loginUser').focus();
   $('loginPass').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin()});
